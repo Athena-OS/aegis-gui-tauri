@@ -4,6 +4,7 @@
     export let switchView: (viewName: string) => void;
 </script>
   
-<h1>Environment</h1>
+<h2>Environment</h2>
+
 <button on:click={() => switchView("initial")}>Go back</button>
-  
+

@@ -1,7 +1,7 @@
 <script lang="ts">
   import ProgressStepper from './lib/ProgressStepper.svelte';
   import InitialView from './lib/Welcome.svelte';
-  import GreetingView from './lib/Desktop.svelte';
+  import DesktopView from './lib/Desktop.svelte';
 
   let view = "initial";
   const totalSteps = 3; // adjust based on your total steps
@@ -23,5 +23,5 @@
 {#if view === "initial"}
   <InitialView {switchView} />
 {:else if view === "desktop"}
-  <GreetingView {switchView} />
+  <DesktopView {switchView} />
 {/if}
