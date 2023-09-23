@@ -1,0 +1,18 @@
+// Colors
+:root {
+    color: $onBackground;
+    background-color: $background;
+}
+
+a:hover {
+    border-color: mix($primary, $onPrimary, 10%);
+}
+
+button {
+    background-color: $primary;
+    color: $onPrimary;
+}
+
+button:hover {
+    border-color: mix($primary, $onPrimary, 10%);
+}
