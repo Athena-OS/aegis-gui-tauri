@@ -1,4 +1,4 @@
-import './main.scss'
+import './scss/main.scss'
 import App from './App.svelte'
 
 const targetElement = document.getElementById('app');
