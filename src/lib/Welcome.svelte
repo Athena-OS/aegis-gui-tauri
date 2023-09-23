@@ -5,7 +5,7 @@
 
 <img src={athenaLogo} alt="athena-logo">
 <h1>Welcome to Athena-OS</h1>
-<button on:click={() => switchView("greeting")}>Click here to start installation.</button>
+<button on:click={() => switchView("desktop")}>Click here to start installation.</button>
 
 <style lang="scss">
     img {
