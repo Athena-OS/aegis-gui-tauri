@@ -21,7 +21,7 @@
   } // add more conditions as you have more steps
 </script>
 
-<ProgressStepper steps={totalSteps} {currentStep} />
+
 
 {#if view === "initial"}
   <InitialView {switchView} />
