@@ -6,5 +6,8 @@
   
 <h2>Environment</h2>
 
-<button on:click={() => switchView("initial")}>Go back</button>
+<div class="container">
+    <button on:click={() => switchView("keyboard")}>Back</button>
+    <button on:click={() => switchView("initial")}>Next</button>
+</div>
 
