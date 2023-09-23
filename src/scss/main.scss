@@ -53,7 +53,7 @@ h1 {
 button {
   @include elevation2;
   @include md3_decel;
-  @include material_common_button;
+  @include material_common_button_tonal;
   font-size: 1rem;
   font-weight: 500;
   font-family: inherit;
@@ -63,6 +63,21 @@ button {
 button:focus,
 button:hover,
 button:focus-visible {
-  background-color: mix($primary, $hoverTintColor, 88%);
-  color: mix($onPrimary, $hoverTintColor, 88%);
+  @include material_common_button_tonal_hover;
+}
+
+button-filled {
+  @include elevation2;
+  @include md3_decel;
+  @include material_common_button_filled;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button-filled:focus,
+button-filled:hover,
+button-filled:focus-visible {
+  @include material_common_button_filled_hover;
 }

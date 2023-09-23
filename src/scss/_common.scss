@@ -20,10 +20,28 @@
     transition: 200ms cubic-bezier(0.1, 1, 0, 1);
 }
 
-@mixin material_common_button {
+@mixin material_common_button_filled {
     padding: 0.8rem 1.3rem;
     border-radius: 9999px;
     border: 0px;
     background-color: $primary;
     color: $onPrimary;
+}
+
+@mixin material_common_button_filled_hover {
+    background-color: mix($primary, $hoverTintColor, 88%);
+    color: mix($onPrimary, $hoverTintColor, 88%);
+}
+
+@mixin material_common_button_tonal {
+    padding: 0.8rem 1.3rem;
+    border-radius: 9999px;
+    border: 0px;
+    background-color: $secondaryContainer;
+    color: $onSecondaryContainer;
+}
+
+@mixin material_common_button_tonal_hover {
+    background-color: mix($secondaryContainer, $hoverTintColor, 80%);
+    color: mix($onSecondaryContainer, $hoverTintColor, 80%);
 }
