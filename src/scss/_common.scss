@@ -20,7 +20,10 @@
     transition: 200ms cubic-bezier(0.1, 1, 0, 1);
 }
 
-@mixin material_button {
+@mixin material_common_button {
+    padding: 0.8rem 1.3rem;
+    border-radius: 9999px;
+    border: 0px;
     background-color: $primary;
     color: $onPrimary;
 }

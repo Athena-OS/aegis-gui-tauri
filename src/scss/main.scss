@@ -53,15 +53,11 @@ h1 {
 button {
   @include elevation2;
   @include md3_decel;
-  @include material_button;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6rem 1.2rem;
+  @include material_common_button;
   font-size: 1rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.25s;
 }
 
 button:focus,
