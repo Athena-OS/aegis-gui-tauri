@@ -4,7 +4,7 @@
     export let switchView: (viewName: string) => void;
 </script>
 
-<div class="flex flex-col items-center">
+<div class="flex flex-col items-center gap-10 mt-28">
     <h1 class="text-5xl font-medium text-white">Welcome to AthenaOS</h1>
     <div class="circle-surround">
         <img src={athenaLogo} alt="athena-logo" class="w-32" />
@@ -15,8 +15,8 @@
     </button>
 </div>
 
-<div class="flex flex-row items-center absolute bottom-0 left-0 bg-white w-full">
-    <img src={infoIndicator} alt="info indicator">
+<div class="flex flex-row gap-2 items-center absolute bottom-0 left-0 bg-black w-full p-1 font-medium text-sm">
+    <img src={infoIndicator} alt="info indicator" class="w-3">
     <p>We'll guide you through a few steps to install AthenaOS on your system.</p>
 </div>
 
