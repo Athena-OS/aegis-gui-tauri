@@ -1,6 +1,6 @@
 <script lang="ts">
     import athenaLogo from "../../assets/athena-logo.svg";
-    import infoIndicator from "../../assets/info-indicator-blue.svg";
+    import infoIndicator from "../../assets/icons/info-indicator-blue.svg";
     export let switchView: (viewName: string) => void;
 </script>
 
