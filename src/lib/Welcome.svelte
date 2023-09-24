@@ -1,14 +1,13 @@
 <script lang="ts">
     import athenaLogo from "../assets/athena-logo.svg";
     import infoIndicator from "../assets/info-indicator-blue.svg";
-
     export let switchView: (viewName: string) => void;
 </script>
 
-<div class="col-container">
-    <h1>Welcome to AthenaOS</h1>
+<div class="flex flex-col items-center">
+    <h1 class="text-5xl font-medium text-white">Welcome to AthenaOS</h1>
     <div class="circle-surround">
-        <img src={athenaLogo} alt="athena-logo" />
+        <img src={athenaLogo} alt="athena-logo" class="w-32" />
     </div>
     
     <button on:click={() => switchView("keyboard")}>
@@ -16,11 +15,12 @@
     </button>
 </div>
 
-<div class="info-footer">
+<div class="flex flex-row items-center absolute bottom-0 left-0 bg-white w-full">
     <img src={infoIndicator} alt="info indicator">
     <p>We'll guide you through a few steps to install AthenaOS on your system.</p>
 </div>
 
+<!-- 
 <style lang="scss">
     .col-container {
         margin-top: 3.5rem;
@@ -74,3 +74,4 @@
         }
     }
 </style>
+-->

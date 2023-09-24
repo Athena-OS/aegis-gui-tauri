@@ -1,6 +1,6 @@
 <script lang="ts">
     import keyboard from "../assets/keyboard.svg";
-
+    import Footer from "./ProgressStepper.svelte";
     export let switchView: (viewName: string) => void;
 </script>
 
@@ -19,9 +19,25 @@
                 <li>Finnish</li>
             </ul>
         </div>
+        <div class="layout-model">
+            <div class="keyboard-model">
+
+            </div>
+            <div class="keyboard-layout">
+
+            </div>
+        </div>
     </div>
     
 </div>
+<Footer steps={5} currentStep={3}>
+    <span slot="description">This is step 3 out of 5</span>
+    <div slot="controls">
+        <button>Back</button>
+        <button>Continue</button>
+    </div>
+</Footer>
+
 
 <style lang="scss">
     .col-container {
