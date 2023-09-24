@@ -1,8 +1,8 @@
 <script lang="ts">
   import ProgressStepper from "./lib/ProgressStepper.svelte";
-  import InitialView from "./lib/Welcome.svelte";
-  import DesktopView from "./lib/Desktop.svelte";
-  import KeyboardView from "./lib/Keyboard.svelte";
+  import InitialView from "./lib/steps/Welcome.svelte";
+  import DesktopView from "./lib/steps/Desktop.svelte";
+  import KeyboardView from "./lib/steps/Keyboard.svelte";
 
   let view = "initial";
   const totalSteps = 3; // adjust based on your total steps

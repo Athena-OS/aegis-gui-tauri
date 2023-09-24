@@ -67,10 +67,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
-        "resizable": true,
+        "height": 800,
+        "resizable": false,
         "title": "aegis-gui",
-        "width": 800
+        "width": 1400
       }
     ]
   }

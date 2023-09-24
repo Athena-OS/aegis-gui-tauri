@@ -12,9 +12,42 @@
     -webkit-text-size-adjust: 100%;
     color-scheme: dark;
   }
+
+  body {
+    @apply overflow-hidden;
+  }
+
+  h1 {
+    @apply text-5xl;
+    @apply font-medium;
+  }
+  
+  h2 {
+    @apply text-3xl text-gray-300 font-semibold;
+  }
+
+
+  .primary-btn {
+    @apply p-3 px-5 rounded-full border-0 bg-secondary-container text-on-secondary-container cursor-pointer transition transform shadow-elevation2 font-medium;
+  }
+
+  .primary-btn:focus, .primary-btn:hover, .primary-btn:focus-visible {
+    @apply bg-opacity-80 text-opacity-80;  // This assumes the color changes on hover/focus are done by adjusting opacity
+  }
+
+  // If you have the 'button-filled' class
+  .button-filled {
+    @apply p-3 px-5 rounded-full border-0 bg-primary text-on-primary cursor-pointer transition transform shadow-elevation2;
+  }
+
+  .button-filled:focus, .button-filled:hover, .button-filled:focus-visible {
+    @apply bg-opacity-88 text-opacity-88;  // This assumes the color changes on hover/focus are done by adjusting opacity
+  }
 }
 
 /*
+
+
 @import './colors';
 @import './common';
 
@@ -41,22 +74,8 @@ a:hover {
   color: mix($linkColor, $hoverTintColor, 90%);
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  overflow: hidden;
-}
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
 
-h2 {
-  font-size: 2.2em;
-  color: $font-primary;
-}
 
 .col-container {
   display: flex;
@@ -73,37 +92,6 @@ h2 {
   text-align: center;
 }
 
-button {
-  @include elevation2;
-  @include md3_decel;
-  @include material_common_button_tonal;
-  font-size: 1rem;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-button:focus,
-button:hover,
-button:focus-visible {
-  @include material_common_button_tonal_hover;
-}
-
-button-filled {
-  @include elevation2;
-  @include md3_decel;
-  @include material_common_button_filled;
-  font-size: 1rem;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-button-filled:focus,
-button-filled:hover,
-button-filled:focus-visible {
-  @include material_common_button_filled_hover;
-}
 
 .titlebar {
   height: 30px;

@@ -11,6 +11,9 @@ dependencies:
   svelte-headlessui:
     specifier: ^0.0.26
     version: 0.0.26(svelte@4.2.1)
+  svelte-transition:
+    specifier: ^0.0.10
+    version: 0.0.10(svelte@4.2.1)
 
 devDependencies:
   '@sveltejs/vite-plugin-svelte':
