@@ -37,7 +37,7 @@
                 </span>
             </button>
             
-            <Transition show={$listbox.expanded} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+            <Transition show={$listbox.expanded}>
                 <ul
                     use:listbox.items
                     class="absolute mt-2 w-full overflow-auto rounded-2xl max-h-[15em] bg-[#1A1A1A] py-2 px-2 text-[0.9em] border-2 border-[#2F2F2F] z-10"

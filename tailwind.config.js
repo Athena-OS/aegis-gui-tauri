@@ -22,7 +22,7 @@ export default {
         8: "6px"
       },
       colors: {
-        primary: "#000000",
+        primary: "#111111",
       },
     }
   },

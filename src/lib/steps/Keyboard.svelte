@@ -2,6 +2,7 @@
     import ListBox from '../ListBox.svelte';
     import DialogComponent from '../InfoDialog.svelte';
     import Footer from "../ProgressStepper.svelte";
+    import InputBox from '../InputBox.svelte';
 
     import globeIcon from "../../assets/icons/globe-icon.svg";
     import keyboardIcon from "../../assets/icons/keyboard-icon.svg";
@@ -29,13 +30,14 @@
 </script>
 
 <DialogComponent stepNumber="1" title="Select Keyboard" modalHeader="Header Here" modalText="Your text here" />
-<div class="flex flex-col items-center gap-10 mt-10">
-    <img src={keyboard} alt="athena-logo" class="w-[30em]"/>
+<div class="flex flex-col items-center gap-10 mt-28">
+   <!-- <img src={keyboard} alt="athena-logo" class="w-[30em]"/> removed because too big with it -->
 
     <div class="flex flex-col items-center gap-4">
-        <ListBox bind:items={languageList} icon={globeIcon} label="Select Region" on:select={handleSelect} defaultItem={{ name: 'Select Region' }}/>
+        <!-- <ListBox bind:items={languageList} icon={globeIcon} label="Select Region" on:select={handleSelect} defaultItem={{ name: 'Select Region' }}/> -->
         <ListBox bind:items={languageList} icon={langIcon} label="Select Language" on:select={handleSelect} defaultItem={{ name: 'Select Language' }}/>
-        <ListBox bind:items={languageList} icon={langIcon} label="Select Language" on:select={handleSelect} defaultItem={{ name: 'Select Language' }}/>
+        <ListBox bind:items={languageList} icon={keyboardIcon} label="Select Layout" on:select={handleSelect} defaultItem={{ name: 'Select Layout' }}/>
+        <InputBox label="Test Keyboard" placeholderText="Type here.." />
     </div>
 </div>
 <Footer steps={5} currentStep={3}>
