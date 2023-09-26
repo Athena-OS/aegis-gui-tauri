@@ -28,6 +28,8 @@
         selectedOptions = new Set([...selectedOptions]);
     }
 
+    export let switchView: (viewName: string) => void;
+
 </script>
 
 
