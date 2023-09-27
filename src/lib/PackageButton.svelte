@@ -12,19 +12,14 @@
     let isHovered: boolean = false;
     let isFocused: boolean = false;
 
-    function toggleOption(index: number) {
-        options[index].selected = !options[index].selected;
-        options = [...options];
-    }
-
     $: allSelected = options.every(option => option.selected);
 </script>
 
 <button 
     class="flex flex-row items-center gap-2 w-full rounded-full px-2 py-2 text-left text-sm font-medium 
         {(isHovered || isFocused) ? 'bg-secondary-container text-black' : 'text-white'}"
-    on:mouseover={() => isHovered = true}
-    on:mouseout={() => isHovered = false}
+    on:mouseenter={() => isHovered = true}
+    on:mouseleave={() => isHovered = false}
     on:focus={() => isFocused = true}
     on:blur={() => isFocused = false}
     on:click={() => expanded = !expanded}
@@ -53,7 +48,6 @@
                         type="checkbox" 
                         bind:checked={option.selected}
                         class="hidden"
-                        on:change={() => toggleOption(index)}
                     />
                     <span 
                         class={`w-6 h-6 rounded-full inline-block 
