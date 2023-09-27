@@ -40,6 +40,15 @@
             </div>
         </div>
         <div class="w-0.5 h-full bg-[#2F2F2F]"></div>
+        <div class="flex flex-col px-4 py-5 gap-2">
+            {#if refundExpanded}
+                <h3 class="text-3xl font-medium text-[#FFB800]">GPU Utilities</h3>
+                <p class="font-medium max-w-xl">
+                    GPU utilities refer to software and tools designed to monitor, manage, and optimize your Graphics Processing Unit (GPU). These utilities help users make the most of their GPU's capabilities, whether it's for gaming, content creation, machine learning, or other GPU-intensive tasks. Here are some key points and functionalities that come under GPU utilities:
+                </p>
+            {/if}
+        </div>
+
     </div>
 </div>
 
