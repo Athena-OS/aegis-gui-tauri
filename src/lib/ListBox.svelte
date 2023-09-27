@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createListbox } from 'svelte-headlessui';
 	import Transition from 'svelte-transition';
-    import arrowDown from "../assets/icons/arrow-down-icon.svg";
+    import arrowDown from "../assets/icons/arrow-down-white.svg";
     // External props
     export let icon: string;
     type ListItem = { name: string };

@@ -5,10 +5,19 @@
     import Footer from "../ProgressStepper.svelte";
     import DialogComponent from '../InfoDialog.svelte';
 
+    import checkIconBlackBg from "../../assets/icons/check-bg-black.svg";
+    import checkIconYellowBg from "../../assets/icons/check-bg-yellow.svg";
+    import dashIconBlackBg from "../../assets/icons/dash-bg-black.svg";
+    import dashIconYellowBg from "../../assets/icons/dash-bg-yellow.svg";
+
     import packagesIcon from "../../assets/icons/packages-icon.svg";
+    import arrowDownIcon from "../../assets/icons/arrow-down-black.svg";
 
     const refund = createDisclosure({ label: 'Refund Policy', expanded: false })
 	const support = createDisclosure({ label: 'Technical Support', expanded: false })
+
+    let isHovered = false;
+    let isFocused = false;
 
     let options = [
         { label: 'Option 1', value: 'option1' },
@@ -28,6 +37,13 @@
         selectedOptions = new Set([...selectedOptions]);
     }
 
+
+    let allSelected = false; // New reactive variable to observe if all options are selected
+
+    $: {
+        allSelected = options.every(option => selectedOptions.has(option.value));
+    }
+
     export let switchView: (viewName: string) => void;
 
 </script>
@@ -43,57 +59,107 @@
             </div>
             <div class="h-0.5 bg-[#2F2F2F] w-auto mt-3 mb-3"></div>
             <div class="w-full">
-                <div class="mx-auto w-full max-w-md rounded-2xl">
-                    <div>
-                        <button
-                            use:refund.button
-                            class="flex w-full justify-between rounded-lg bg-secondary-container px-4 py-2 text-left text-sm font-medium"
-                        >
-                            <span>What is your refund policy?</span>
-               
-                        </button>
-                        {#if $refund.expanded}
-                        
-                            <div class="space-y-2">
-                                {#each options as option (option.value)}
-                                    <label class="flex items-center cursor-pointer">
-                                        <input 
-                                            type="checkbox" 
-                                            value={option.value}
-                                            class="hidden"
-                                            on:change={() => toggleSelection(option.value)}
-                                        />
-                                        <span 
-                                            class={`w-6 h-6 border-2 rounded-full inline-block 
-                                                mr-2
-                                                ${selectedOptions.has(option.value) ? 'bg-yellow-400' : 'bg-gray-400'}`}
-                                        >
-                                            {#if selectedOptions.has(option.value)}
-                                                <!-- You can use an SVG or Font Awesome icon for the X here -->
-                                                <!-- I'm using a simple "X", but you can replace it with a more stylish representation -->
-                                                <span class="block text-white text-xs font-bold leading-6 text-center">X</span>
-                                            {/if}
-                                        </span>
-                                        {option.label}
-                                    </label>
-                                {/each}
-                            </div>
-                        
-                        {/if}
+                <button
+                use:refund.button
+                class="flex flex-row items-center gap-2 w-full rounded-full px-2 py-2 text-left text-sm font-medium 
+                    {($refund.expanded || isHovered || isFocused) ? 'bg-secondary-container text-black' : 'text-white'}"
+                on:mouseover={() => isHovered = true}
+                on:mouseout={() => isHovered = false}
+                on:focus={() => isFocused = true}
+                on:blur={() => isFocused = false}
+                >
+                    <img 
+                        src={
+                            allSelected 
+                                ? ($refund.expanded || isHovered || isFocused ? checkIconBlackBg : checkIconYellowBg )
+                                : ($refund.expanded || isHovered || isFocused ? dashIconBlackBg : dashIconYellowBg )
+                        } 
+                        alt="status" class="w-7" 
+                    >
+                    <span class="font-medium text-sm">GPU utilities</span>
+                    {#if $refund.expanded || isHovered || isFocused}
+                        <img src={arrowDownIcon} alt="arrow down" class="w-7 ml-auto {$refund.expanded ? 'rotate-180 transform' : ''}">
+                    {/if}
+                </button>
+
+                {#if $refund.expanded}
+                    <div class="flex px-4 py-5 gap-2">
+                        <div class="border-l-2 border-[#2F2F2F] min-h-[fit-content]"></div>
+                        <div class="flex flex-col gap-4 ml-2">
+                            {#each options as option (option.value)}
+                                <label class="flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        value={option.value}
+                                        class="hidden"
+                                        on:change={() => toggleSelection(option.value)}
+                                    />
+                                    <span 
+                                        class={`w-6 h-6 rounded-full inline-block 
+                                            mr-2
+                                            ${selectedOptions.has(option.value) ? '' : 'bg-[#2F2F2F]'}`}
+                                    >
+                                        {#if selectedOptions.has(option.value)}
+                                            <img src={checkIconYellowBg} alt="Checked" class="w-full h-full" />
+                                        {/if}
+                                    </span>
+                                    {option.label}
+                                </label>
+                            {/each}
+                        </div>
                     </div>
-                    <div class="mt-2">
-                        <button
-                            use:support.button
-                            class="flex w-full justify-between rounded-lg bg-purple-100 px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75"
-                        >
-                            <span>Do you offer technical support?</span>
-                         
-                        </button>
-                        {#if $support.expanded}
-                            <div use:support.panel class="px-4 pt-4 pb-2 text-sm text-gray-500">No.</div>
-                        {/if}
+                {/if}    
+                  
+                <button
+                use:support.button
+                class="flex flex-row items-center gap-2 w-full rounded-full px-2 py-2 text-left text-sm font-medium 
+                    {($support.expanded || isHovered || isFocused) ? 'bg-secondary-container text-black' : 'text-white'}"
+                on:mouseover={() => isHovered = true}
+                on:mouseout={() => isHovered = false}
+                on:focus={() => isFocused = true}
+                on:blur={() => isFocused = false}
+                >
+                    <img 
+                        src={
+                            allSelected 
+                                ? ($support.expanded || isHovered || isFocused ? checkIconBlackBg : checkIconYellowBg )
+                                : ($support.expanded || isHovered || isFocused ? dashIconBlackBg : dashIconYellowBg )
+                        } 
+                        alt="status" class="w-7" 
+                    >
+                    <span class="font-medium text-sm">GPU utilities</span>
+                    {#if $support.expanded || isHovered || isFocused}
+                        <img src={arrowDownIcon} alt="arrow down" class="w-7 ml-auto {$support.expanded ? 'rotate-180 transform' : ''}">
+                    {/if}
+                </button>
+
+                {#if $support.expanded}
+                    <div class="flex px-4 py-5 gap-2">
+                        <div class="border-l-2 border-[#2F2F2F] min-h-[fit-content]"></div>
+                        <div class="flex flex-col gap-4 ml-2">
+                            {#each options as option (option.value)}
+                                <label class="flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        value={option.value}
+                                        class="hidden"
+                                        on:change={() => toggleSelection(option.value)}
+                                    />
+                                    <span 
+                                        class={`w-6 h-6 rounded-full inline-block 
+                                            mr-2
+                                            ${selectedOptions.has(option.value) ? '' : 'bg-[#2F2F2F]'}`}
+                                    >
+                                        {#if selectedOptions.has(option.value)}
+                                            <img src={checkIconYellowBg} alt="Checked" class="w-full h-full" />
+                                        {/if}
+                                    </span>
+                                    {option.label}
+                                </label>
+                            {/each}
+                        </div>
                     </div>
-                </div>
+                {/if}    
             </div>
         </div>
         <div class="w-0.5 h-full bg-[#2F2F2F]"></div>

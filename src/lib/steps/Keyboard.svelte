@@ -7,7 +7,7 @@
     import globeIcon from "../../assets/icons/globe-icon.svg";
     import keyboardIcon from "../../assets/icons/keyboard-icon.svg";
     import langIcon from "../../assets/icons/lang-icon.svg";
-    import arrowDown from "../../assets/icons/arrow-down-icon.svg";
+    import arrowDown from "../../assets/icons/arrow-down-white.svg";
     import keyboard from "../../assets/keyboard.svg";
 
     let languageList = [
