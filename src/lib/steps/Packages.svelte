@@ -55,7 +55,10 @@
 <Footer steps={5} currentStep={3}>
     <span slot="description">This is step 3 out of 5</span>
     <div slot="controls">
-        <button class="primary-btn" on:click={() => switchView("initial")}>Back</button>
+        <button class="primary-btn" on:click={() => switchView("desktop")}>Back</button>
         <button class="primary-btn" on:click={() => switchView("packages")}>Continue</button>
     </div>
 </Footer>
+
+
+
