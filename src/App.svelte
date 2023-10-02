@@ -4,6 +4,7 @@
   import DesktopView from "./lib/steps/Desktop.svelte";
   import KeyboardView from "./lib/steps/Keyboard.svelte";
   import PackageView from "./lib/steps/Packages.svelte";
+  import PartitionView from "./lib/steps/Partition.svelte";
 
   let view = "initial";
   const totalSteps = 3; // adjust based on your total steps
@@ -32,4 +33,6 @@
   <DesktopView {switchView} />
 {:else if view === "packages"}
   <PackageView {switchView} />
+{:else if view === "partition"}
+  <PartitionView {switchView} />
 {/if}
