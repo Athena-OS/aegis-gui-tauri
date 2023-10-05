@@ -2,8 +2,12 @@
     import { createListbox } from 'svelte-headlessui';
 	import Transition from 'svelte-transition';
     import arrowDown from "../assets/icons/arrow-down-white.svg";
+    
     // External props
     export let icon: string;
+    export let width: string = '28em';
+    export let additionalIcons: string[] = [];
+
     type ListItem = { name: string };
     export let label: string | null = null;
     export let defaultItem: ListItem = { name: 'Default Item' };
@@ -20,22 +24,29 @@
 </script>
 
 <div class="flex w-full flex-col items-center justify-center">
-    <div class="w-[28em]">
+    <div style="width: {width};">
         {#if label}
             <p class="text-[#B0B0B0] text-left font-semibold mb-2">{label}</p>
         {/if}
         <div class="relative mt-1">
             <button
-                use:listbox.button
-                on:select={onSelect}
-                class="flex flex-row items-center cursor-pointer text-left gap-4 relative w-full rounded-full bg-[#1A1A1A] py-4 pl-4 border-2 border-[#2F2F2F] hover:border-[#FFB800]"
+            use:listbox.button
+            on:select={onSelect}
+            class="relative flex flex-row items-center justify-between cursor-pointer text-left w-full rounded-full bg-[#1A1A1A] py-4 pl-4 border-2 border-[#2F2F2F] hover:border-[#FFB800]"
             >
-                <img src={icon} alt="dropdown icon">
-                <span class="block truncate text-[0.9em] font-medium">{$listbox.selected.name}</span>
-                <span class="pointer-events-none absolute inset-y-0 right-1 flex items-center pr-2">
+                <div class="flex items-center gap-4">
+                    <img src={icon} alt="dropdown icon">
+                    <span class="block truncate text-[0.9em] font-medium">{$listbox.selected.name}</span>
+                </div>
+            
+                <div class="flex items-center gap-x-2 pr-2">
+                    {#each additionalIcons as iconUrl}
+                        <img src={iconUrl} alt="icon" class="w-5">
+                    {/each}
                     <img src={arrowDown} alt="arrow down" class="w-5">
-                </span>
+                </div>
             </button>
+        
             
             <Transition show={$listbox.expanded}>
                 <ul
@@ -66,7 +77,6 @@
     ::-webkit-scrollbar-thumb {
         background-color: #2F2F2F;
         border-radius: 5px;
-
     }
 
     ::-webkit-scrollbar-button {
