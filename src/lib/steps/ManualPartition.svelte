@@ -33,7 +33,7 @@
 />
 
 <div class="flex flex-col items-center mx-2 h-full">
-    <div class="flex flex-row items-center justify-left w-full g-8">
+    <div class="flex flex-row items-center justify-left g-8">
         <ListBox 
         bind:items={partitionList} 
         icon={diskIcon} 
