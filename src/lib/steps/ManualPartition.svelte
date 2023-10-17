@@ -2,15 +2,34 @@
     import Footer from "../ProgressStepper.svelte";
     import DialogComponent from '../InfoDialog.svelte';
     import ListBox from "../ListBox.svelte";
-
-
+    
     import refreshIcon from "../../assets/icons/refresh.svg";
-    import diskIcon from "../../assets/icons/disk.svg";
+    import editGrayIcon from "../../assets/icons/edit-gray.svg";
+    import binGrayIcon from "../../assets/icons/bin-gray.svg";
 
+    import diskIcon from "../../assets/icons/disk.svg";
+    
     let partitionList = [
-        { name: 'Samsung NVME SSD 500G' },
-        // ... other names
+        { name: 'Samsung NVME SSD 500G' }
     ];
+    
+    let partitionData = [
+        { device: "/dev/nvme/0n1p1", name: "EFI System Partition", fileSystem: "FAT32", mountPoint: "/boot/efi", size: "273 MB", sizeInMB: 273 },
+        { device: "/dev/nvme/0n1p2", name: "Microsoft Reserved Partition", fileSystem: "Unknown", mountPoint: "", size: "17 MB", sizeInMB: 17 },
+        { device: "/dev/nvme/0n1p3", name: "Basic Data Partition", fileSystem: "NTFS", mountPoint: "", size: "168 GB", sizeInMB: 168000 },
+        { device: "/dev/nvme/0n1p4", name: "Grubby", fileSystem: "exFat", mountPoint: "/boot/grub", size: "1.1 GB", sizeInMB: 1100 },
+        { device: "/dev/nvme/0n1p5", name: "Athena OS", fileSystem: "Btrfs", mountPoint: "/", size: "85 GB", sizeInMB: 85000 }
+    ];
+    
+    const colorList = ['bg-red-500', 'bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-purple-500']; // Add more colors if needed
+
+    partitionData.forEach((partition, index) => {
+        partition.color = colorList[index % colorList.length];
+    });
+
+    const totalSizeInMB = 500 * 1024; // total size in MB
+    const usedSizeInMB = partitionData.reduce((total, partition) => total + partition.sizeInMB, 0);
+    const unusedSizeInMB = totalSizeInMB - usedSizeInMB;
 
     function handleSelect(event: CustomEvent<any>) {
         console.log("Selected item:", event.detail);
@@ -25,6 +44,7 @@
     export let switchView: (viewName: string) => void;
 </script>
 
+
 <DialogComponent 
     stepNumber="3.1" 
     title="Manual Partitioning" 
@@ -32,17 +52,66 @@
     modalText="Your text here" 
 />
 
-<div class="flex flex-col items-center mx-2 h-full">
-    <div class="flex flex-row items-center justify-left g-8">
+<div class="flex flex-col items-center mx-5 h-full mt-8 gap-20">
+    <div class="flex flex-row items-center gap-4">
         <ListBox 
-        bind:items={partitionList} 
-        icon={diskIcon} 
-        width="30em"
-        on:select={handleSelect} 
-        additionalIcons={[refreshIcon]}
-        defaultItem={{ name: 'Select Drive' }}
+            bind:items={partitionList} 
+            icon={diskIcon} 
+            width="30em"
+            on:select={handleSelect} 
+            additionalIcons={[refreshIcon]}
+            defaultItem={{ name: 'Select Drive' }}
+            fullWidth={false}
         />
-        <div class="flex flex-row items-center justify-center rounded-full bg-[#1A1A1A] py-4 pl-4 border-2 border-[#2F2F2F] w-full h-[60px]"></div>
+        <div class="flex flex-row items-center justify-center rounded-full bg-[#1A1A1A] border-2 border-[#2F2F2F] w-[54em] h-[60px] overflow-hidden">
+            <div class="flex-grow h-full bg-red-500"></div>
+            <div class="w-[2px] h-full bg-[#2F2F2F]"></div>
+            <div class="flex-grow h-full bg-green-500"></div>
+            <div class="w-[2px] h-full bg-[#2F2F2F]"></div>
+            <div class="flex-grow h-full bg-blue-500"></div>
+            <!-- Add more divs and separators as needed -->
+        </div>
+    </div>
+
+    <div class="w-full"> 
+        <h3 class="font-semibold mb-4 text-[#B0B0B0]">New Partition Table</h3>
+
+        <div class="rounded-2xl overflow-hidden bg-[#1A1A1A] border-2 border-[#2F2F2F]"> <!-- Added separate div for border-radius and overflow -->
+            <table class="min-w-full">
+                <thead class="bg-[#363636]">
+                    <tr>
+                        <th class="text-left p-3">Block Device</th>
+                        <th class="text-left p-3">Name</th>
+                        <th class="text-left p-3">File System</th>
+                        <th class="text-left p-3">Mount Point</th>
+                        <th class="text-left p-3">Size</th>
+                        <th class="text-right p-3 pr-9">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each partitionData as row}
+                    <tr class="border-t border-[#2F2F2F]">
+                        <td class="text-white font-semibold p-3 flex flex-row items-center gap-2">
+                            <div class="rounded-full bg-[#FF5353] w-3 h-3"></div>
+                            {row.device}
+                        </td>
+                        <td class="text-[#B0B0B0] p-3">{row.name}</td>
+                        <td class="text-[#B0B0B0] p-3">{row.fileSystem}</td>
+                        <td class="text-[#B0B0B0] p-3">{row.mountPoint}</td>
+                        <td class="text-[#B0B0B0] font-semibold p-3">{row.size}</td>
+                        <td class="py-2 text-right p-3 pr-9">
+                            <button class="mr-2">
+                                <img src={editGrayIcon} alt="edit">
+                            </button>
+                            <button class="">
+                                <img src={binGrayIcon} alt="delete">
+                            </button>
+                        </td>
+                    </tr>
+                    {/each}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -50,6 +119,6 @@
     <span slot="description">This is step 3 out of 5</span>
     <div slot="controls">
         <button class="primary-btn" on:click={() => switchView("desktop")}>Back</button>
-        <button class="primary-btn" on:click={() => switchView("partition")}>Continue</button>
+        <button class="primary-btn" on:click={() => switchView("accounts")}>Continue</button>
     </div>
 </Footer>

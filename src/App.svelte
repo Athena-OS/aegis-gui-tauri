@@ -6,6 +6,8 @@
   import PackageView from "./lib/steps/Packages.svelte";
   import PartitionView from "./lib/steps/Partition.svelte";
   import ManualPartition from "./lib/steps/ManualPartition.svelte";
+  import Accounts from "./lib/steps/Accounts.svelte";
+  import Extras from "./lib/steps/Extras.svelte";
 
   let view = "initial";
   const totalSteps = 3; // adjust based on your total steps
@@ -38,4 +40,8 @@
   <PartitionView {switchView} />
 {:else if view === "manualPartition"}
   <ManualPartition {switchView} />
+{:else if view === "accounts"}
+  <Accounts {switchView} />
+{:else if view === "extras"}
+  <Extras {switchView} />
 {/if} 
