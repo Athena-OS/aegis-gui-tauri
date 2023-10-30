@@ -28,7 +28,7 @@
 
 
   .primary-btn {
-    @apply p-3 px-5 rounded-full border-0 bg-secondary-container text-on-secondary-container cursor-pointer transition transform shadow-elevation2 font-medium;
+    @apply p-3 px-5 rounded-full border-0 bg-yellow-500 text-on-secondary-container cursor-pointer transition transform shadow-elevation2 font-medium flex flex-row items-center gap-1;
   }
 
   .primary-btn:focus, .primary-btn:hover, .primary-btn:focus-visible {
@@ -44,75 +44,3 @@
     @apply bg-opacity-88 text-opacity-88;  // This assumes the color changes on hover/focus are done by adjusting opacity
   }
 }
-
-/*
-
-
-@import './colors';
-@import './common';
-
-:root {
-  font-family: Ubuntu;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: dark;
-  background-color: $background;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
-a {
-  font-weight: 500;
-  text-decoration: inherit;
-  color: $linkColor;
-}
-
-a:hover {
-  color: mix($linkColor, $hoverTintColor, 90%);
-}
-
-
-
-
-.col-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.card {
-  padding: 2em;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-
-.titlebar {
-  height: 30px;
-  background: #329ea3;
-  user-select: none;
-  display: flex;
-  justify-content: flex-end;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-}
-.titlebar-button {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: 30px;
-  height: 30px;
-}
-.titlebar-button:hover {
-  background: #5bbec3;
-}
-
-*/

@@ -1,9 +1,9 @@
 <script lang="ts">
-    import checkIconBlackBg from "../assets/icons/check-bg-black.svg";
-    import checkIconYellowBg from "../assets/icons/check-bg-yellow.svg";
-    import dashIconBlackBg from "../assets/icons/dash-bg-black.svg";
-    import dashIconYellowBg from "../assets/icons/dash-bg-yellow.svg";
-    import arrowDownIcon from "../assets/icons/arrow-down-black.svg";
+    import checkIconBlackBg from "../../assets/icons/check-bg-black.svg";
+    import checkIconYellowBg from "../../assets/icons/check-bg-yellow.svg";
+    import dashIconBlackBg from "../../assets/icons/dash-bg-black.svg";
+    import dashIconYellowBg from "../../assets/icons/dash-bg-yellow.svg";
+    import arrowDownIcon from "../../assets/icons/arrow-down-black.svg";
 
     export let label: string;
     export let options: { label: string; value: string; selected?: boolean }[];
@@ -17,7 +17,7 @@
 
 <button 
     class="flex flex-row items-center gap-2 w-full rounded-full px-2 py-2 text-left text-sm font-medium 
-        {(isHovered || isFocused) ? 'bg-secondary-container text-black' : 'text-white'}"
+        {(isHovered || isFocused) ? 'bg-yellow-500 text-black' : 'text-white'}"
     on:mouseenter={() => isHovered = true}
     on:mouseleave={() => isHovered = false}
     on:focus={() => isFocused = true}

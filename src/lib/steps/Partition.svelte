@@ -1,7 +1,6 @@
 <script lang="ts">
-    import Footer from "../ProgressStepper.svelte";
-    import DialogComponent from '../InfoDialog.svelte';
-    import ListBox from "../ListBox.svelte";
+    import DialogComponent from '../components/InfoDialog.svelte';
+    import ListBox from "../components/ListBox.svelte";
 
     import checkIcon from "../../assets/icons/check-bg-yellow.svg";
     import refreshIcon from "../../assets/icons/refresh.svg";
@@ -28,7 +27,6 @@
         selectedOption = option;
     }
 
-    export let switchView: (viewName: string) => void;
 </script>
 
 <style>
@@ -98,19 +96,3 @@
         </div>
     </div>
 </div>
-
-<Footer steps={5} currentStep={3}>
-    <span slot="description">This is step 3 out of 5</span>
-    <div slot="controls">
-        <button class="primary-btn" on:click={() => switchView("desktop")}>Back</button>
-        <button 
-            class="primary-btn" 
-            on:click={() => {
-                selectedOption === 'manual' ? switchView("manualPartition") : switchView("erasePartition")
-            }}
-            disabled={!canContinue}
-        >
-            Continue
-        </button>
-    </div>
-</Footer>

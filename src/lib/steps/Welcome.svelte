@@ -1,7 +1,13 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
     import athenaLogo from "../../assets/athena-logo.svg";
     import infoIndicator from "../../assets/icons/info-indicator-blue.svg";
-    export let switchView: (viewName: string) => void;
+
+    const dispatch = createEventDispatcher();
+
+    function switchView(targetView: string): void {
+        dispatch('switch', { targetView });
+    }
 </script>
 
 <div class="flex flex-col items-center gap-10 mt-36">

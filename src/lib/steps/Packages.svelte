@@ -1,7 +1,6 @@
 <script lang="ts">
-    import Footer from "../ProgressStepper.svelte";
-    import DialogComponent from '../InfoDialog.svelte';
-    import PackageButton from "../PackageButton.svelte";
+    import DialogComponent from '../components/InfoDialog.svelte';
+    import PackageButton from "../components/PackageButton.svelte";
 
     import packagesIcon from "../../assets/icons/packages-icon.svg";
 
@@ -51,14 +50,3 @@
 
     </div>
 </div>
-
-<Footer steps={5} currentStep={3}>
-    <span slot="description">This is step 3 out of 5</span>
-    <div slot="controls">
-        <button class="primary-btn" on:click={() => switchView("desktop")}>Back</button>
-        <button class="primary-btn" on:click={() => switchView("partition")}>Continue</button>
-    </div>
-</Footer>
-
-
-

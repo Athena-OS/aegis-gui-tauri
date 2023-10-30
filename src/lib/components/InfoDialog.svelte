@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createDialog } from 'svelte-headlessui';
     import Transition from 'svelte-transition';
-    import infoIcon from "../assets/icons/info-icon.svg";
+    import infoIcon from "../../assets/icons/info-icon.svg";
 
     export let stepNumber: string = "1"; // You can set defaults if you wish.
     export let title: string = "Title here";

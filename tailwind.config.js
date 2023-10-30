@@ -8,11 +8,19 @@ export default {
     },
     extend: {
       backgroundColor: {
-        'secondary-container': '#FFB800',
+        "yellow-500": "#FFB800",
       },
       textColor: {
-        'on-primary': '#492900',
+        "gray-500": "#B0B0B0",
+        "gray-600": "#2F2F2F",
+        "yellow-500": "#FFB800",
         'on-secondary-container': 'black',
+      },
+      ringColor: {
+        "yellow-500": "#FFB800",
+      },
+      borderColor: {
+        "yellow-500": "#FFB800",
       },
       boxShadow: {
         'elevation2': '0px 2px 3px rgba(0, 0, 0, 0.45)',
