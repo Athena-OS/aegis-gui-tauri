@@ -1,11 +1,22 @@
 <script>
-    export let label = "Test Keyboard"; // default label text
-    export let placeholderText = "Type to test.."; // default input placeholder text
+  import uuid from "../utils/uuid";
+
+  export let label = "Test Keyboard"; // default label text
+  export let placeholderText = "Type to test.."; // default input placeholder text
+
+  let inputID = uuid(); // just to generate a unique id for label
 </script>
 
-<div class="flex w-full flex-col items-center justify-center">
-    <div class="w-[28em]">
-        <p class="text-[#B0B0B0] text-left font-semibold mb-2">{label}</p>
-        <input class="flex flex-row items-center cursor-pointer text-left gap-4 relative w-full rounded-full bg-[#1A1A1A] py-4 pl-4 text-gray-500 font-medium border-2 border-[#2F2F2F] focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:shadow-none" placeholder="{placeholderText}" />
-    </div>
+<div class="w-full space-y-3">
+  <label class="font-medium text-zinc-400" for={inputID}>
+    {label}
+  </label>
+  <div class="w-full h-[60px]">
+    <input
+      id={inputID}
+      class="w-full h-full rounded-full overflow-hidden ring ring-zinc-800 px-4 text-lg focus:ring-yellow-500 outline-none bg-zinc-900"
+      type="text"
+      placeholder={placeholderText}
+    />
+  </div>
 </div>

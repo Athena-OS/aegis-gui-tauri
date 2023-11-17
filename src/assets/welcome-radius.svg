@@ -1,8 +1,7 @@
-<svg width="1240" height="1240" viewBox="0 0 1240 1240" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1240" height="960" viewBox="0 0 1240 960" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g opacity="0.6">
-<circle cx="620" cy="620" r="168" stroke="#659DD1" stroke-opacity="0.8" stroke-width="4"/>
-<circle cx="620" cy="620" r="268" stroke="#659DD1" stroke-opacity="0.6" stroke-width="4"/>
-<circle cx="620" cy="620" r="418" stroke="#659DD1" stroke-opacity="0.4" stroke-width="4"/>
-<circle cx="620" cy="620" r="618" stroke="#659DD1" stroke-opacity="0.2" stroke-width="4"/>
+<circle cx="620" cy="480" r="268" stroke="white" stroke-opacity="0.6" stroke-width="4"/>
+<circle cx="620" cy="480" r="418" stroke="white" stroke-opacity="0.4" stroke-width="4"/>
+<circle cx="620" cy="480" r="618" stroke="white" stroke-opacity="0.2" stroke-width="4"/>
 </g>
 </svg>

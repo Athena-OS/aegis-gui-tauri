@@ -1,0 +1,23 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-zinc-950 text-white;
+  }
+  h1 {
+    @apply text-8xl font-semibold;
+  }
+  h2 {
+    @apply text-4xl font-semibold;
+  }
+}
+
+@layer components {
+  .ti {
+    @apply !text-2xl !font-bold;
+  }
+}

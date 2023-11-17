@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.5.1",
+    "class-variance-authority": "^0.7.0",
     "svelte-headlessui": "^0.0.26",
     "svelte-transition": "^0.0.10"
   }
