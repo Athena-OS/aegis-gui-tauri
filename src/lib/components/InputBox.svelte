@@ -14,7 +14,7 @@
   <div class="w-full h-[50px]">
     <input
       id={inputID}
-      class="w-full h-full rounded-full overflow-hidden ring ring-zinc-800 px-4 text-lg focus:ring-yellow-500 outline-none bg-zinc-900"
+      class="w-full h-full rounded-full overflow-hidden ring ring-zinc-800 px-4 text-lg focus:ring-primary-500 outline-none bg-zinc-900"
       type="text"
       placeholder={placeholderText}
     />

@@ -12,7 +12,11 @@
   };
 </script>
 
-<div class="flex justify-between items-center absolute bottom-4 w-full px-4">
-  <Button on:click={handleStepPrevious}>Previous</Button>
-  <Button on:click={handleStepNext}>Next</Button>
+<div class="flex justify-between items-center w-full p-4">
+  <Button variant="bordered" on:click={handleStepPrevious}
+    ><span><i class="ti ti-chevron-left" /></span><span>Previous</span></Button
+  >
+  <Button on:click={handleStepNext}
+    ><span>Next</span><span><i class="ti ti-chevron-right" /></span></Button
+  >
 </div>

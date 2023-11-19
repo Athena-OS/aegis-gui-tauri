@@ -12,19 +12,19 @@
   />
 </svelte:head>
 
-{#each steps as step}
-  {#key step.view === steps[$currentActive].view}
-    <div
-      in:fade={{ delay: 200, duration: 200 }}
-      out:fade={{ duration: 200 }}
-      class="absolute top-0 left-0 right-0"
-    >
-      {#if step.view === steps[$currentActive].view}
-        <svelte:component this={steps[$currentActive].component} />
-      {/if}
+<main class="relative h-screen">
+  {#each steps as step}
+    {#key step.view === steps[$currentActive].view}
+      <div in:fade={{ delay: 200, duration: 200 }} out:fade={{ duration: 200 }}>
+        {#if step.view === steps[$currentActive].view}
+          <svelte:component this={steps[$currentActive].component} />
+        {/if}
+      </div>
+    {/key}
+  {/each}
+  {#if steps[$currentActive].view !== "initial"}
+    <div class="absolute bottom-0 w-full" transition:fade>
+      <ProgressStepper />
     </div>
-  {/key}
-{/each}
-{#if steps[$currentActive].view !== "initial"}
-  <ProgressStepper />
-{/if}
+  {/if}
+</main>

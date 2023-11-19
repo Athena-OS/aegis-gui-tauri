@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         primary: colors.yellow,
+        accent: colors.cyan,
       },
       fontFamily: {
         sans: ["Ubuntu", "sans-serif"],

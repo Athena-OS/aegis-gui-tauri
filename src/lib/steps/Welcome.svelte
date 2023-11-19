@@ -13,7 +13,7 @@
     <img
       src={athenaLogo}
       alt="athena-logo"
-      class="w-40 p-2 bg-yellow-500 border-solid rounded-full"
+      class="w-40 p-2 bg-primary-500 border-solid rounded-full"
     />
   </div>
   <Button variant="primary" on:click={() => ($currentActive = 1)}>

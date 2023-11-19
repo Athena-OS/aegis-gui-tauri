@@ -11,10 +11,11 @@
     {
       variants: {
         variant: {
-          primary: "bg-yellow-500",
+          primary: "bg-primary-500",
+          bordered: "ring ring-primary-500 ring-inset text-primary-500",
         },
         size: {
-          medium: "px-4 py-2 text-lg",
+          medium: "px-4 py-2 text-lg h-[50px]",
           large: "px-6 py-4 text-xl",
         },
       },

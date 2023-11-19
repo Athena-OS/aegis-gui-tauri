@@ -1,26 +1,16 @@
-<script lang="ts">
+<script>
   import { createDialog } from "svelte-headlessui";
   import Transition from "svelte-transition";
-  import infoIcon from "../../assets/icons/info-icon.svg";
+  import currentActive from "../stepsStore";
 
-  export let stepNumber: string = "1"; // You can set defaults if you wish.
-  export let title: string = "Title here";
-  export let modalHeader: string = "Header here";
-  export let modalText: string = "Some content text here";
+  export let title = "";
+  export let dialogTitle = "";
+  export let dialogContent = "";
 
   const dialog = createDialog({ label: title });
 </script>
 
-<div class="flex flex-row items-center mx-auto w-fit space-x-4 mt-8">
-  <h2 class="text-center">{stepNumber}. {title}</h2>
-  <button
-    on:click={dialog.open}
-    aria-label="Open Dialog"
-    class="bg-transparent border-none focus:outline-none"
-  >
-    <img src={infoIcon} alt="info icon" class="w-8" />
-  </button>
-</div>
+<!-- dialog start -->
 <div class="relative z-10">
   <Transition show={$dialog.expanded}>
     <Transition
@@ -53,11 +43,11 @@
             use:dialog.modal
           >
             <h3 class="text-lg font-medium leading-6 text-gray-900">
-              {modalHeader}
+              {dialogTitle}
             </h3>
             <div class="mt-2">
               <p class="text-sm text-gray-500">
-                {modalText}
+                {dialogContent}
               </p>
             </div>
 
@@ -76,3 +66,22 @@
     </div>
   </Transition>
 </div>
+<!-- dialog end -->
+
+<main
+  class="h-full p-4 space-y-4 absolute top-0 left-0 right-0 overflow-scroll"
+>
+  <div class="flex flex-row items-center mx-auto w-fit space-x-4">
+    <h2 class="text-center py-2">{$currentActive}. {title}</h2>
+    <button
+      on:click={dialog.open}
+      aria-label="Open Dialog"
+      class="bg-transparent border-none focus:outline-none"
+    >
+      <i class="ti text-accent-500 !text-3xl ti-info-hexagon-filled" />
+    </button>
+  </div>
+  <div class="h-[calc(100%-140px)]">
+    <slot />
+  </div>
+</main>
