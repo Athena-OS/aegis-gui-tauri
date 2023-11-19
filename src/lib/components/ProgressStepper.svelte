@@ -1,15 +1,14 @@
 <script lang="ts">
   import stepsConfig from "../stepsConfig";
+  import currentActive from "../stepsStore";
   import Button from "./Button.svelte";
 
-  export let currentActive: number;
-
   const handleStepPrevious = () => {
-    if (currentActive > 0) currentActive--;
+    if ($currentActive > 0) $currentActive--;
   };
 
   const handleStepNext = () => {
-    if (currentActive < stepsConfig.length - 1) currentActive++;
+    if ($currentActive < stepsConfig.length - 1) $currentActive++;
   };
 </script>
 

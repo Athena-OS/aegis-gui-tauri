@@ -1,14 +1,8 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
   import athenaLogo from "../../assets/athena-logo.svg";
   import InfoBar from "../components/InfoBar.svelte";
   import Button from "../components/Button.svelte";
-
-  const dispatch = createEventDispatcher();
-
-  function switchView(targetView: string): void {
-    dispatch("switch", { targetView });
-  }
+  import currentActive from "../stepsStore";
 </script>
 
 <div
@@ -22,7 +16,7 @@
       class="w-40 p-2 bg-yellow-500 border-solid rounded-full"
     />
   </div>
-  <Button variant="primary" on:click={() => switchView("keyboard")}>
+  <Button variant="primary" on:click={() => ($currentActive = 1)}>
     <span>Start installation</span><span><i class="ti ti-chevron-right" /></span
     >
   </Button>
