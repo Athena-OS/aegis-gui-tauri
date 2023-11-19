@@ -7,9 +7,9 @@ import Accounts from "./steps/Accounts.svelte";
 import Extras from "./steps/Extras.svelte";
 import Summary from "./steps/Summary.svelte";
 
-import type { StepConfig } from './types';
+import type { StepConfig } from "./types";
 
-export const stepsConfig: StepConfig[] = [
+const stepsConfig: StepConfig[] = [
   { view: "initial", component: Initial },
   { view: "keyboard", component: Keyboard },
   { view: "desktop", component: Desktop },
@@ -19,3 +19,5 @@ export const stepsConfig: StepConfig[] = [
   { view: "extras", component: Extras },
   { view: "summary", component: Summary },
 ];
+
+export default stepsConfig;

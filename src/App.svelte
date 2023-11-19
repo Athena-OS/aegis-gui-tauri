@@ -1,17 +1,9 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
   import ProgressStepper from "./lib/components/ProgressStepper.svelte";
-  import { stepsConfig } from "./lib/stepsConfig";
-  import type { SwitchEvent } from "./lib/types";
+  import steps from "./lib/stepsConfig";
 
-  let currentComponent = stepsConfig[0].component;
-  let currentStep = 1;
-
-  function handleSwitch(event: CustomEvent<SwitchEvent>): void {
-    const targetView = event.detail.targetView;
-    const stepIndex = stepsConfig.findIndex((step) => step.view === targetView);
-    currentStep = stepIndex + 1;
-    currentComponent = stepsConfig[stepIndex].component;
-  }
+  let currentActive = 0;
 </script>
 
 <svelte:head>
@@ -21,11 +13,17 @@
   />
 </svelte:head>
 
-<main>
-  {#if currentStep === 1}
-    <svelte:component this={currentComponent} on:switch={handleSwitch} />
-  {:else}
-    <svelte:component this={currentComponent} />
-    <ProgressStepper bind:currentStep on:switch={handleSwitch} />
-  {/if}
-</main>
+{#each steps as step}
+  {#key step.view === steps[currentActive].view}
+    <div
+      in:fade={{ delay: 200, duration: 200 }}
+      out:fade={{ duration: 200 }}
+      class="absolute top-0 left-0 right-0"
+    >
+      {#if step.view === steps[currentActive].view}
+        <svelte:component this={steps[currentActive].component} />
+      {/if}
+    </div>
+  {/key}
+{/each}
+<ProgressStepper bind:currentActive />

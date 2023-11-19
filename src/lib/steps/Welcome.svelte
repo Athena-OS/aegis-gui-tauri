@@ -19,14 +19,10 @@
     <img
       src={athenaLogo}
       alt="athena-logo"
-      class="w-60 p-8 bg-zinc-200 border-solid rounded-full"
+      class="w-40 p-2 bg-yellow-500 border-solid rounded-full"
     />
   </div>
-  <Button
-    variant="primary"
-    size="large"
-    on:click={() => switchView("keyboard")}
-  >
+  <Button variant="primary" on:click={() => switchView("keyboard")}>
     <span>Start installation</span><span><i class="ti ti-chevron-right" /></span
     >
   </Button>
@@ -40,7 +36,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 68rem;
+    width: 80rem;
     height: auto;
     aspect-ratio: 1/1;
     z-index: -1;

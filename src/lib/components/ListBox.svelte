@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createListbox } from "svelte-headlessui";
   import Transition from "svelte-transition";
-  import arrowDown from "../../assets/icons/arrow-down-white.svg";
 
   // External props
   export let icon: string;
@@ -34,26 +33,8 @@
       <p class="text-[#B0B0B0] text-left font-semibold mb-2">{label}</p>
     {/if}
     <div class="relative mt-1">
-      <!-- <button
-        use:listbox.button
-        on:select={onSelect}
-        class="relative flex flex-row items-center justify-between cursor-pointer text-left w-full rounded-full bg-[#1A1A1A] px-3 py-2 border-2 border-[#2F2F2F] hover:border-[#FFB800]"
-      >
-        <div class="flex items-center gap-4">
-          <img src={icon} alt="dropdown icon" />
-          <span class="block truncate text-[0.9em] font-medium"
-            >{$listbox.selected.name}</span
-          >
-        </div>
-        <div class="flex items-center gap-x-2">
-          {#each additionalIcons as iconUrl}
-            <img src={iconUrl} alt="icon" class="w-5" />
-          {/each}
-          <i class="ti ti-chevron-down" />
-        </div>
-      </button> -->
       <button
-        class="w-full h-[60px] flex items-center space-x-4 text-left rounded-full overflow-hidden ring ring-zinc-800 px-4 text-lg hover:ring-yellow-500 outline-none bg-zinc-900"
+        class="w-full h-[50px] flex items-center space-x-4 text-left rounded-full overflow-hidden ring ring-zinc-800 px-3.5 text-lg hover:ring-yellow-500 outline-none bg-zinc-900"
         use:listbox.button
         on:select={onSelect}
       >

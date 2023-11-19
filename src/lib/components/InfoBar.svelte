@@ -18,9 +18,9 @@
   export let accent: InfoBarProps["accent"];
 </script>
 
-<div class="fixed bottom-0 left-0 w-full p-4">
+<div class="absolute bottom-0 left-0 w-full">
   <div
-    class="w-fit px-3 py-2 text-sm bg-white flex items-center space-x-2 text-zinc-800 rounded-full"
+    class="w-full px-3 py-2 text-sm bg-white flex items-center space-x-2 text-zinc-800"
   >
     <div class={infoBarStyles({ accent })} />
     <p class="font-medium">
