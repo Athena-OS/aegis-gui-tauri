@@ -59,7 +59,7 @@
     "bg-blue-500",
     "bg-primary-500",
     "bg-purple-500",
-    "bg-gray-500",
+    "bg-neutral-500",
   ];
 
   partitionData.forEach((partition, index) => {

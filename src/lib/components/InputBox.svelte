@@ -8,13 +8,13 @@
 </script>
 
 <div class="w-full space-y-3">
-  <label class="font-medium text-zinc-400" for={inputID}>
+  <label class="font-medium text-neutral-400" for={inputID}>
     {label}
   </label>
   <div class="w-full h-[50px]">
     <input
       id={inputID}
-      class="w-full h-full rounded-full overflow-hidden ring ring-zinc-800 px-4 text-lg focus:ring-primary-500 outline-none bg-zinc-900"
+      class="w-full h-full placeholder:text-neutral-400 rounded-full overflow-hidden ring ring-inset ring-neutral-900 px-4 focus:ring-primary-500 outline-none bg-neutral-900"
       type="text"
       placeholder={placeholderText}
     />

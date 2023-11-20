@@ -13,7 +13,7 @@
 </script>
 
 <div class="flex justify-between items-center w-full p-4">
-  <Button variant="bordered" on:click={handleStepPrevious}
+  <Button on:click={handleStepPrevious}
     ><span><i class="ti ti-chevron-left" /></span><span>Previous</span></Button
   >
   <Button on:click={handleStepNext}

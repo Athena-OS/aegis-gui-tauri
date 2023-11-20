@@ -29,14 +29,14 @@
 >
   <div class="flex flex-col items-center justify-center h-full">
     <div
-      class="flex flex-row bg-[#1A1A1A] w-full h-full rounded-3xl border-2 border-[#2F2F2F]"
+      class="flex flex-row bg-neutral-900 w-full h-full rounded-3xl border border-neutral-800"
     >
       <div class="flex flex-col w-72 p-4">
         <div class="flex flex-row items-center gap-2">
           <img src={packagesIcon} alt="packages" class="w-5" />
           <h3 class="font-medium text-md">Packages</h3>
         </div>
-        <div class="h-0.5 bg-[#2F2F2F] w-auto mt-3 mb-3" />
+        <div class="h-0.5 bg-neutral-800 w-auto mt-3 mb-3" />
         <div class="w-full space-y-2">
           <PackageButton
             label="GPU utilities"
@@ -50,7 +50,7 @@
           />
         </div>
       </div>
-      <div class="w-0.5 h-full bg-[#2F2F2F]" />
+      <div class="w-0.5 h-full bg-neutral-800" />
       <div class="flex flex-col px-4 py-5 gap-2">
         {#if refundExpanded}
           <h3 class="text-3xl font-medium text-[#FFB800]">GPU Utilities</h3>

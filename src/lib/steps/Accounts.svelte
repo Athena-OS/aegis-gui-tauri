@@ -2,7 +2,13 @@
   import userIcon from "../../assets/icons/user-yellow.svg";
   import plusIcon from "../../assets/icons/plus-yellow-icon.svg";
   import StepWrapper from "../components/StepWrapper.svelte";
+  import { createDialog } from "svelte-headlessui";
+  import CreateUserDialog from "../components/CreateUser/CreateUserDialog.svelte";
+
+  let dialog = createDialog({ label: "dialogTitle" });
 </script>
+
+<CreateUserDialog {dialog} />
 
 <StepWrapper
   title="Select Keyboard"
@@ -18,7 +24,9 @@
           <img src={userIcon} alt="user" />
           <h3 class="font-semibold">Accounts</h3>
         </div>
-        <img src={plusIcon} alt="plus" />
+        <button on:click={dialog.open}>
+          <img src={plusIcon} alt="plus" />
+        </button>
       </div>
       <h4
         class="text-center mx-auto my-auto text-4xl max-w-md text-[#B0B0B0] font-medium"

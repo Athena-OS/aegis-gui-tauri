@@ -34,7 +34,7 @@
     {/if}
     <div class="relative mt-1">
       <button
-        class="w-full h-[50px] flex items-center space-x-4 text-left rounded-full overflow-hidden ring ring-zinc-800 px-3.5 text-lg hover:ring-primary-500 outline-none bg-zinc-900"
+        class="w-full h-[50px] flex items-center space-x-4 text-left rounded-full overflow-hidden ring ring-neutral-800 px-3.5 text-lg hover:ring-primary-500 outline-none bg-neutral-900"
         use:listbox.button
         on:select={onSelect}
       >

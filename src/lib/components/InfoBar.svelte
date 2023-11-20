@@ -20,7 +20,7 @@
 
 <div class="absolute bottom-0 left-0 w-full">
   <div
-    class="w-full px-3 py-2 text-sm bg-white flex items-center space-x-2 text-zinc-800"
+    class="w-full px-3 py-2 text-sm bg-neutral-800 flex items-center space-x-2 text-white"
   >
     <div class={infoBarStyles({ accent })} />
     <p class="font-medium">

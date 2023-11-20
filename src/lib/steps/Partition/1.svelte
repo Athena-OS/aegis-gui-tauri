@@ -1,19 +1,19 @@
 <script lang="ts">
-  import ListBox from "../components/ListBox.svelte";
+  import ListBox from "../../components/ListBox.svelte";
 
-  import checkIcon from "../../assets/icons/check-bg-yellow.svg";
-  import refreshIcon from "../../assets/icons/refresh.svg";
-  import diskIcon from "../../assets/icons/disk.svg";
-  import eraseDiskIcon from "../../assets/icons/erase-disk.svg";
-  import manualDiskIcon from "../../assets/icons/manual-disk.svg";
-  import StepWrapper from "../components/StepWrapper.svelte";
+  import checkIcon from "../../../assets/icons/check-bg-yellow.svg";
+  import refreshIcon from "../../../assets/icons/refresh.svg";
+  import diskIcon from "../../../assets/icons/disk.svg";
+  import eraseDiskIcon from "../../../assets/icons/erase-disk.svg";
+  import manualDiskIcon from "../../../assets/icons/manual-disk.svg";
+  import StepWrapper from "../../components/StepWrapper.svelte";
 
   let partitionList = [
     { name: "Samsung NVME SSD 500G" },
     // ... other names
   ];
 
-  let selectedDrive: { name: string; } | null = null;
+  let selectedDrive: { name: string } | null = null;
   let selectedOption: null | string = null;
 
   $: canContinue =

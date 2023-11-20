@@ -13,6 +13,9 @@ export default {
       fontFamily: {
         sans: ["Ubuntu", "sans-serif"],
       },
+      transitionProperty: {
+        height: "height",
+      },
     },
   },
   plugins: [],
