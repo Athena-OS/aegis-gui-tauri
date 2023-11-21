@@ -70,7 +70,7 @@
             <h3 class="text-xl leading-6 text-neutral-400">
               Create a new user
             </h3>
-            <div class="mt-2 max-h-[400px] transition-height ease-out">
+            <div class="mt-2 transition-height ease-out p-6">
               {#each steps as step, index}
                 {#if index === currentStep}
                   <svelte:component this={step.component} />

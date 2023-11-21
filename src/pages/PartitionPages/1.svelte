@@ -35,7 +35,7 @@
   dialogTitle="Header Here"
   dialogContent="Your text here"
   prev="packages"
-  next="accounts"
+  next="configure-partition"
 >
   <div class="flex flex-col items-center gap-20">
     <Dropdown
