@@ -17,7 +17,7 @@
 
 <button
   class="flex flex-row items-center gap-2 w-full rounded-full p-1 text-left text-sm font-medium
-        {isHovered || isFocused ? 'bg-primary-500 text-black' : 'text-white'}"
+          {isHovered || isFocused ? 'bg-primary-500 text-black' : 'text-white'}"
   on:mouseenter={() => (isHovered = true)}
   on:mouseleave={() => (isHovered = false)}
   on:focus={() => (isFocused = true)}

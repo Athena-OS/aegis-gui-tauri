@@ -13,7 +13,7 @@
         variant: {
           primary: "bg-primary-500 disabled:bg-primary-200",
           bordered:
-            "ring ring-primary-500 ring-inset text-primary-500 disabled:ring-primary-500/20 disabled:text-primary-500/20",
+            "border-2 border-inset border-primary-500 text-primary-500 disabled:border-primary-500/20 disabled:text-primary-500/20",
         },
         size: {
           medium: "px-4 py-2 text-lg h-[50px]",

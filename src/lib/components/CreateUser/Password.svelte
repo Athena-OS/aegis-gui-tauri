@@ -9,12 +9,15 @@
 <div class="flex w-full flex-col items-center justify-center mt-8">
   <div class="w-full space-y-2">
     <div class="font-medium text-neutral-400">Password Options</div>
-    <div use:tabs.list class="flex space-x-4 rounded-full p-2 bg-neutral-700">
+    <div
+      use:tabs.list
+      class="flex space-x-4 rounded-full p-2 bg-gray-700 h-[50px] text-sm"
+    >
       {#each keys as value}
         {@const active = $tabs.active === value}
         <button
           class:active
-          class="h-[50px] rounded-full w-full font-medium"
+          class="h-full rounded-full w-full font-medium"
           use:tabs.tab={{ value }}>{value}</button
         >
       {/each}
@@ -23,7 +26,7 @@
       {#each keys as value}
         <div use:tabs.panel={{}}>
           {#if $tabs.selected === value && $tabs.selected === "Same as ROOT"}
-            <ul class="p-2 bg-neutral-700 rounded-xl text-neutral-400">
+            <ul class="p-2 bg-gray-700 rounded-xl text-neutral-400">
               Continue
             </ul>
           {:else if $tabs.selected === value && $tabs.selected === "CUSTOM"}

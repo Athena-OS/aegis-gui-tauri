@@ -1,7 +1,7 @@
 <script lang="ts">
-  import gnomeImage from "../../assets/gnome.webp";
-  import kdeImage from "../../assets/kde.png";
-  import StepWrapper from "../components/StepWrapper.svelte";
+  import gnomeImage from "../assets/desktop/gnome.webp";
+  import kdeImage from "../assets/desktop/kde.png";
+  import StepWrapper from "../lib/components/StepWrapper.svelte";
 
   let listItems = [
     {
@@ -37,6 +37,8 @@
   title="Select Environment"
   dialogTitle="Header Here"
   dialogContent="Your text here"
+  prev="/keyboard"
+  next="/packages"
 >
   <div class="flex h-full flex-col items-left">
     <div class="flex flex-row h-full w-full gap-4">

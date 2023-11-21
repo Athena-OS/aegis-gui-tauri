@@ -29,7 +29,11 @@
   };
 
   const handleNext = () => {
-    if (currentStep < steps.length - 1) currentStep++;
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+    } else {
+      dialog.close();
+    }
   };
 </script>
 
@@ -60,7 +64,7 @@
           leaveTo="opacity-0 scale-95"
         >
           <div
-            class="w-full max-w-lg border border-neutral-700 transform overflow-hidden rounded-2xl bg-neutral-800 px-4 py-3 text-left align-middle shadow-xl transition-all"
+            class="w-full max-w-lg border border-neutral-700 transform overflow-hidden rounded-2xl bg-gray-800 px-4 py-3 text-left align-middle shadow-xl transition-all"
             use:dialog.modal
           >
             <h3 class="text-xl leading-6 text-neutral-400">

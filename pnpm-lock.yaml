@@ -49,6 +49,9 @@ devDependencies:
   svelte-check:
     specifier: ^3.4.6
     version: 3.5.2(postcss@8.4.30)(sass@1.68.0)(svelte@4.2.1)
+  svelte-routing:
+    specifier: ^2.6.0
+    version: 2.6.0
   tailwindcss:
     specifier: ^3.3.3
     version: 3.3.3
@@ -1328,6 +1331,10 @@ packages:
       strip-indent: 3.0.0
       svelte: 4.2.1
       typescript: 5.2.2
+    dev: true
+
+  /svelte-routing@2.6.0:
+    resolution: {integrity: sha512-j25QWdWUzVMDCclxT2mIy7Xto/s2qcC9zpxCZzGE5WS42xo+xT9QQOtNFEXVHqVHEkJjaCOdL7LvHb320FypKw==}
     dev: true
 
   /svelte-transition@0.0.10(svelte@4.2.1):

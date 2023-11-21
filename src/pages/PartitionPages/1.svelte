@@ -1,12 +1,11 @@
 <script lang="ts">
-  import ListBox from "../../components/ListBox.svelte";
-
-  import checkIcon from "../../../assets/icons/check-bg-yellow.svg";
-  import refreshIcon from "../../../assets/icons/refresh.svg";
-  import diskIcon from "../../../assets/icons/disk.svg";
-  import eraseDiskIcon from "../../../assets/icons/erase-disk.svg";
-  import manualDiskIcon from "../../../assets/icons/manual-disk.svg";
-  import StepWrapper from "../../components/StepWrapper.svelte";
+  import checkIcon from "../../assets/icons/check-bg-yellow.svg";
+  import refreshIcon from "../../assets/icons/refresh.svg";
+  import diskIcon from "../../assets/icons/disk.svg";
+  import eraseDiskIcon from "../../assets/icons/erase-disk.svg";
+  import manualDiskIcon from "../../assets/icons/manual-disk.svg";
+  import StepWrapper from "../../lib/components/StepWrapper.svelte";
+  import Dropdown from "../../lib/components/Dropdown.svelte";
 
   let partitionList = [
     { name: "Samsung NVME SSD 500G" },
@@ -35,9 +34,11 @@
   title="Partition"
   dialogTitle="Header Here"
   dialogContent="Your text here"
+  prev="packages"
+  next="accounts"
 >
   <div class="flex flex-col items-center gap-20">
-    <ListBox
+    <Dropdown
       bind:items={partitionList}
       icon={diskIcon}
       label="Select Drive"

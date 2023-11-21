@@ -1,8 +1,7 @@
 <script lang="ts">
-  import PackageButton from "../components/PackageButton.svelte";
-
-  import packagesIcon from "../../assets/icons/packages-icon.svg";
-  import StepWrapper from "../components/StepWrapper.svelte";
+  import packagesIcon from "../assets/icons/packages-icon.svg";
+  import CheckButton from "../lib/components/CheckButton.svelte";
+  import StepWrapper from "../lib/components/StepWrapper.svelte";
 
   let gpuOptions = [
     { label: "Option 1", value: "option1" },
@@ -26,6 +25,8 @@
   title="Select Packages"
   dialogTitle="Header Here"
   dialogContent="Your text here"
+  prev="/desktop"
+  next="/partition"
 >
   <div class="flex flex-col items-center justify-center h-full">
     <div
@@ -38,12 +39,12 @@
         </div>
         <div class="h-0.5 bg-neutral-800 w-auto mt-3 mb-3" />
         <div class="w-full space-y-2">
-          <PackageButton
+          <CheckButton
             label="GPU utilities"
             options={gpuOptions}
             bind:expanded={refundExpanded}
           />
-          <PackageButton
+          <CheckButton
             label="Technical Support"
             options={otherOptions}
             bind:expanded={supportExpanded}

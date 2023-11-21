@@ -14,7 +14,7 @@
   <div class="w-full h-[50px]">
     <input
       id={inputID}
-      class="w-full h-full placeholder:text-neutral-400 rounded-full overflow-hidden ring ring-inset ring-neutral-900 px-4 focus:ring-primary-500 outline-none bg-neutral-900"
+      class="w-full h-full placeholder:text-neutral-400 rounded-full overflow-hidden border-2 border-inset border-gray-700 px-4 focus:border-primary-500 outline-none bg-gray-800"
       type="text"
       placeholder={placeholderText}
     />

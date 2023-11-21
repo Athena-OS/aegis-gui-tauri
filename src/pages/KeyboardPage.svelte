@@ -1,18 +1,16 @@
 <script lang="ts">
-  import ListBox from "../components/ListBox.svelte";
-  import InputBox from "../components/InputBox.svelte";
+  import Dropdown from "../lib/components/Dropdown.svelte";
+  import InputBox from "../lib/components/InputBox.svelte";
+  import StepWrapper from "../lib/components/StepWrapper.svelte";
 
-  import globeIcon from "../../assets/icons/globe-icon.svg";
-  import keyboardIcon from "../../assets/icons/keyboard-icon.svg";
-  import langIcon from "../../assets/icons/lang-icon.svg";
-  import StepWrapper from "../components/StepWrapper.svelte";
-  import keyboardImage from "../../assets/keyboard.svg";
+  import globeIcon from "../assets/icons/globe-icon.svg";
+  import langIcon from "../assets/icons/lang-icon.svg";
+  import keyboardIcon from "../assets/icons/keyboard-icon.svg";
 
   let languageList = [
     { name: "English (US)" },
     { name: "German" },
     { name: "Spanish" },
-    // ... other names
   ];
 
   function handleSelect(event: CustomEvent<any>) {
@@ -24,32 +22,34 @@
   title="Select Keyboard"
   dialogTitle="Header Here"
   dialogContent="Your text here"
+  prev="/"
+  next="/desktop"
 >
   <div class="flex flex-col items-center space-y-4">
-    <img class="w-[28em] opacity-40" src={keyboardImage} alt="" />
+    <!-- <img class="w-[28em] opacity-40" src={keyboardImage} alt="" /> -->
     <div class="flex flex-col items-center space-y-8">
-      <ListBox
-        bind:items={languageList}
+      <Dropdown
         icon={globeIcon}
+        bind:items={languageList}
         label="Select Region"
         on:select={handleSelect}
         defaultItem={{ name: "Select Region" }}
       />
-      <ListBox
-        bind:items={languageList}
+      <Dropdown
         icon={langIcon}
+        bind:items={languageList}
         label="Select Language"
         on:select={handleSelect}
         defaultItem={{ name: "Select Language" }}
       />
-      <ListBox
-        bind:items={languageList}
+      <Dropdown
         icon={keyboardIcon}
+        bind:items={languageList}
         label="Select Layout"
         on:select={handleSelect}
         defaultItem={{ name: "Select Layout" }}
       />
       <InputBox label="Test Keyboard" placeholderText="Type here.." />
     </div>
-  </div></StepWrapper
->
+  </div>
+</StepWrapper>
