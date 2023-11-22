@@ -4,6 +4,11 @@
 
   import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import "@splidejs/svelte-splide/css";
+  import Button from "../lib/components/Button.svelte";
+
+  let consoleOpen = true;
+
+  let progress = 80; // in percentage
 </script>
 
 <main
@@ -33,8 +38,10 @@
               alt="Image1"
             />
             <div
-              class="absolute top-0 bottom-0 left-0 right-0 h-full w-full bg-gradient-to-t from-black to-transparent"
-            />
+              class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4 bg-gradient-to-t from-black to-transparent"
+            >
+              <Button>Visit Sponser</Button>
+            </div>
           </div>
         </SplideSlide>
         <SplideSlide>
@@ -45,32 +52,37 @@
               alt="Image1"
             />
             <div
-              class="absolute top-0 bottom-0 left-0 right-0 h-full w-full bg-gradient-to-t from-black to-transparent"
-            />
+              class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4 bg-gradient-to-t from-black to-transparent"
+            >
+              <Button>Visit Sponser</Button>
+            </div>
           </div>
         </SplideSlide>
       </Splide>
     </div>
     <div class="flex space-x-4">
       <button
+        on:click={() => (consoleOpen = !consoleOpen)}
         class="flex items-center justify-center bg-gray-800 h-10 px-4 rounded-xl"
         ><img src={arrowDown} alt="" /></button
       >
       <div
-        class="h-10 bg-gray-800 rounded-lg w-full flex items-center px-4 py-2"
+        class="h-10 bg-gray-800 rounded-xl w-full flex items-center px-4 py-2"
       >
         <div class="relative h-2 w-full rounded-full overflow-hidden">
           <div
             class="absolute top-0 bottom-0 left-0 my-auto w-full bg-gray-700"
           />
           <div
-            class="absolute top-0 bottom-0 left-0 my-auto w-1/2 bg-primary-500"
+            style="width: {progress}%;"
+            class="absolute top-0 bottom-0 left-0 my-auto bg-primary-500"
           />
         </div>
       </div>
     </div>
-    <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-4 py-2">
-      <pre class="w-full whitespace-pre-line">
+    {#if consoleOpen}
+      <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-4 py-2">
+        <pre class="w-full whitespace-pre-line">
         > 
         vite
         
@@ -83,6 +95,7 @@
           11:25:31 PM [vite-plugin-svelte] /Users/alken/Desktop/All/athena-installer/src/pages/PackagesPage.svelte:16:11 PackagesPage has unused export property 'switchView'. If it is for external reference only, please consider using `export const switchView`
           11:25:31 PM [vite-plugin-svelte] /Users/alken/Desktop/All/athena-installer/src/lib/components/Dropdown.svelte:5:11 Dropdown has unused export property 'additionalIcons'. If it is for external reference only, please consider using `export const additionalIcons`
     </pre>
-    </div>
+      </div>
+    {/if}
   </div>
 </main>
