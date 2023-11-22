@@ -27,6 +27,7 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
+    "@splidejs/svelte-splide": "^0.2.9",
     "@tauri-apps/api": "^1.5.1",
     "class-variance-authority": "^0.7.0",
     "svelte-headlessui": "^0.0.26",
