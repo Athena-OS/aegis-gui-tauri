@@ -1,15 +1,40 @@
 <script>
   import promotionImage from "../assets/promotion.png";
   import arrowDown from "../assets/icons/arrow-down-white.svg";
+  import warningIcon from "../assets/icons/warning.svg";
 
   import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import "@splidejs/svelte-splide/css";
   import Button from "../lib/components/Button.svelte";
+  import { createDialog } from "svelte-headlessui";
+  import Dialog from "../lib/components/Dialog.svelte";
+  import { onMount } from "svelte";
 
   let consoleOpen = true;
 
   let progress = 80; // in percentage
+
+  let dialog = createDialog({ label: "failed" });
+
+  // uncomment to display dialog preview
+
+  // onMount(() => {
+  //   dialog.open();
+  // });
 </script>
+
+<Dialog {dialog}>
+  <div
+    class="flex flex-col justify-center items-center text-center p-6 space-y-4"
+  >
+    <img src={warningIcon} alt="" />
+    <div class="text-4xl font-medium">Installation Failed</div>
+    <div class="text-xs hover:text-cyan-400"><a href="">Check logs ?</a></div>
+    <Button fullWidth variant="bordered">Do you want to share the logs ?</Button
+    >
+    <Button fullWidth>Close</Button>
+  </div></Dialog
+>
 
 <main
   class="h-full p-4 space-y-4 absolute top-0 left-0 right-0 overflow-scroll bg-gradient-to-tr from-blue-700 to-indigo-700"
@@ -21,7 +46,7 @@
   <div class="h-[calc(100%-96px)] space-y-4 flex flex-col">
     <div class="w-full relative">
       <div
-        class="px-4 py-1 bg-white text-black uppercase text-sm font-medium rounded-full absolute top-2 right-2 z-20"
+        class="px-4 py-1 bg-white text-black uppercase text-sm font-medium rounded-full absolute top-2 right-2 z-10"
       >
         Promotions
       </div>
@@ -81,19 +106,13 @@
       </div>
     </div>
     {#if consoleOpen}
-      <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-4 py-2">
+      <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2">
         <pre class="w-full whitespace-pre-line">
-        > 
-        vite
-        
-        Forced re-optimization of dependencies
-        
-          VITE v4.4.9  ready in 1421 ms
-        
-          ➜  Local:   http://localhost:5173/
-          ➜  Network: use --host to expose
-          11:25:31 PM [vite-plugin-svelte] /Users/alken/Desktop/All/athena-installer/src/pages/PackagesPage.svelte:16:11 PackagesPage has unused export property 'switchView'. If it is for external reference only, please consider using `export const switchView`
-          11:25:31 PM [vite-plugin-svelte] /Users/alken/Desktop/All/athena-installer/src/lib/components/Dropdown.svelte:5:11 Dropdown has unused export property 'additionalIcons'. If it is for external reference only, please consider using `export const additionalIcons`
+        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started *************** 
+        02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
+        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket. 
+        03/03/22 08:51:01 INFO   :..settcpimage: Associate with TCP/IP image name = TCPCS03/22 08:51:02 INFO   :..reg_process: registering process with the system
+        03/03/22 08:51:02 INFO   :..reg_process: attempt OS/390 registration03/22 08:51:02 INFO   :..reg_process: return from registration rc=0
     </pre>
       </div>
     {/if}

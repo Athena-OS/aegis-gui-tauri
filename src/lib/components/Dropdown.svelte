@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createListbox } from "svelte-headlessui";
   import Transition from "svelte-transition";
+  import downArrow from "../../assets/icons/arrow-down-white.svg";
 
   // External props
   export let icon: string;
@@ -34,7 +35,7 @@
     {/if}
     <div class="relative mt-1">
       <button
-        class="w-full h-[50px] flex items-center space-x-4 text-left rounded-full overflow-hidden border-2 border-inset border-neutral-800 px-3.5 text-lg hover:border-primary-500 outline-none bg-neutral-900"
+        class="w-full h-[50px] flex relative items-center space-x-4 text-left rounded-full overflow-hidden border-2 border-inset border-neutral-800 px-3.5 text-lg hover:border-primary-500 outline-none bg-neutral-900"
         use:listbox.button
         on:select={onSelect}
       >
@@ -42,6 +43,11 @@
         <span class="block truncate text-[0.9em] font-medium"
           >{$listbox.selected.name}</span
         >
+        <img
+          class="absolute right-3 top-0 bottom-0 my-auto"
+          src={downArrow}
+          alt=""
+        />
       </button>
 
       <Transition show={$listbox.expanded}>

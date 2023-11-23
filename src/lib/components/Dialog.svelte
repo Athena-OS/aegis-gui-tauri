@@ -5,7 +5,7 @@
   export let dialogTitle = "";
 </script>
 
-<div class="relative z-10">
+<div class="relative z-20">
   <Transition show={$dialog.expanded}>
     <Transition
       enter="ease-out duration-300"
@@ -35,10 +35,12 @@
             class="w-full max-w-lg border border-neutral-700 transform overflow-hidden rounded-2xl bg-gray-800 px-4 py-3 text-left align-middle shadow-xl transition-all"
             use:dialog.modal
           >
-            <h3 class="text-lg leading-6 text-neutral-200">
-              {dialogTitle}
-            </h3>
-            <div class="mt-2">
+            {#if dialogTitle && dialogTitle !== ""}
+              <h3 class="text-lg leading-6 text-neutral-200">
+                {dialogTitle}
+              </h3>
+            {/if}
+            <div class={dialogTitle ? "mt-2" : ""}>
               <slot />
             </div>
           </div>

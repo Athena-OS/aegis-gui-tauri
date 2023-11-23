@@ -9,6 +9,7 @@ import AccountsPage from "./pages/AccountsPage.svelte";
 import ExtrasPage from "./pages/ExtrasPage.svelte";
 import SummaryPage from "./pages/SummaryPage.svelte";
 import InstallPage from "./pages/InstallPage.svelte";
+import DonePage from "./pages/DonePage.svelte";
 
 export interface StepConfig {
   route: string;
@@ -27,6 +28,7 @@ const stepsConfig: StepConfig[] = [
   { route: "/extras", component: ExtrasPage },
   { route: "/summary", component: SummaryPage },
   { route: "/install", component: InstallPage },
+  { route: "/done", component: DonePage },
 ];
 
 export default stepsConfig;

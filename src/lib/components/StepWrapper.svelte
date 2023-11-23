@@ -39,7 +39,7 @@
       <img class="w-8" src={infoIcon} alt="" />
     </button>
   </div>
-  <div class="h-[calc(100%-140px)] pb-10">
+  <div class="h-[calc(100%-160px)] pb-10 overflow-scroll">
     <slot />
   </div>
   <Navigation {prev} {next} />

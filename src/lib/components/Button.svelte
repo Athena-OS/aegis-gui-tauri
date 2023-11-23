@@ -12,6 +12,7 @@
       variants: {
         variant: {
           primary: "bg-primary-500 disabled:bg-primary-200",
+          secondary: "bg-gray-100 disabled:bg-gray-200",
           bordered:
             "border-2 border-inset border-primary-500 text-primary-500 disabled:border-primary-500/20 disabled:text-primary-500/20",
         },
