@@ -14,10 +14,11 @@ import DonePage from "./pages/DonePage.svelte";
 export interface StepConfig {
   route: string;
   component: any;
+  exclude?: boolean;
 }
 
 const stepsConfig: StepConfig[] = [
-  { route: "/", component: WelcomePage },
+  { route: "/", component: WelcomePage, exclude: true },
   { route: "/keyboard", component: KeyboardPage },
   { route: "/desktop", component: DesktopPage },
   { route: "/packages", component: PackagesPage },
@@ -27,8 +28,8 @@ const stepsConfig: StepConfig[] = [
   { route: "/accounts", component: AccountsPage },
   { route: "/extras", component: ExtrasPage },
   { route: "/summary", component: SummaryPage },
-  { route: "/install", component: InstallPage },
-  { route: "/done", component: DonePage },
+  { route: "/install", component: InstallPage, exclude: true },
+  { route: "/done", component: DonePage, exclude: true },
 ];
 
 export default stepsConfig;

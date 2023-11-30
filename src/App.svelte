@@ -2,8 +2,11 @@
   import { Router, Route } from "svelte-routing";
 
   import stepsConfig from "./stepsConfig";
+  import globalStore from "./lib/stores/globalStore";
 
   export let url = "";
+
+  $: console.log($globalStore);
 </script>
 
 <Router {url}>

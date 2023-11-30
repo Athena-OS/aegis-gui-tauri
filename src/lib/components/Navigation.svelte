@@ -9,6 +9,8 @@
   let location = useLocation();
 
   let index = stepsConfig.findIndex((x) => x.route === $location.pathname);
+
+  const filteredRoutes = stepsConfig.filter((step) => !step.exclude);
 </script>
 
 <div
@@ -20,10 +22,13 @@
     >
   </div>
   <div class="flex items-center space-x-2">
-    <div class="h-2 w-2 bg-gray-500 rounded-full"></div>
-    <div class="h-4 w-4 bg-primary-500 rounded-full"></div>
-    <div class="h-2 w-2 bg-gray-500 rounded-full"></div>
-    <div class="h-2 w-2 bg-gray-500 rounded-full"></div>
+    {#each filteredRoutes as step, currentIndex}
+      <div
+        class=" rounded-full {currentIndex + 1 === index
+          ? 'h-4 w-4 bg-primary-500'
+          : 'h-2 w-2 bg-gray-500'}"
+      ></div>
+    {/each}
   </div>
   <div
     class="flex flex-col items-center justify-center space-y-2 w-40 relative"

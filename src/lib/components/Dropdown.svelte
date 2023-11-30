@@ -4,10 +4,7 @@
   import downArrow from "../../assets/icons/arrow-down-white.svg";
 
   // External props
-  export let icon: string;
-  export let width: string = "28em";
-  export let additionalIcons: string[] = [];
-  export let fullWidth: boolean = true;
+  export let icon: string = "";
 
   type ListItem = { name: string };
   export let label: string | null = null;
@@ -24,14 +21,10 @@
   const dispatch = createEventDispatcher();
 </script>
 
-<div
-  class={fullWidth
-    ? "flex w-full flex-col items-center justify-center"
-    : "flex flex-col items-center justify-center"}
->
-  <div style="width: {width};">
+<div class="flex w-full flex-col items-center justify-center">
+  <div class="w-full">
     {#if label}
-      <p class="text-[#B0B0B0] text-left font-semibold mb-2">{label}</p>
+      <p class="text-left font-medium text-neutral-400 mb-2">{label}</p>
     {/if}
     <div class="relative mt-1">
       <button
@@ -39,7 +32,9 @@
         use:listbox.button
         on:select={onSelect}
       >
-        <img src={icon} alt="dropdown icon" />
+        {#if icon}
+          <img src={icon} alt="dropdown icon" />
+        {/if}
         <span class="block truncate text-[0.9em] font-medium"
           >{$listbox.selected.name}</span
         >

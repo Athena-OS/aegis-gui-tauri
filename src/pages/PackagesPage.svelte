@@ -15,8 +15,8 @@
     { label: "Option 3", value: "option3" },
   ];
 
-  let refundExpanded = false;
-  let supportExpanded = false;
+  let gpuOptionsExpanded = true;
+  let otherOptionsExpanded = false;
 
   export let switchView: (viewName: string) => void;
 </script>
@@ -42,19 +42,30 @@
           <CheckButton
             label="GPU utilities"
             options={gpuOptions}
-            bind:expanded={refundExpanded}
+            bind:expanded={gpuOptionsExpanded}
           />
           <CheckButton
             label="Technical Support"
             options={otherOptions}
-            bind:expanded={supportExpanded}
+            bind:expanded={otherOptionsExpanded}
           />
         </div>
       </div>
       <div class="w-0.5 h-full bg-neutral-800" />
       <div class="flex flex-col px-4 py-5 gap-2">
-        {#if refundExpanded}
+        {#if gpuOptionsExpanded}
           <h3 class="text-3xl font-medium text-[#FFB800]">GPU Utilities</h3>
+          <p class="font-medium max-w-xl">
+            GPU utilities refer to software and tools designed to monitor,
+            manage, and optimize your Graphics Processing Unit (GPU). These
+            utilities help users make the most of their GPU's capabilities,
+            whether it's for gaming, content creation, machine learning, or
+            other GPU-intensive tasks. Here are some key points and
+            functionalities that come under GPU utilities:
+          </p>
+        {/if}
+        {#if otherOptionsExpanded}
+          <h3 class="text-3xl font-medium text-[#FFB800]">Technical Support</h3>
           <p class="font-medium max-w-xl">
             GPU utilities refer to software and tools designed to monitor,
             manage, and optimize your Graphics Processing Unit (GPU). These

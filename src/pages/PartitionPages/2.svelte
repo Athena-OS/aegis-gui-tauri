@@ -13,6 +13,9 @@
   import Dialog from "../../lib/components/Dialog.svelte";
   import Slider from "../../lib/components/Slider.svelte";
   import InputBox from "../../lib/components/InputBox.svelte";
+  import CardGroup from "../../lib/components/CardGroup.svelte";
+  import CreatePartitionDialog from "../../lib/components/CreatePartition/CreatePartitionDialog.svelte";
+  import SegementedBar from "../../lib/components/SegementedBar.svelte";
 
   let partitionList = [{ name: "Samsung NVME SSD 500G" }];
 
@@ -39,7 +42,7 @@
       fileSystem: "NTFS",
       mountPoint: "",
       size: "168 GB",
-      sizeInMB: 168000,
+      sizeInMB: 168,
     },
     {
       device: "/dev/nvme/0n1p4",
@@ -55,7 +58,7 @@
       fileSystem: "Btrfs",
       mountPoint: "/",
       size: "85 GB",
-      sizeInMB: 85000,
+      sizeInMB: 8500,
     },
   ];
 
@@ -109,50 +112,7 @@
 
 <!-- create new partition -->
 
-<Dialog dialog={dialogNewPartition} dialogTitle="Create a new partition table">
-  <fieldset class="flex space-x-4 pt-6">
-    <div class="w-full">
-      <label
-        class="relative px-3 py-2 w-full flex items-center ring ring-primary-500 rounded-xl"
-        for="mbr"
-        ><div>
-          <div class="text-4xl font-medium text-center p-6">MBR</div>
-          <div class="text-xs">
-            For legacy operating systems. Ex: Windows XP
-          </div>
-        </div>
-        <input
-          class="absolute top-2 right-2"
-          type="radio"
-          name="format"
-          id="mbr"
-          value="mbr"
-          checked
-        /></label
-      >
-    </div>
-    <div class="w-full">
-      <label class="relative p-2 w-full flex items-center" for="gpt"
-        ><div>
-          <div class="text-4xl font-medium text-center p-6">GPT</div>
-          <div class="text-xs">Recommended in most cases.</div>
-        </div>
-        <input
-          class="absolute top-2 right-2"
-          type="radio"
-          name="format"
-          id="gpt"
-          value="gpt"
-          checked
-        /></label
-      >
-    </div>
-  </fieldset>
-  <div class="flex justify-between pt-8 space-x-20">
-    <Button variant="bordered" fullWidth>Cancel</Button>
-    <Button fullWidth>Confirm</Button>
-  </div>
-</Dialog>
+<CreatePartitionDialog dialog={dialogNewPartition} />
 
 <Dialog dialog={dialogEditPartition} dialogTitle="Resize Partition">
   <div class="p-8 space-y-6">
@@ -164,7 +124,11 @@
   </div>
   <div class="flex justify-between pt-8">
     <div class="w-40">
-      <Button variant="bordered" fullWidth>Cancel</Button>
+      <Button
+        variant="bordered"
+        on:click={() => dialogEditPartition.close()}
+        fullWidth>Cancel</Button
+      >
     </div>
     <div class="w-40">
       <Button fullWidth>Confirm</Button>
@@ -182,7 +146,11 @@
   </div>
   <div class="flex justify-between pt-8">
     <div class="w-40">
-      <Button variant="bordered" fullWidth>Cancel</Button>
+      <Button
+        variant="bordered"
+        on:click={() => dialogDeletePartition.close()}
+        fullWidth>Cancel</Button
+      >
     </div>
     <div class="w-40">
       <Button fullWidth>Confirm</Button>
@@ -199,27 +167,18 @@
 >
   <div class="flex flex-col items-center mx-5 h-full space-y-6">
     <div class="flex flex-row items-center gap-4 w-full">
-      <Dropdown
-        bind:items={partitionList}
-        icon={diskIcon}
-        width="30em"
-        label="Select Drive"
-        on:select={handleSelect}
-        additionalIcons={[refreshIcon]}
-        defaultItem={{ name: "Select Drive" }}
-        fullWidth={false}
-      />
+      <div class="max-w-md w-full">
+        <Dropdown
+          bind:items={partitionList}
+          icon={diskIcon}
+          label="Select Drive"
+          on:select={handleSelect}
+          defaultItem={{ name: "Select Drive" }}
+        />
+      </div>
       <div class="w-full">
         <p class="text-[#B0B0B0] text-left font-semibold mb-2">Partition</p>
-        <div
-          class="flex flex-row items-center justify-center rounded-full bg-[#1A1A1A] border-2 border-[#2F2F2F] w-full h-[50px] overflow-hidden"
-        >
-          <div class="flex-grow h-full bg-red-500" />
-          <div class="w-[2px] h-full bg-[#2F2F2F]" />
-          <div class="flex-grow h-full bg-green-500" />
-          <div class="w-[2px] h-full bg-[#2F2F2F]" />
-          <div class="flex-grow h-full bg-blue-500" />
-        </div>
+        <SegementedBar totalValue={20000} items={partitionData} />
       </div>
     </div>
     <div class="w-full">

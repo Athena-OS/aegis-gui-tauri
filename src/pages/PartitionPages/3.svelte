@@ -1,13 +1,8 @@
 <script lang="ts">
-  import refreshIcon from "../../assets/icons/refresh.svg";
-  import editGrayIcon from "../../assets/icons/edit-gray.svg";
-  import binGrayIcon from "../../assets/icons/bin-gray.svg";
-
-  import diskIcon from "../../assets/icons/disk.svg";
   import StepWrapper from "../../lib/components/StepWrapper.svelte";
-  import Dropdown from "../../lib/components/Dropdown.svelte";
+  import SegementedBar from "../../lib/components/SegementedBar.svelte";
 
-  let partitionList = [{ name: "Samsung NVME SSD 500G" }];
+  let partitionDisks = [{ name: "Samsung NVME SSD 500G" }];
 
   let partitionData = [
     {
@@ -32,7 +27,7 @@
       fileSystem: "NTFS",
       mountPoint: "",
       size: "168 GB",
-      sizeInMB: 168000,
+      sizeInMB: 168,
     },
     {
       device: "/dev/nvme/0n1p4",
@@ -48,7 +43,50 @@
       fileSystem: "Btrfs",
       mountPoint: "/",
       size: "85 GB",
-      sizeInMB: 85000,
+      sizeInMB: 8500,
+    },
+  ];
+
+  let partitionDataNew = [
+    {
+      device: "/dev/nvme/0n1p1",
+      name: "This is New",
+      fileSystem: "FAT32",
+      mountPoint: "/boot/efi",
+      size: "548 MB",
+      sizeInMB: 548,
+    },
+    {
+      device: "/dev/nvme/0n1p2",
+      name: "Im new too",
+      fileSystem: "Unknown",
+      mountPoint: "",
+      size: "1200 MB",
+      sizeInMB: 1200,
+    },
+    {
+      device: "/dev/nvme/0n1p3",
+      name: "Im old",
+      fileSystem: "NTFS",
+      mountPoint: "",
+      size: "168 GB",
+      sizeInMB: 168,
+    },
+    {
+      device: "/dev/nvme/0n1p4",
+      name: "You Ask",
+      fileSystem: "exFat",
+      mountPoint: "/boot/grub",
+      size: "7.1 GB",
+      sizeInMB: 7100,
+    },
+    {
+      device: "/dev/nvme/0n1p5",
+      name: "Same Here",
+      fileSystem: "Btrfs",
+      mountPoint: "/",
+      size: "2.5 GB",
+      sizeInMB: 2500,
     },
   ];
 
@@ -90,127 +128,18 @@
   prev="configure-partition"
   next="accounts"
 >
-  <div class="flex flex-col items-center mx-5 h-full space-y-6">
-    <div class="text-left w-full text-2xl font-semibold">
-      1. Current Partition
-    </div>
-    <div class="flex flex-row items-center gap-4 w-full">
-      <div
-        class="flex flex-row items-center justify-center rounded-full bg-[#1A1A1A] border-2 border-[#2F2F2F] w-full h-[50px] overflow-hidden"
-      >
-        <div class="flex-grow h-full bg-red-500" />
-        <div class="w-[2px] h-full bg-[#2F2F2F]" />
-        <div class="flex-grow h-full bg-green-500" />
-        <div class="w-[2px] h-full bg-[#2F2F2F]" />
-        <div class="flex-grow h-full bg-blue-500" />
+  <div class="space-y-10">
+    <div class="flex flex-col items-center mx-5 h-fit space-y-6">
+      <div class="text-left w-full text-2xl font-semibold">
+        1. Current Partition
       </div>
+      <SegementedBar totalValue={20000} items={partitionData} />
     </div>
-    <div class="w-full">
-      <h3 class="font-semibold mb-4 text-[#B0B0B0]">New Partition Table</h3>
-
-      <div
-        class="rounded-2xl overflow-hidden bg-[#1A1A1A] border-2 border-[#2F2F2F]"
-      >
-        <div class="max-h-[18.3em] overflow-auto">
-          <table class="min-w-full w-full">
-            <thead class="bg-[#363636] sticky top-0">
-              <tr>
-                <th class="w-1/6 text-left p-3">Block Device</th>
-                <th class="text-left p-3">Name</th>
-                <th class="text-left p-3">File System</th>
-                <th class="text-left p-3">Mount Point</th>
-                <th class="text-left p-3">Size</th>
-                <th class="text-right p-3 pr-9">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each partitionData as row}
-                <tr class="border-t border-[#2F2F2F]">
-                  <td
-                    class="text-white font-semibold p-3 flex items-center gap-2"
-                  >
-                    <div class="rounded-full bg-[#FF5353] w-3 h-3" />
-                    {row.device}
-                  </td>
-                  <td class="text-[#B0B0B0] p-3">{row.name}</td>
-                  <td class="text-[#B0B0B0] p-3">{row.fileSystem}</td>
-                  <td class="text-[#B0B0B0] p-3">{row.mountPoint}</td>
-                  <td class="text-[#B0B0B0] font-semibold p-3">{row.size}</td>
-                  <td class="py-2 text-right p-3 pr-9">
-                    <button class="mr-2">
-                      <img src={editGrayIcon} alt="edit" />
-                    </button>
-                    <button class="">
-                      <img src={binGrayIcon} alt="delete" />
-                    </button>
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
+    <div class="flex flex-col items-center mx-5 h-fit space-y-6">
+      <div class="text-left w-full text-2xl font-semibold">
+        2. New Partition
       </div>
-    </div>
-  </div>
-  <div class="flex flex-col items-center mx-5 h-full space-y-6">
-    <div class="text-left w-full text-2xl font-semibold">2. New Partition</div>
-    <div class="flex flex-row items-center gap-4 w-full">
-      <div
-        class="flex flex-row items-center justify-center rounded-full bg-[#1A1A1A] border-2 border-[#2F2F2F] w-full h-[50px] overflow-hidden"
-      >
-        <div class="flex-grow h-full bg-red-500" />
-        <div class="w-[2px] h-full bg-[#2F2F2F]" />
-        <div class="flex-grow h-full bg-green-500" />
-        <div class="w-[2px] h-full bg-[#2F2F2F]" />
-        <div class="flex-grow h-full bg-blue-500" />
-      </div>
-    </div>
-
-    <div class="w-full">
-      <h3 class="font-semibold mb-4 text-[#B0B0B0]">New Partition Table</h3>
-
-      <div
-        class="rounded-2xl overflow-hidden bg-[#1A1A1A] border-2 border-[#2F2F2F]"
-      >
-        <div class="max-h-[18.3em] overflow-auto">
-          <table class="min-w-full w-full">
-            <thead class="bg-[#363636] sticky top-0">
-              <tr>
-                <th class="w-1/6 text-left p-3">Block Device</th>
-                <th class="text-left p-3">Name</th>
-                <th class="text-left p-3">File System</th>
-                <th class="text-left p-3">Mount Point</th>
-                <th class="text-left p-3">Size</th>
-                <th class="text-right p-3 pr-9">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each partitionData as row}
-                <tr class="border-t border-[#2F2F2F]">
-                  <td
-                    class="text-white font-semibold p-3 flex items-center gap-2"
-                  >
-                    <div class="rounded-full bg-[#FF5353] w-3 h-3" />
-                    {row.device}
-                  </td>
-                  <td class="text-[#B0B0B0] p-3">{row.name}</td>
-                  <td class="text-[#B0B0B0] p-3">{row.fileSystem}</td>
-                  <td class="text-[#B0B0B0] p-3">{row.mountPoint}</td>
-                  <td class="text-[#B0B0B0] font-semibold p-3">{row.size}</td>
-                  <td class="py-2 text-right p-3 pr-9">
-                    <button class="mr-2">
-                      <img src={editGrayIcon} alt="edit" />
-                    </button>
-                    <button class="">
-                      <img src={binGrayIcon} alt="delete" />
-                    </button>
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <SegementedBar totalValue={20000} items={partitionDataNew} />
     </div>
   </div>
 </StepWrapper>
