@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neutral-950 text-white;
+  }
+  h1 {
+    @apply text-6xl font-semibold;
+  }
+  h2 {
+    @apply text-4xl font-semibold;
+  }
+}
+
+@layer components {
+  .ti {
+    @apply !text-2xl !font-bold;
+  }
+}

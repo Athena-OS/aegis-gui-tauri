@@ -1,22 +1,20 @@
-<script lang="ts">
-  import ProgressStepper from "./lib/components/ProgressStepper.svelte";
-  import { stepsConfig } from "./lib/stepsConfig";
-  import type { SwitchEvent } from "./lib/types";
+<script>
+  import { Router, Route } from "svelte-routing";
 
-  let currentComponent = stepsConfig[0].component;
-  let currentStep = 1;
+  import stepsConfig from "./stepsConfig";
+  import globalStore from "./lib/stores/globalStore";
 
-  function handleSwitch(event: CustomEvent<SwitchEvent>): void {
-    const targetView = event.detail.targetView;
-    const stepIndex = stepsConfig.findIndex(step => step.view === targetView);
-    currentStep = stepIndex + 1;
-    currentComponent = stepsConfig[stepIndex].component;
-  }
+  export let url = "";
+
+  $: console.log($globalStore);
 </script>
 
-{#if currentStep === 1}
-    <svelte:component this={currentComponent} on:switch={handleSwitch} />
-{:else}
-<svelte:component this={currentComponent} />
-    <ProgressStepper bind:currentStep={currentStep} on:switch={handleSwitch} />
-{/if}
+<Router {url}>
+  <div class="h-screen">
+    <div class="h-[calc(100%-50px)] pb-6">
+      {#each stepsConfig as step}
+        <Route path={step.route} component={step.component} />
+      {/each}
+    </div>
+  </div>
+</Router>
