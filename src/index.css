@@ -4,11 +4,14 @@
 
 @layer base {
   body {
-    @apply bg-neutral-950 text-white;
+    background-color: #0a0a0a;
+    @apply text-white;
   }
+
   h1 {
     @apply text-6xl font-semibold;
   }
+
   h2 {
     @apply text-4xl font-semibold;
   }

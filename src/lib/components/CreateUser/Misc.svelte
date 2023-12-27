@@ -1,13 +1,14 @@
 <script>
   import Switch from "../Switch.svelte";
+  import accountsStore from "../../stores/accountsStore";
 </script>
 
-<div class="space-y-2 mt-8">
+<div class="space-y-2">
   <div class="text-red-400 font-medium">Configure Permissions</div>
   <ul class=" divide-y divide-neutral-700">
     <li>
       <span>Allow ROOT Access</span>
-      <Switch />
+      <Switch bind:value={$accountsStore.createNewUserTemp.hasRoot} />
     </li>
     <li>
       <span>Permission 2</span>

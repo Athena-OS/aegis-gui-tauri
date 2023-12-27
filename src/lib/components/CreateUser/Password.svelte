@@ -2,11 +2,29 @@
   import { createTabs } from "svelte-headlessui";
   import InputBox from "../InputBox.svelte";
 
-  const tabs = createTabs({ selected: "Same as ROOT" });
-  const keys = ["Same as ROOT", "CUSTOM"];
+  import accountsStore from "../../stores/accountsStore";
+
+  let tabs = createTabs({ selected: "CUSTOM" });
+  let keys = ["Same as ROOT", "CUSTOM"];
+  if (
+    $accountsStore.users.length <= 0 ||
+    $accountsStore.users.filter((item) => item.hasRoot === true).length <= 0
+  ) {
+    tabs = createTabs({ selected: "CUSTOM" });
+    keys = ["CUSTOM"];
+  }
+
+  $: $tabs.selected, onTabsSelected();
+  function onTabsSelected() {
+    if ($tabs.selected === "CUSTOM") {
+      $accountsStore.createNewUserTemp.passwordSameAsRoot = false;
+    }else{
+      $accountsStore.createNewUserTemp.passwordSameAsRoot = true;
+    }
+  }
 </script>
 
-<div class="flex w-full flex-col items-center justify-center mt-8">
+<div class="flex w-full flex-col items-center justify-center">
   <div class="w-full space-y-2">
     <div class="font-medium text-neutral-400">Password Options</div>
     <div
@@ -25,17 +43,17 @@
     <div>
       {#each keys as value}
         <div use:tabs.panel={{}}>
-          {#if $tabs.selected === value && $tabs.selected === "Same as ROOT"}
-            <ul class="p-2 bg-gray-700 rounded-xl text-neutral-400">
-              Continue
-            </ul>
-          {:else if $tabs.selected === value && $tabs.selected === "CUSTOM"}
+          {#if $tabs.selected === value && $tabs.selected === "CUSTOM"}
             <div class="space-y-4">
               <InputBox
+                bind:value={$accountsStore.createNewUserTemp.password}
+                inputType="password"
                 label="Password"
                 placeholderText="Enter your password"
               />
               <InputBox
+                bind:value={$accountsStore.createNewUserTemp.confirmPassword}
+                inputType="password"
                 label="Confirm Password"
                 placeholderText="Confirm your password"
               />

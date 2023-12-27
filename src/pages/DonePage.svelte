@@ -3,19 +3,26 @@
   import doneIcon from "../assets/icons/done.svg";
 
   import Button from "../lib/components/Button.svelte";
+
+  let app_element = document.getElementById("app");
+  if (app_element) {
+    app_element.style.background =
+      "linear-gradient(180deg, #002358 0%, #6790EB 160.63%)";
+  }
 </script>
 
-<div class="relative h-screen flex flex-col items-center overflow-hidden">
-  <div class="text-center p-4 flex items-center space-x-2">
-    <h2 class="text-center py-2">Done</h2>
-    <img class="h-10 w-10" src={doneIcon} alt="" />
-  </div>
+<div class="z-10 relative h-screen flex flex-col items-center overflow-hidden">
   <div class="h-full flex flex-col justify-center items-center space-y-12">
+    <div class="flex space-x-2 items-center justify-center">
+      <h2 class="text-center text-5xl py-2">Installation Complete</h2>
+      <img class="h-10 w-10" src={doneIcon} alt="" />
+    </div>
+
     <div class="relative circle-surround">
       <img
         src={athenaLogo}
         alt="athena-logo"
-        class="w-40 p-2 bg-primary-500 border-solid rounded-full"
+        class="w-64 rounded-full border-primary-500 border-solid border-[20px]"
       />
     </div>
     <div class="flex space-x-4 w-80">

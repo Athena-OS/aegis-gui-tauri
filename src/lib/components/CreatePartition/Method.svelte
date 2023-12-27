@@ -1,8 +1,12 @@
 <script>
   import CardGroup from "../CardGroup.svelte";
+  import partitionStore from "../../stores/partitionStore";
 </script>
 
 <CardGroup
+  on:change={(e) => {
+    $partitionStore.newPartition.type = e.detail.target.value;
+  }}
   title="Method of Partition"
   warning={false}
   cards={[

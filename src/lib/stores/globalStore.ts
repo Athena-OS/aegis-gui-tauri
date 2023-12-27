@@ -1,10 +1,10 @@
 import { derived } from "svelte/store";
 import keyboardStore from "./keyboardStore";
-import environmentStore from "./environmentStore";
+import desktopStore from "./desktopStore";
 
 const globalStore = derived(
-  [keyboardStore, environmentStore],
-  ([$keyboardStore, $environmentStore]) => {
+  [keyboardStore, desktopStore],
+  ([$keyboardStore, $desktopStore]) => {
     return {
       keyboard: {
         region: $keyboardStore.region,
@@ -12,7 +12,9 @@ const globalStore = derived(
         layout: $keyboardStore.layout,
       },
       environment: {
-        desktop: $environmentStore.desktop,
+        environment: $desktopStore.environment,
+        theme: $desktopStore.theme,
+        displayManager: $desktopStore.displayManager,
       },
     };
   }

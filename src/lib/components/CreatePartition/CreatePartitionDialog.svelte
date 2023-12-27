@@ -1,5 +1,7 @@
 <script lang="ts">
   import Transition from "svelte-transition";
+  import partitionStore from "../../stores/partitionStore";
+
   import Button from "../Button.svelte";
   import Method from "./Method.svelte";
   import Size from "./Size.svelte";
@@ -27,6 +29,14 @@
     if (currentStep < steps.length - 1) {
       currentStep++;
     } else {
+      $partitionStore.systemStorageInfo
+        .filter(
+          (item) => item.displayName === $partitionStore.selectedDevice,
+        )[0]
+        .partitions.push({
+          ...$partitionStore.newPartition,
+          availableStorage: 0,
+        });
       dialog.close();
     }
   };
@@ -62,10 +72,10 @@
             class="w-full max-w-xl border border-neutral-700 transform overflow-hidden rounded-2xl bg-gray-800 px-4 py-3 text-left align-middle shadow-xl transition-all"
             use:dialog.modal
           >
-            <h3 class="text-xl leading-6 text-neutral-400">
+            <h3 class="text-x leading-6 text-neutral-400">
               Create a new partition
             </h3>
-            <div class="mt-2 transition-height ease-out p-6">
+            <div class="transition-height ease-out p-2">
               {#each steps as step, index}
                 {#if index === currentStep}
                   <svelte:component this={step.component} />

@@ -1,26 +1,18 @@
 <script lang="ts">
+  import { bytesToMB } from "../utils/functions";
+  import type { PartitionInfo } from "../utils/types";
+
   export let totalValue = 100;
 
-  interface SegmentItem {
-    device: string;
-    name: string;
-    fileSystem: string;
-    mountPoint: string;
-    size: string;
-    sizeInMB: number;
-  }
-
-  export let items: SegmentItem[];
+  export let items: PartitionInfo[];
 
   const backgroundClasses = [
     "bg-red-500",
-    "bg-blue-500",
     "bg-green-500",
-    "bg-yellow-500",
     "bg-blue-500",
+    "bg-primary-500",
     "bg-purple-500",
-    "bg-indigo-500",
-    "bg-cyan-500",
+    "bg-neutral-500",
   ];
 </script>
 
@@ -28,7 +20,7 @@
   {#each items as item, index}
     <div
       class="h-full {backgroundClasses[index]}"
-      style="width: {(item.sizeInMB / totalValue) * 100}%"
+      style="width: {(parseFloat(bytesToMB(item.size)) / totalValue) * 100}%"
     ></div>
   {/each}
 </div>

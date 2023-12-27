@@ -1,10 +1,16 @@
 <script lang="ts">
   import { Link, useLocation } from "svelte-routing";
-  import Button from "./Button.svelte";
+  import { createDialog } from "svelte-headlessui";
+
   import stepsConfig from "../../stepsConfig";
+
+  import Button from "./Button.svelte";
+  import Dialog from "./Dialog.svelte";
 
   export let prev: string = "";
   export let next: string = "";
+
+  let dialog = createDialog({ label: "Are you sure?" });
 
   let location = useLocation();
 
@@ -12,6 +18,19 @@
 
   const filteredRoutes = stepsConfig.filter((step) => !step.exclude);
 </script>
+
+<Dialog {dialog}>
+  <div class="w-full h-full space-y-4 text-center">
+    <h3 class="font-medium text-xl mx-4">Do you want to start the installation process ?</h3>
+    <h3 class="font-medium text-xl mx-4 text-red-500">This can't be undone</h3>
+    <div class="flex space-x-2 w-full">
+      <Button on:click={dialog.close} fullWidth variant="bordered">Cancel</Button>
+      <Link to={next} class="w-full">
+        <Button fullWidth variant="primary">Install</Button>
+      </Link>
+    </div>
+  </div>
+</Dialog>
 
 <div
   class="flex justify-between items-center absolute bottom-0 left-0 right-0 w-full p-6"
@@ -36,8 +55,17 @@
     <div class="text-primary-500 font-medium absolute bottom-14">
       Step {index} of 9
     </div>
-    <Link class="w-full" to={next}>
-      <Button fullWidth>Next</Button></Link
-    >
+    {#if next === "/install"}
+        <Button fullWidth on:click={dialog.open}>Next</Button>
+    {:else if next !== ""}
+      <Link class="w-full" to={next}>
+        <Button fullWidth>Next</Button>
+      </Link>
+    {:else}
+      <button
+        class="rounded-full text-black font-medium flex items-center justify-center space-x-2 px-4 py-2 text-lg h-[50px] w-full bg-primary-800"
+        >Next</button
+      >
+    {/if}
   </div>
 </div>

@@ -6,6 +6,10 @@
   export let value = 0;
 
   $: currentValue = value;
+
+  function updateValue(e: Event){
+    value = e.target.value;
+  }
 </script>
 
 <div class="w-full px-6 rounded-full overflow-hidden relative">
@@ -13,9 +17,9 @@
   <div class="absolute w-6 h-full bg-gray-700 right-0 top-0"></div>
   <div class="w-full relative">
     <div class="w-full pointer-events-none bg-gray-700">
-      <div style="width: {currentValue}%;" class="h-[50px] bg-cyan-400"></div>
+      <div style="width: {(currentValue / max) * 100}%;" class="h-[50px] bg-cyan-400"></div>
       <div
-        style="left: calc({currentValue}% - 20px);"
+        style="left: calc({(currentValue / max) * 100}% - 20px);"
         class="absolute top-0 bottom-0 my-auto h-10 w-10 p-0.5"
       >
         <div
@@ -30,7 +34,9 @@
       type="range"
       {min}
       {max}
-      bind:value
+      value
+      step={102}
+      on:change={updateValue}
     />
   </div>
 </div>

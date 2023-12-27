@@ -2,6 +2,13 @@
   import { createSwitch } from "svelte-headlessui";
 
   const sw = createSwitch({ label: "Set Preference" });
+
+  export let value: boolean = false;
+
+  $: $sw.checked, onClick();
+  function onClick() {
+    value = $sw.checked;
+  }
 </script>
 
 <button

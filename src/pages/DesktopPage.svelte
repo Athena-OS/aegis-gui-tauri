@@ -1,36 +1,124 @@
 <script lang="ts">
-  import gnomeImage from "../assets/desktop/gnome.webp";
-  import kdeImage from "../assets/desktop/kde.png";
+  import akameThemeImage from "../assets/desktop/akame-theme.png";
+  import graphiteThemeImage from "../assets/desktop/graphite-theme.png";
+  import gruvboxThemeImage from "../assets/desktop/gruvbox-theme.png";
+  import samuraiGirlThemeImage from "../assets/desktop/samurai-girl-theme.png";
+  import SweetDarkThemeImage from "../assets/desktop/sweet-dark-theme.png";
+  import xxeThemeImage from "../assets/desktop/xxe-theme.png";
+
+  import environmentIcon from "../assets/icons/environment.svg";
+  import themeIcon from "../assets/icons/theme.svg";
+  import displayManagerIcon from "../assets/icons/desktop-manager.svg";
+
+  import Dropdown from "../lib/components/Dropdown.svelte";
+  import desktopStore from "../lib/stores/desktopStore";
   import StepWrapper from "../lib/components/StepWrapper.svelte";
 
-  let listItems = [
+  let environmentList = [
     {
       name: "GNOME",
       desc: "An elegant, GTK-powered desktop environment designed to help you get things done with ease, comfort and control.",
-      img: gnomeImage,
+      selected: $desktopStore.environment === "GNOME"
     },
     {
-      name: "KDE Plasma",
+      name: "KDE",
       desc: "",
-      img: kdeImage,
+      selected: $desktopStore.environment === "KDE"
+    },
+    {
+      name: "MATE",
+      desc: "",
+      selected: $desktopStore.environment === "MATE"
     },
     {
       name: "XFCE",
       desc: "",
-      img: "",
+      selected: $desktopStore.environment === "XFCE"
+    },
+    {
+      name: "Bspwm",
+      desc: "",
+      selected: $desktopStore.environment === "Bspwm"
+    },
+    {
+      name: "Cinnamon",
+      desc: "",
+      selected: $desktopStore.environment === "Cinnamon"
     },
     {
       name: "Hyprland",
       desc: "",
-      img: "",
+      selected: $desktopStore.environment === "Hyprland"
     },
   ];
 
-  let currentSelected = 0;
+  let themeList = [
+    {
+      name: "Akame",
+      img: akameThemeImage,
+      selected: $desktopStore.theme === "Akame"
+    },
+    {
+      name: "Graphite",
+      img: graphiteThemeImage,
+      selected: $desktopStore.theme === "Graphite"
+    },
+    {
+      name: "Gruvbox",
+      img: gruvboxThemeImage,
+      selected: $desktopStore.theme === "Gruvbox"
+    },
+    // {
+    //   name: "Hack The Box",
+    //   img: "",
+    // },
+    {
+      name: "Samurai Girl",
+      img: samuraiGirlThemeImage,
+      selected: $desktopStore.theme === "Samurai Girl"
+    },
+    {
+      name: "Sweet Dark",
+      img: SweetDarkThemeImage,
+      selected: $desktopStore.theme === "Sweet Dark"
+    },
+    {
+      name: "XXE",
+      img: xxeThemeImage,
+      selected: $desktopStore.theme === "XXE"
+    },
+  ];
 
-  function selectName(index: number) {
-    currentSelected = index;
+  let displayManagerList = [
+    {
+      name: "GDM ( GNOME display manager )",
+      selected: $desktopStore.displayManager === "GDM ( GNOME display manager )"
+    },
+    {
+      name: "LightDM Neon",
+      selected: $desktopStore.displayManager === "LightDM Neon"
+    },
+    {
+      name: "LightDM Everblush",
+      selected: $desktopStore.displayManager === "LightDM Everblush"
+    },
+    {
+      name: "SDDM",
+      selected: $desktopStore.displayManager === "SDDM"
+    },
+  ];
+
+  let nextPage = "";
+  function IsOkayToMoveNextPage() {
+    if (
+      $desktopStore.environment !== "default" &&
+      $desktopStore.theme !== "default" &&
+      $desktopStore.displayManager !== "default"
+    ) {
+      nextPage = "/packages";
+    }
   }
+  $: $desktopStore, IsOkayToMoveNextPage();
 </script>
 
 <StepWrapper
@@ -38,51 +126,77 @@
   dialogTitle="Header Here"
   dialogContent="Your text here"
   prev="/keyboard"
-  next="/packages"
+  next={nextPage}
 >
-  <div class="flex h-full flex-col items-left">
-    <div class="flex flex-row h-full w-full gap-4">
-      <div
-        class="h-full bg-neutral-900 w-56 rounded-3xl border border-neutral-800 p-2"
-      >
-        <ul class="space-y-2">
-          {#each listItems as { name, desc }, index (index)}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-            <li
-              class="p-2 cursor-pointer rounded-xl"
-              class:active={currentSelected === index}
-              on:click={() => selectName(index)}
-            >
-              {name}
-            </li>
-          {/each}
-        </ul>
-      </div>
-      <div class="flex flex-col h-full flex-1 gap-4">
+  <div class="flex h-3/4 w-full">
+    <div class="w-1/2 h-full p-6">
+      {#if $desktopStore.theme !== "default"}
+        <img
+          src={themeList[
+            themeList.findIndex((theme) => theme.name === $desktopStore.theme)
+          ].img}
+          alt="Selected Theme"
+          class="w-full h-full object-cover rounded-3xl"
+        />
+      {:else}
         <div
-          class="bg-neutral-900 w-full h-32 rounded-3xl border border-neutral-800 px-4 py-2 text-xl"
-        >
-          {#if listItems[currentSelected]}
-            <div class="description">
-              <div class="font-semibold">{listItems[currentSelected].name}</div>
-              <p class="text-neutral-400">{listItems[currentSelected].desc}</p>
-            </div>
-          {/if}
-        </div>
-        <div class="w-full flex-1 relative">
-          <div class="absolute inset-0">
-            {#if listItems[currentSelected]}
-              <img
-                src={listItems[currentSelected].img}
-                alt="gnome"
-                class="w-full h-full object-cover rounded-3xl"
-              />
-            {/if}
-          </div>
-        </div>
-      </div>
+          class="w-full h-full flex justify-center items-center bg-neutral-900 rounded-3xl text-2xl text-neutral-500"
+        ></div>
+      {/if}
     </div>
+    <div class="w-1/2 space-y-16">
+      <Dropdown
+        icon={environmentIcon}
+        bind:items={environmentList}
+        label="Select Environment"
+        on:select={(event) => {
+          $desktopStore.environment = event.detail.selected.name;
+        }}
+        defaultItem={{ name: "Select Environment" }}
+      />
+      {#if $desktopStore.environment !== "Hyprland" && $desktopStore.environment !== "Bspwm"}
+        <Dropdown
+          icon={themeIcon}
+          bind:items={themeList}
+          label="Select Theme"
+          on:select={(event) =>
+            ($desktopStore.theme = event.detail.selected.name)}
+          defaultItem={{ name: "Select Theme" }}
+        />
+      {/if}
+      <Dropdown
+        icon={displayManagerIcon}
+        bind:items={displayManagerList}
+        label="Select Display Manager"
+        on:select={(event) =>
+          ($desktopStore.displayManager = event.detail.selected.name)}
+        defaultItem={{ name: "Select Display Manager" }}
+      />
+    </div>
+  </div>
+  <div class="w-full h-1/4 text-xl justify-center items-center flex space-x-4">
+    <button class="bg-neutral-800 p-4 rounded-xl"
+      >{$desktopStore.environment !== "default"
+        ? $desktopStore.environment
+        : "Environment"}</button
+    >
+    <h4 class="font-black text-4xl text-primary-400">+</h4>
+    <button class="bg-neutral-800 p-4 rounded-xl"
+      >{$desktopStore.theme !== "default"
+        ? $desktopStore.theme
+        : "Theme"}</button
+    >
+    <h4 class="font-black text-4xl text-primary-400">+</h4>
+    <button class="bg-neutral-800 p-4 rounded-xl"
+      >{$desktopStore.displayManager !== "default"
+        ? $desktopStore.displayManager
+        : "Display Manager"}</button
+    >
+    <h4 class="font-black text-4xl text-primary-400">=</h4>
+    <button
+      class="p-4 rounded-xl bg-neutral-800 border-2 border-primary-500 font-bold"
+      >Your Desktop 🤩</button
+    >
   </div>
 </StepWrapper>
 

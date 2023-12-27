@@ -1,17 +1,18 @@
 <script lang="ts">
   import { createListbox } from "svelte-headlessui";
   import Transition from "svelte-transition";
+
   import downArrow from "../../assets/icons/arrow-down-white.svg";
 
   // External props
   export let icon: string = "";
 
-  type ListItem = { name: string };
+  type ListItem = { name: string, selected?: boolean };
   export let label: string | null = null;
   export let defaultItem: ListItem = { name: "Default Item" };
   export let items: ListItem[] = [defaultItem];
 
-  const listbox = createListbox({ label: "Dropdown", selected: defaultItem });
+  const listbox = createListbox({ label: "Dropdown", selected: items.find(item=> item.selected === true) !== undefined ? items.find(item=> item.selected === true) : defaultItem });
 
   function onSelect(e: Event) {
     dispatch("select", (e as CustomEvent).detail);

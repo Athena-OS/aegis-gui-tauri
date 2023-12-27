@@ -1,14 +1,19 @@
 <script>
-  import promotionImage from "../assets/promotion.png";
+  import promotionImage2 from "../assets/promotion/promotion2.jpg";
+  import promotionImage3 from "../assets/promotion/promotion3.jpg";
+  import promotionVideo from "../assets/promotion/video.mp4";
+
   import arrowDown from "../assets/icons/arrow-down-white.svg";
   import warningIcon from "../assets/icons/warning.svg";
 
+  import Button from "../lib/components/Button.svelte";
+  import Dialog from "../lib/components/Dialog.svelte";
+
+  import { createDialog } from "svelte-headlessui";
+  import { Link } from "svelte-routing";
+
   import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import "@splidejs/svelte-splide/css";
-  import Button from "../lib/components/Button.svelte";
-  import { createDialog } from "svelte-headlessui";
-  import Dialog from "../lib/components/Dialog.svelte";
-  import { onMount } from "svelte";
 
   let consoleOpen = true;
 
@@ -32,7 +37,9 @@
     <div class="text-xs hover:text-cyan-400"><a href="">Check logs ?</a></div>
     <Button fullWidth variant="bordered">Do you want to share the logs ?</Button
     >
-    <Button fullWidth>Close</Button>
+    <Link class="w-full" to="/">
+      <Button fullWidth>Close</Button>
+    </Link>
   </div></Dialog
 >
 
@@ -44,7 +51,7 @@
     <div>Sit back and enjoy while we install AthenaOS for you</div>
   </div>
   <div class="h-[calc(100%-96px)] space-y-4 flex flex-col">
-    <div class="w-full relative">
+    <div class="w-full h-fit relative">
       <div
         class="px-4 py-1 bg-white text-black uppercase text-sm font-medium rounded-full absolute top-2 right-2 z-10"
       >
@@ -57,13 +64,17 @@
       >
         <SplideSlide>
           <div class="w-full h-full relative">
-            <img
-              class="object-cover w-full aspect-[38/9]"
-              src={promotionImage}
-              alt="Image1"
-            />
+            <video
+              class={`object-cover w-full ${
+                consoleOpen ? "aspect-[38/9]" : "aspect-[20/9]"
+              }`}
+              autoplay
+            >
+              <source src={promotionVideo} type="video/mp4" />
+              <track kind="captions" />
+            </video>
             <div
-              class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4 bg-gradient-to-t from-black to-transparent"
+              class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4"
             >
               <Button>Visit Sponser</Button>
             </div>
@@ -72,12 +83,30 @@
         <SplideSlide>
           <div class="w-full h-full relative">
             <img
-              class="object-cover w-full aspect-[38/9]"
-              src={promotionImage}
+              class={`object-cover w-full ${
+                consoleOpen ? "aspect-[38/9]" : "aspect-[20/9]"
+              }`}
+              src={promotionImage3}
               alt="Image1"
             />
             <div
-              class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4 bg-gradient-to-t from-black to-transparent"
+              class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4"
+            >
+              <Button>Visit Sponser</Button>
+            </div>
+          </div>
+        </SplideSlide>
+        <SplideSlide>
+          <div class="w-full h-full relative">
+            <img
+              class={`object-cover w-full ${
+                consoleOpen ? "aspect-[38/9]" : "aspect-[20/9]"
+              }`}
+              src={promotionImage2}
+              alt="Image1"
+            />
+            <div
+              class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4"
             >
               <Button>Visit Sponser</Button>
             </div>
@@ -108,9 +137,9 @@
     {#if consoleOpen}
       <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2">
         <pre class="w-full whitespace-pre-line">
-        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started *************** 
+        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started ***************
         02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
-        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket. 
+        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket.
         03/03/22 08:51:01 INFO   :..settcpimage: Associate with TCP/IP image name = TCPCS03/22 08:51:02 INFO   :..reg_process: registering process with the system
         03/03/22 08:51:02 INFO   :..reg_process: attempt OS/390 registration03/22 08:51:02 INFO   :..reg_process: return from registration rc=0
     </pre>

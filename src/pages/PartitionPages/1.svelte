@@ -3,50 +3,159 @@
   import diskIcon from "../../assets/icons/disk.svg";
   import eraseDiskIcon from "../../assets/icons/erase-disk.svg";
   import manualDiskIcon from "../../assets/icons/manual-disk.svg";
+
   import StepWrapper from "../../lib/components/StepWrapper.svelte";
   import Dropdown from "../../lib/components/Dropdown.svelte";
   import CardGroup from "../../lib/components/CardGroup.svelte";
+  import Button from "../../lib/components/Button.svelte";
+  import partitionStore from "../../lib/stores/partitionStore";
 
-  let partitionList = [
-    { name: "Samsung NVME SSD 500G" },
-    // ... other names
-  ];
+  import { disks } from "tauri-plugin-system-info-api";
+  import { invoke } from "@tauri-apps/api";
 
-  let selectedDrive: { name: string } | null = null;
-  let selectedOption: null | string = null;
+  import { type StorageDevice } from "../../lib/utils/types";
+  import { bytesToGB } from "../../lib/utils/functions";
 
-  $: canContinue =
-    selectedDrive !== null &&
-    selectedDrive.name !== "Select Drive" &&
-    selectedOption !== null;
+  $partitionStore.mode = "auto";
+  let storageDevicesList: any[] = [];
 
-  function handleSelect(event: CustomEvent<any>) {
-    console.log("Selected item:", event.detail);
-    selectedDrive = event.detail;
+  async function fetchAndParseStorageInfo() {
+    let sysInfo_Disks = await disks();
+
+    invoke("get_partitions_file_systems").then((file_systems_response: any) => {
+      invoke("get_storage_devices").then((response: any) => {
+        let commandOutput = response
+          .split("\n\n\n")
+          .filter((item: string) => item.includes("Disk model"));
+
+        commandOutput.map((disksData: any) => {
+          let DisksDataLines = disksData.split("\n");
+
+          let disk_data: StorageDevice = {
+            diskModel: DisksDataLines[1].split(":")[1].trim(),
+            logicalName: DisksDataLines[0].split(":")[0].split(" ")[1].trim(),
+            displayName: "",
+            totalStorage: parseInt(
+              DisksDataLines[0]
+                .split(":")[1]
+                .split(",")[1]
+                .trim()
+                .replace("bytes", ""),
+            ),
+            availableStorage: 0,
+            disklabelType: DisksDataLines[5].split(":")[1].trim(),
+            kind: "",
+            isRemovable: false,
+            partitions: [],
+          };
+
+          let currentDiskPartitionsSysInfo = sysInfo_Disks.filter((item) =>
+            item.name.includes(disk_data.logicalName),
+          );
+
+          for (
+            let index =
+              DisksDataLines.indexOf(
+                DisksDataLines.find((line: string) => line.includes("Device")),
+              ) + 1;
+            index < DisksDataLines.length;
+            index++
+          ) {
+            let elements = DisksDataLines[index]
+              .split(" ")
+              .filter((item: any) => item.length > 0);
+
+            let elementPartitionInfo = currentDiskPartitionsSysInfo.find(
+              (item) => item.name === elements[0].trim(),
+            );
+
+            elements.splice(0, 1);
+            elements.splice(0, 1);
+            elements.splice(0, 1);
+            elements.splice(0, 1);
+            elements.splice(0, 1);
+
+            if (elementPartitionInfo !== undefined) {
+              disk_data.partitions.push({
+                name: elementPartitionInfo.name,
+                size: elementPartitionInfo.total_space,
+                availableStorage: elementPartitionInfo.available_space,
+                type: elements.join(" "),
+                fileSystem: file_systems_response
+                  .split("\n")
+                  .find((line: any) => line.includes(elementPartitionInfo.name))
+                  .split(" ")
+                  .filter((item: any) => item.length > 0)[1],
+                mountPoint: elementPartitionInfo.mount_point,
+              });
+            }
+          }
+
+          disk_data.kind = currentDiskPartitionsSysInfo[0].kind;
+          disk_data.isRemovable = currentDiskPartitionsSysInfo[0].is_removable;
+          disk_data.displayName =
+            disk_data.diskModel +
+            " " +
+            disk_data.kind +
+            " ( " +
+            bytesToGB(disk_data.totalStorage) +
+            "GB )";
+          currentDiskPartitionsSysInfo.map((item) => {
+            disk_data.availableStorage =
+              disk_data.availableStorage + item.available_space;
+          });
+          console.log(disk_data);
+          $partitionStore.systemStorageInfo.push(disk_data);
+
+          storageDevicesList.push({
+            name: disk_data.displayName,
+          });
+        });
+        console.log($partitionStore.systemStorageInfo);
+      });
+    });
   }
 
-  function handleOptionSelect(option: string) {
-    selectedOption = option;
+  fetchAndParseStorageInfo();
+
+  let nextPage = "";
+  function IsOkayToMoveNextPage() {
+    if ($partitionStore.selectedDevice !== "default") {
+      if ($partitionStore.mode === "auto") {
+        nextPage = "/accounts";
+      } else {
+        nextPage = "/configure-partition";
+      }
+    }
   }
+
+  $: $partitionStore, IsOkayToMoveNextPage();
 </script>
 
 <StepWrapper
   title="Partition"
   dialogTitle="Header Here"
   dialogContent="Your text here"
-  prev="packages"
-  next="configure-partition"
+  prev="/packages"
+  next={nextPage}
 >
   <div class="flex flex-col items-center gap-10 w-full max-w-md mx-auto">
-    <Dropdown
-      bind:items={partitionList}
-      icon={diskIcon}
-      label="Select Drive"
-      on:select={handleSelect}
-      defaultItem={{ name: "Select Drive" }}
-    />
+    <div class="flex space-x-2 items-end w-full">
+      <Dropdown
+        bind:items={storageDevicesList}
+        icon={diskIcon}
+        label="Select Drive"
+        on:select={(event) =>
+          ($partitionStore.selectedDevice = event.detail.selected.name)}
+        defaultItem={{ name: "Select Drive" }}
+      />
+      <!-- <Button on:click={fetchAndParseStorageInfo}
+        ><img src={refreshIcon} alt="" srcset="" /></Button
+      > -->
+    </div>
     <CardGroup
-      title="Method of Partition"
+      title="How do you want to partition ?"
+      on:change={(event) => ($partitionStore.mode = event.detail.target.value)}
       cards={[
         {
           title: "Automatic",
