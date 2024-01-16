@@ -35,7 +35,7 @@
       {min}
       {max}
       value
-      step={102}
+      step={1024}
       on:change={updateValue}
     />
   </div>

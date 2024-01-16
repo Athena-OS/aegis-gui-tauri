@@ -5,6 +5,7 @@
   import Button from "../Button.svelte";
   import Method from "./Method.svelte";
   import Size from "./Size.svelte";
+  import { MBtoBytes } from "../../utils/functions";
 
   export let dialog: any;
 
@@ -29,15 +30,54 @@
     if (currentStep < steps.length - 1) {
       currentStep++;
     } else {
-      $partitionStore.systemStorageInfo
-        .filter(
+      if (
+        $partitionStore.newPartition.name !== "" &&
+        $partitionStore.newPartition.fileSystem !== "" &&
+        $partitionStore.newPartition.mountPoint !== ""
+      ) {
+        $partitionStore.newPartition.size = MBtoBytes(
+          $partitionStore.newPartition.size,
+        );
+
+        $partitionStore.systemStorageInfo
+          .filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0]
+          .partitions.push({
+            partitionName:
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice,
+              )[0].logicalName +
+              `p${
+                $partitionStore.systemStorageInfo.filter(
+                  (item) => item.displayName === $partitionStore.selectedDevice,
+                )[0].partitions.length + 1
+              }`,
+            size: $partitionStore.newPartition.size,
+            fileSystem: $partitionStore.newPartition.fileSystem,
+            mountPoint: $partitionStore.newPartition.mountPoint,
+            name: $partitionStore.newPartition.name,
+            availableStorage: 0,
+          });
+
+        $partitionStore.systemStorageInfo.filter(
           (item) => item.displayName === $partitionStore.selectedDevice,
-        )[0]
-        .partitions.push({
-          ...$partitionStore.newPartition,
-          availableStorage: 0,
-        });
-      dialog.close();
+        )[0].availableStorage =
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].availableStorage - $partitionStore.newPartition.size;
+
+        $partitionStore.newPartition = {
+          partitionName: "",
+          size: 1024,
+          fileSystem: "",
+          mountPoint: "",
+          name: "Athena OS",
+          isEncrypted: false,
+        };
+
+        dialog.close();
+      }
     }
   };
 </script>
@@ -72,9 +112,7 @@
             class="w-full max-w-xl border border-neutral-700 transform overflow-hidden rounded-2xl bg-gray-800 px-4 py-3 text-left align-middle shadow-xl transition-all"
             use:dialog.modal
           >
-            <h3 class="text-x leading-6 text-neutral-400">
-              Create a new partition
-            </h3>
+            <h3 class="text-2xl my-2 font-meidum">Create a new partition</h3>
             <div class="transition-height ease-out p-2">
               {#each steps as step, index}
                 {#if index === currentStep}

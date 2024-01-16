@@ -77,10 +77,10 @@
 
             if (elementPartitionInfo !== undefined) {
               disk_data.partitions.push({
-                name: elementPartitionInfo.name,
+                partitionName: elementPartitionInfo.name,
                 size: elementPartitionInfo.total_space,
                 availableStorage: elementPartitionInfo.available_space,
-                type: elements.join(" "),
+                name: elements.join(" "),
                 fileSystem: file_systems_response
                   .split("\n")
                   .find((line: any) => line.includes(elementPartitionInfo.name))
@@ -106,12 +106,12 @@
           });
           console.log(disk_data);
           $partitionStore.systemStorageInfo.push(disk_data);
+          $partitionStore.systemStorageInfoCurrent.push({...disk_data});
 
           storageDevicesList.push({
             name: disk_data.displayName,
           });
         });
-        console.log($partitionStore.systemStorageInfo);
       });
     });
   }

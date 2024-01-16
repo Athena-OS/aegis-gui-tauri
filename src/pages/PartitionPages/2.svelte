@@ -9,7 +9,7 @@
 
   import { createDialog } from "svelte-headlessui";
 
-  import { bytesToGB, bytesToMB } from "../../lib/utils/functions";
+  import { MBtoBytes, bytesToGB, bytesToMB } from "../../lib/utils/functions";
   import partitionStore from "../../lib/stores/partitionStore";
 
   import SegementedBar from "../../lib/components/SegementedBar.svelte";
@@ -48,7 +48,6 @@
 
       if (diskData.displayName === $partitionStore.selectedDevice) {
         diskData.partitions.map((partition) => {
-          console.log(partition);
           partitionData.push(partition);
         });
       }
@@ -61,6 +60,7 @@
 
   gatherInfo();
   $: $partitionStore.systemStorageInfo, gatherInfo();
+  $: $partitionStore.selectedDevice, gatherInfo();
 
   // create new partition
   let dialogNewPartition = createDialog({ label: "create-partition" });
@@ -70,22 +70,35 @@
   let dialogEditPartition = createDialog({ label: "edit-partition" });
   // delete existing partition
   let dialogDeletePartition = createDialog({ label: "delete-partition" });
+
+  let selectedPartitionForAction: any = {
+    partitionName: "",
+    size: 0,
+    availableStorage: 0,
+    name: "",
+    fileSystem: "",
+    mountPoint: "",
+  };
 </script>
 
 <!-- create new partition -->
-
 <CreatePartitionDialog dialog={dialogNewPartition} />
 
 <Dialog dialog={dialogReplacePartition}>
-  <div class="w-full h-72">
+  <div class="w-full h-72 space-y-4">
     <h4 class="text-2xl my-4 font-meidum">Replace Partition</h4>
     <Dropdown
-      bind:items={partitionData}
+      items={[
+        ...partitionData.map((partition) => {
+          return { name: partition.partitionName, selected: false };
+        }),
+      ]}
       icon={diskIcon}
-      label="Select Drive"
+      label="Select Partition"
       on:select={(event) =>
-        ($partitionStore.replacedPartition = event.detail.selected.name)}
-      defaultItem={{ name: "Select Drive" }}
+        ($partitionStore.replacedPartition.partitionName =
+          event.detail.selected.name)}
+      defaultItem={{ name: "Select Partition" }}
     />
   </div>
   <div class="flex justify-between space-x-2 pt-8">
@@ -94,21 +107,69 @@
       on:click={() => dialogReplacePartition.close()}
       fullWidth>Cancel</Button
     >
-    <Button on:click={() => dialogReplacePartition.close()} fullWidth
-      >Confirm</Button
+    <Button
+      on:click={() => {
+        console.log($partitionStore.replacedPartition);
+      }}
+      fullWidth>Confirm</Button
     >
   </div>
 </Dialog>
 
-<Dialog dialog={dialogEditPartition} dialogTitle="Resize Partition">
-  <div class="p-8 space-y-6">
+<Dialog dialog={dialogEditPartition}>
+  <div class="w-full h-fit space-y-4 py-4">
+    <h4 class="text-2xl font-meidum">Resize Partition</h4>
     <div class="text-center">
-      Resizing /dev/nvme0n1p7 (85 GB Btrfs: AthenaOS)
+      Resizing {selectedPartitionForAction.partitionName} ({bytesToGB(
+        selectedPartitionForAction.size,
+      )} GB {selectedPartitionForAction.fileSystem}: {selectedPartitionForAction.name})
     </div>
-    <Slider />
-    <InputBox placeholderText="Enter Value" label="Size" rightLabel="MB" />
+    <Slider
+      max={parseFloat(bytesToMB(selectedPartitionForAction.size))}
+      min={parseFloat(bytesToMB(selectedPartitionForAction.size)) -
+        parseFloat(bytesToMB(selectedPartitionForAction.availableStorage))}
+      bind:value={selectedPartitionForAction.newSize}
+    />
+    {#if selectedPartitionForAction.newSize !== undefined}
+      <div class="flex text-xl justify-between">
+        <h4>
+          Used: {bytesToGB(
+            parseFloat(selectedPartitionForAction.size) -
+              parseFloat(selectedPartitionForAction.availableStorage),
+          )} GB
+        </h4>
+        <h4>
+          Available: {(
+            parseFloat(bytesToGB(selectedPartitionForAction.size)) -
+            parseFloat(bytesToGB(MBtoBytes(selectedPartitionForAction.newSize)))
+          ).toFixed(2)} GB
+        </h4>
+      </div>
+      <div class="flex space-x-2">
+        <InputBox
+          value={selectedPartitionForAction.newSize}
+          placeholderText="Enter Value"
+          label="Resized Storage"
+          rightLabel="MB"
+          inputType="number"
+          isDisabled={true}
+          styleClass="w-1/2"
+        />
+        <InputBox
+          value={bytesToGB(
+            MBtoBytes(selectedPartitionForAction.newSize),
+          ).toString()}
+          placeholderText="Enter Value"
+          label="‎"
+          rightLabel="GB"
+          inputType="number"
+          isDisabled={true}
+          styleClass="w-1/2"
+        />
+      </div>
+    {/if}
   </div>
-  <div class="flex justify-between pt-8">
+  <div class="flex justify-between mt-4">
     <div class="w-40">
       <Button
         variant="bordered"
@@ -117,7 +178,51 @@
       >
     </div>
     <div class="w-40">
-      <Button fullWidth>Confirm</Button>
+      <Button
+        on:click={() => {
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.filter(
+              (partition) =>
+                partition.partitionName ===
+                  selectedPartitionForAction.partitionName &&
+                partition.name === selectedPartitionForAction.name,
+            )[0].size = MBtoBytes(selectedPartitionForAction.newSize);
+
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.filter(
+              (partition) =>
+                partition.partitionName ===
+                  selectedPartitionForAction.partitionName &&
+                partition.name === selectedPartitionForAction.name,
+            )[0].availableStorage =
+            selectedPartitionForAction.size -
+            MBtoBytes(selectedPartitionForAction.newSize);
+
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].availableStorage =
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0].totalStorage -
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice,
+              )[0]
+              .partitions.reduce((accumulator, partition) => {
+                return accumulator + partition.size;
+              }, 0);
+
+          gatherInfo();
+          dialogEditPartition.close();
+        }}
+        fullWidth>Confirm</Button
+      >
     </div>
   </div>
 </Dialog>
@@ -126,7 +231,9 @@
   <div class="p-8 space-y-6 flex items-center flex-col">
     <img src={warningIcon} alt="" />
     <div class="text-center text-2xl font-medium">
-      Confirm Delete of "EFI System Partition" of size "273 MB"
+      Confirm Delete of "{selectedPartitionForAction.name}" of size "{bytesToMB(
+        selectedPartitionForAction.size,
+      )} MB"
     </div>
     <div class="text-red-500">This action is irreversable</div>
   </div>
@@ -138,7 +245,35 @@
         fullWidth>Cancel</Button
       >
     </div>
-    <div class="w-40">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div
+      class="w-40"
+      on:click={() => {
+        $partitionStore.systemStorageInfo.filter(
+          (item) => item.displayName === $partitionStore.selectedDevice,
+        )[0].partitions = $partitionStore.systemStorageInfo
+          .filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0]
+          .partitions.filter(
+            (item) =>
+              item.size !== selectedPartitionForAction.size &&
+              item.name !== selectedPartitionForAction.name,
+          );
+
+        $partitionStore.systemStorageInfo.filter(
+          (item) => item.displayName === $partitionStore.selectedDevice,
+        )[0].availableStorage =
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].availableStorage + selectedPartitionForAction.size;
+
+        gatherInfo();
+
+        dialogDeletePartition.close();
+      }}
+    >
       <Button fullWidth>Confirm</Button>
     </div>
   </div>
@@ -204,21 +339,39 @@
                       class="text-white font-semibold p-3 flex items-center gap-2"
                     >
                       <div class={`${row.color} rounded-full w-3 h-3`} />
-                      {row.name}
+                      {row.partitionName}
                     </td>
-                    <td class="text-[#B0B0B0] p-3">{row.type.toUpperCase()}</td>
+                    <td class="text-[#B0B0B0] p-3">{row.name.toUpperCase()}</td>
                     <td class="text-[#B0B0B0] p-3"
                       >{row.fileSystem.toUpperCase()}</td
                     >
                     <td class="text-[#B0B0B0] p-3">{row.mountPoint}</td>
                     <td class="text-[#B0B0B0] font-semibold p-3"
-                      >{bytesToMB(parseInt(row.size))} MB</td
+                      >{bytesToMB(parseInt(row.size))} MB / {bytesToGB(
+                        parseInt(row.size),
+                      )} GB</td
                     >
                     <td class="py-2 text-right p-3 pr-9">
-                      <button class="mr-2" on:click={dialogEditPartition.open}>
+                      <button
+                        class="mr-2"
+                        on:click={() => {
+                          selectedPartitionForAction = {
+                            ...row,
+                            newSize: bytesToMB(row.size - row.availableStorage),
+                          };
+
+                          console.log(selectedPartitionForAction);
+                          dialogEditPartition.open();
+                        }}
+                      >
                         <img src={editGrayIcon} alt="edit" />
                       </button>
-                      <button on:click={dialogDeletePartition.open}>
+                      <button
+                        on:click={() => {
+                          selectedPartitionForAction = row;
+                          dialogDeletePartition.open();
+                        }}
+                      >
                         <img src={binGrayIcon} alt="delete" />
                       </button>
                     </td>
@@ -231,10 +384,12 @@
       </div>
     </div>
     <div class="flex w-full justify-end space-x-4">
-      <Button variant="secondary" on:click={dialogNewPartition.open}
-        ><img src={plusWhiteIcon} alt="" />
-        <span>Create Partition</span></Button
-      >
+      {#if parseInt(bytesToGB($partitionStore.systemStorageInfo.filter((item) => item.displayName === $partitionStore.selectedDevice)[0].availableStorage)) > 1}
+        <Button variant="secondary" on:click={dialogNewPartition.open}
+          ><img src={plusWhiteIcon} alt="" />
+          <span>Create Partition</span></Button
+        >
+      {/if}
       <Button variant="bordered" on:click={dialogReplacePartition.open}>
         <img class="h-6" src={replaceIcon} alt="" />
         <span>Replace</span></Button

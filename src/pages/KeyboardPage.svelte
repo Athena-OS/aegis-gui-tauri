@@ -2,7 +2,7 @@
   import Dropdown from "../lib/components/Dropdown.svelte";
   import InputBox from "../lib/components/InputBox.svelte";
   import StepWrapper from "../lib/components/StepWrapper.svelte";
-  
+
   import keyboardStore from "../lib/stores/keyboardStore";
 
   import globeIcon from "../assets/icons/globe-icon.svg";

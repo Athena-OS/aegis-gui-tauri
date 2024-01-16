@@ -1,5 +1,5 @@
 export function bytesToGB(bytes: number) {
-    if (typeof bytes !== "number" || isNaN(bytes) || bytes < 0) {
+    if (isNaN(bytes) || bytes < 0) {
         throw new Error(
             "Invalid input. Please provide a non-negative number representing bytes.",
         );
@@ -12,7 +12,7 @@ export function bytesToGB(bytes: number) {
 }
 
 export function bytesToMB(bytes: number) {
-    if (typeof bytes !== 'number' || isNaN(bytes) || bytes < 0) {
+    if (isNaN(bytes) || bytes < 0) {
         throw new Error(
             "Invalid input. Please provide a non-negative number representing bytes.",
         );
@@ -22,4 +22,15 @@ export function bytesToMB(bytes: number) {
     const megabytes = bytes / MB;
 
     return megabytes.toFixed(2); // Round to two decimal places
+}
+
+export function MBtoBytes(megabytes: number) {
+    if (isNaN(megabytes) || megabytes < 0) {
+        throw new Error('Invalid input. Please provide a non-negative number representing megabytes.');
+    }
+
+    const bytesInMB = Math.pow(1024, 2);
+    const bytes = megabytes * bytesInMB;
+
+    return bytes;
 }

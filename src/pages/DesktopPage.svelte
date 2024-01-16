@@ -18,37 +18,37 @@
     {
       name: "GNOME",
       desc: "An elegant, GTK-powered desktop environment designed to help you get things done with ease, comfort and control.",
-      selected: $desktopStore.environment === "GNOME"
+      selected: $desktopStore.environment === "GNOME",
     },
     {
       name: "KDE",
       desc: "",
-      selected: $desktopStore.environment === "KDE"
+      selected: $desktopStore.environment === "KDE",
     },
     {
       name: "MATE",
       desc: "",
-      selected: $desktopStore.environment === "MATE"
+      selected: $desktopStore.environment === "MATE",
     },
     {
       name: "XFCE",
       desc: "",
-      selected: $desktopStore.environment === "XFCE"
+      selected: $desktopStore.environment === "XFCE",
     },
     {
       name: "Bspwm",
       desc: "",
-      selected: $desktopStore.environment === "Bspwm"
+      selected: $desktopStore.environment === "Bspwm",
     },
     {
       name: "Cinnamon",
       desc: "",
-      selected: $desktopStore.environment === "Cinnamon"
+      selected: $desktopStore.environment === "Cinnamon",
     },
     {
       name: "Hyprland",
       desc: "",
-      selected: $desktopStore.environment === "Hyprland"
+      selected: $desktopStore.environment === "Hyprland",
     },
   ];
 
@@ -56,17 +56,17 @@
     {
       name: "Akame",
       img: akameThemeImage,
-      selected: $desktopStore.theme === "Akame"
+      selected: $desktopStore.theme === "Akame",
     },
     {
       name: "Graphite",
       img: graphiteThemeImage,
-      selected: $desktopStore.theme === "Graphite"
+      selected: $desktopStore.theme === "Graphite",
     },
     {
       name: "Gruvbox",
       img: gruvboxThemeImage,
-      selected: $desktopStore.theme === "Gruvbox"
+      selected: $desktopStore.theme === "Gruvbox",
     },
     // {
     //   name: "Hack The Box",
@@ -75,36 +75,37 @@
     {
       name: "Samurai Girl",
       img: samuraiGirlThemeImage,
-      selected: $desktopStore.theme === "Samurai Girl"
+      selected: $desktopStore.theme === "Samurai Girl",
     },
     {
       name: "Sweet Dark",
       img: SweetDarkThemeImage,
-      selected: $desktopStore.theme === "Sweet Dark"
+      selected: $desktopStore.theme === "Sweet Dark",
     },
     {
       name: "XXE",
       img: xxeThemeImage,
-      selected: $desktopStore.theme === "XXE"
+      selected: $desktopStore.theme === "XXE",
     },
   ];
 
   let displayManagerList = [
     {
       name: "GDM ( GNOME display manager )",
-      selected: $desktopStore.displayManager === "GDM ( GNOME display manager )"
+      selected:
+        $desktopStore.displayManager === "GDM ( GNOME display manager )",
     },
     {
       name: "LightDM Neon",
-      selected: $desktopStore.displayManager === "LightDM Neon"
+      selected: $desktopStore.displayManager === "LightDM Neon",
     },
     {
       name: "LightDM Everblush",
-      selected: $desktopStore.displayManager === "LightDM Everblush"
+      selected: $desktopStore.displayManager === "LightDM Everblush",
     },
     {
       name: "SDDM",
-      selected: $desktopStore.displayManager === "SDDM"
+      selected: $desktopStore.displayManager === "SDDM",
     },
   ];
 
@@ -159,8 +160,15 @@
           icon={themeIcon}
           bind:items={themeList}
           label="Select Theme"
-          on:select={(event) =>
-            ($desktopStore.theme = event.detail.selected.name)}
+          on:select={(event) => {
+            $desktopStore.theme = event.detail.selected.name;
+            $desktopStore.themeImage =
+              themeList[
+                themeList.findIndex(
+                  (theme) => theme.name === event.detail.selected.name,
+                )
+              ].img;
+          }}
           defaultItem={{ name: "Select Theme" }}
         />
       {/if}

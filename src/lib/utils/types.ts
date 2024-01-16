@@ -10,10 +10,10 @@ export type StorageDevice = {
     isRemovable: boolean;
 };
 export type PartitionInfo = {
-    name: String;
+    partitionName: String;
     size: number;
     availableStorage: number;
-    type: String;
+    name: String;
     fileSystem: String;
     mountPoint: String;
 };

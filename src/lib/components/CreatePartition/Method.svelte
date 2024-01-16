@@ -5,7 +5,7 @@
 
 <CardGroup
   on:change={(e) => {
-    $partitionStore.newPartition.type = e.detail.target.value;
+    // $partitionStore.newPartition.type = e.detail.target.value;
   }}
   title="Method of Partition"
   warning={false}

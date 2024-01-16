@@ -4,6 +4,7 @@ const desktopStore = writable({
   environment: "default",
   theme: "default",
   displayManager: "default",
+  themeImage: "default",
 });
 
 export default desktopStore;
