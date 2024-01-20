@@ -16,7 +16,7 @@
     "@types/node": "^20.6.3",
     "@types/svelte-range-slider-pips": "^2.0.3",
     "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.30",
+    "postcss": "^8.4.31",
     "prettier": "3.0.3",
     "sass": "^1.68.0",
     "svelte": "^4.0.5",
