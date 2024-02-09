@@ -9,7 +9,13 @@
 
   import { createDialog } from "svelte-headlessui";
 
-  import { MBtoBytes, bytesToGB, bytesToMB } from "../../lib/utils/functions";
+  import {
+    GBToMB,
+    MBtoBytes,
+    MBtoGB,
+    bytesToGB,
+    bytesToMB,
+  } from "../../lib/utils/functions";
   import partitionStore from "../../lib/stores/partitionStore";
 
   import SegementedBar from "../../lib/components/SegementedBar.svelte";
@@ -58,12 +64,89 @@
     });
   }
 
+  function changeAllowCreation() {
+    if (
+      parseInt(
+        bytesToGB(
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].availableStorage,
+        ),
+      ) > 1
+    ) {
+      allowCreation = true;
+    } else {
+      allowCreation = false;
+    }
+  }
+
   gatherInfo();
   $: $partitionStore.systemStorageInfo, gatherInfo();
   $: $partitionStore.selectedDevice, gatherInfo();
+  $: $partitionStore.systemStorageInfo.filter(
+    (item) => item.displayName === $partitionStore.selectedDevice,
+  )[0].availableStorage,
+    changeAllowCreation();
+
+  function ResizingPartitionOnChangeValue(e: any) {
+    let value = GBToMB(parseFloat(e.target.value));
+
+    if (!isNaN(parseFloat(value))) {
+      if (
+        parseFloat(value) >=
+          parseFloat(
+            bytesToMB(
+              $partitionStore.systemStorageInfoCurrent
+                .filter(
+                  (item) => item.displayName === $partitionStore.selectedDevice,
+                )[0]
+                .partitions.filter(
+                  (partition) =>
+                    partition.partitionName ===
+                      selectedPartitionForAction.partitionName &&
+                    partition.name === selectedPartitionForAction.name,
+                )[0].size,
+            ),
+          ) &&
+        parseFloat(value) <=
+          parseFloat(
+            bytesToMB(
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice,
+              )[0].totalStorage,
+            ),
+          ) -
+            parseFloat(
+              bytesToMB(
+                $partitionStore.systemStorageInfo
+                  .filter(
+                    (item) =>
+                      item.displayName === $partitionStore.selectedDevice,
+                  )[0]
+                  .partitions.reduce((accumulator, partition) => {
+                    if (partition.name !== selectedPartitionForAction.name) {
+                      return accumulator + partition.size;
+                    } else {
+                      return accumulator;
+                    }
+                  }, 0),
+              ),
+            )
+      ) {
+        e.target.parentElement.classList.remove("border-red-500");
+        selectedPartitionForAction.size = MBtoBytes(parseFloat(value));
+      } else {
+        e.target.parentElement.classList.add("border-red-500");
+      }
+    } else {
+      e.target.parentElement.classList.add("border-red-500");
+    }
+  }
 
   // create new partition
   let dialogNewPartition = createDialog({ label: "create-partition" });
+
+  let allowCreation = true;
   // replace partition
   let dialogReplacePartition = createDialog({ label: "replace-partition" });
   // edit existing partition
@@ -85,8 +168,8 @@
 <CreatePartitionDialog dialog={dialogNewPartition} />
 
 <Dialog dialog={dialogReplacePartition}>
-  <div class="w-full h-72 space-y-4">
-    <h4 class="text-2xl my-4 font-meidum">Replace Partition</h4>
+  <div class="w-full h-fit my-4 space-y-8 flex flex-col justify-between">
+    <h4 class="text-2xl font-meidum">Replace Partition</h4>
     <Dropdown
       items={[
         ...partitionData.map((partition) => {
@@ -95,13 +178,23 @@
       ]}
       icon={diskIcon}
       label="Select Partition"
-      on:select={(event) =>
-        ($partitionStore.replacedPartition.partitionName =
-          event.detail.selected.name)}
+      on:select={(event) => {
+        $partitionStore.replacedPartition = $partitionStore.systemStorageInfo
+          .filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0]
+          .partitions.filter(
+            (item) => item.partitionName === event.detail.selected.name,
+          )[0];
+      }}
       defaultItem={{ name: "Select Partition" }}
     />
+
+    <h4 class="text-xl my-4 font-meidum text-red-500">
+      *The following partition will be replaced with Athena OS Partition
+    </h4>
   </div>
-  <div class="flex justify-between space-x-2 pt-8">
+  <div class="flex justify-between space-x-2">
     <Button
       variant="bordered"
       on:click={() => dialogReplacePartition.close()}
@@ -109,7 +202,47 @@
     >
     <Button
       on:click={() => {
-        console.log($partitionStore.replacedPartition);
+        console.log(
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.filter(
+              (partition) =>
+                partition.partitionName ===
+                  $partitionStore.replacedPartition.partitionName &&
+                partition.size === $partitionStore.replacedPartition.size,
+            )[0],
+        );
+
+        $partitionStore.systemStorageInfo
+          .filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0]
+          .partitions.filter(
+            (partition) =>
+              partition.partitionName ===
+                $partitionStore.replacedPartition.partitionName &&
+              partition.size === $partitionStore.replacedPartition.size,
+          )[0].name = "Athena OS";
+
+        console.log(
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.filter(
+              (partition) =>
+                partition.partitionName ===
+                  $partitionStore.replacedPartition.partitionName &&
+                partition.size === $partitionStore.replacedPartition.size,
+            )[0],
+        );
+
+        gatherInfo();
+        changeAllowCreation();
+
+        dialogReplacePartition.close();
       }}
       fullWidth>Confirm</Button
     >
@@ -124,46 +257,80 @@
         selectedPartitionForAction.size,
       )} GB {selectedPartitionForAction.fileSystem}: {selectedPartitionForAction.name})
     </div>
-    <Slider
-      max={parseFloat(bytesToMB(selectedPartitionForAction.size))}
-      min={parseFloat(bytesToMB(selectedPartitionForAction.size)) -
-        parseFloat(bytesToMB(selectedPartitionForAction.availableStorage))}
-      bind:value={selectedPartitionForAction.newSize}
+    <SegementedBar
+      totalValue={parseFloat(
+        bytesToMB(
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].totalStorage -
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice,
+              )[0]
+              .partitions.reduce((accumulator, partition) => {
+                if (partition.name !== selectedPartitionForAction.name) {
+                  return accumulator + partition.size;
+                } else {
+                  return accumulator;
+                }
+              }, 0),
+        ),
+      )}
+      color={"bg-cyan-400"}
+      items={[{ ...selectedPartitionForAction }]}
     />
-    {#if selectedPartitionForAction.newSize !== undefined}
-      <div class="flex text-xl justify-between">
+    {#if selectedPartitionForAction.size !== undefined}
+      <div class="text-xl justify-between">
         <h4>
-          Used: {bytesToGB(
-            parseFloat(selectedPartitionForAction.size) -
-              parseFloat(selectedPartitionForAction.availableStorage),
+          New Reallocated Size: {bytesToGB(
+            parseFloat(selectedPartitionForAction.size),
           )} GB
         </h4>
+        {#if $partitionStore.systemStorageInfoCurrent
+          .filter((item) => item.displayName === $partitionStore.selectedDevice)[0]
+          .partitions.filter((partition) => partition.partitionName === selectedPartitionForAction.partitionName).length > 0}
+          <h4>
+            Used: {bytesToGB(
+              $partitionStore.systemStorageInfoCurrent
+                .filter(
+                  (item) => item.displayName === $partitionStore.selectedDevice,
+                )[0]
+                .partitions.filter(
+                  (partition) =>
+                    partition.partitionName ===
+                    selectedPartitionForAction.partitionName,
+                )[0].size,
+            )} GB
+          </h4>
+        {/if}
         <h4>
-          Available: {(
-            parseFloat(bytesToGB(selectedPartitionForAction.size)) -
-            parseFloat(bytesToGB(MBtoBytes(selectedPartitionForAction.newSize)))
-          ).toFixed(2)} GB
+          Available: {bytesToGB(
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0].totalStorage -
+              ($partitionStore.systemStorageInfo
+                .filter(
+                  (item) => item.displayName === $partitionStore.selectedDevice,
+                )[0]
+                .partitions.reduce((accumulator, partition) => {
+                  if (partition.name !== selectedPartitionForAction.name) {
+                    return accumulator + partition.size;
+                  } else {
+                    return accumulator;
+                  }
+                }, 0) +
+                selectedPartitionForAction.size),
+          )} GB
         </h4>
       </div>
       <div class="flex space-x-2">
         <InputBox
-          value={selectedPartitionForAction.newSize}
+          givenOnChangeValue={ResizingPartitionOnChangeValue}
+          value={bytesToGB(selectedPartitionForAction.size)}
           placeholderText="Enter Value"
           label="Resized Storage"
-          rightLabel="MB"
-          inputType="number"
-          isDisabled={true}
-          styleClass="w-1/2"
-        />
-        <InputBox
-          value={bytesToGB(
-            MBtoBytes(selectedPartitionForAction.newSize),
-          ).toString()}
-          placeholderText="Enter Value"
-          label="‎"
           rightLabel="GB"
           inputType="number"
-          isDisabled={true}
           styleClass="w-1/2"
         />
       </div>
@@ -189,20 +356,7 @@
                 partition.partitionName ===
                   selectedPartitionForAction.partitionName &&
                 partition.name === selectedPartitionForAction.name,
-            )[0].size = MBtoBytes(selectedPartitionForAction.newSize);
-
-          $partitionStore.systemStorageInfo
-            .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0]
-            .partitions.filter(
-              (partition) =>
-                partition.partitionName ===
-                  selectedPartitionForAction.partitionName &&
-                partition.name === selectedPartitionForAction.name,
-            )[0].availableStorage =
-            selectedPartitionForAction.size -
-            MBtoBytes(selectedPartitionForAction.newSize);
+            )[0].size = selectedPartitionForAction.size;
 
           $partitionStore.systemStorageInfo.filter(
             (item) => item.displayName === $partitionStore.selectedDevice,
@@ -219,6 +373,7 @@
               }, 0);
 
           gatherInfo();
+          changeAllowCreation();
           dialogEditPartition.close();
         }}
         fullWidth>Confirm</Button
@@ -357,10 +512,7 @@
                         on:click={() => {
                           selectedPartitionForAction = {
                             ...row,
-                            newSize: bytesToMB(row.size - row.availableStorage),
                           };
-
-                          console.log(selectedPartitionForAction);
                           dialogEditPartition.open();
                         }}
                       >
@@ -384,7 +536,7 @@
       </div>
     </div>
     <div class="flex w-full justify-end space-x-4">
-      {#if parseInt(bytesToGB($partitionStore.systemStorageInfo.filter((item) => item.displayName === $partitionStore.selectedDevice)[0].availableStorage)) > 1}
+      {#if allowCreation === true}
         <Button variant="secondary" on:click={dialogNewPartition.open}
           ><img src={plusWhiteIcon} alt="" />
           <span>Create Partition</span></Button

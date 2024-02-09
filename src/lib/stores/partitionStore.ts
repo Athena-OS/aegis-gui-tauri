@@ -12,15 +12,15 @@ const partitionStore: Writable<{
     fileSystem: string,
     mountPoint: string,
     name: string,
-    isEncrypted: boolean
+    isEncrypted: boolean,
+    swapPartitionSize: string
   },
   replacedPartition: {
     partitionName: string,
     size: number,
     fileSystem: string,
     mountPoint: string,
-    name: string,
-    isEncrypted: boolean
+    name: string
   }
 }> = writable({
   selectedDevice: "default",
@@ -33,7 +33,8 @@ const partitionStore: Writable<{
     fileSystem: "",
     mountPoint: "",
     name: "Athena OS",
-    isEncrypted: false
+    isEncrypted: false,
+    swapPartitionSize: "1 Gib"
   },
   replacedPartition: {
     partitionName: "",

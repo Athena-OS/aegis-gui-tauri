@@ -100,13 +100,21 @@
             " ( " +
             bytesToGB(disk_data.totalStorage) +
             "GB )";
-          currentDiskPartitionsSysInfo.map((item) => {
-            disk_data.availableStorage =
-              disk_data.availableStorage + item.available_space;
+
+          disk_data.availableStorage =
+            disk_data.totalStorage -
+            disk_data.partitions.reduce((accumulator, partition) => {
+              return accumulator + partition.size;
+            }, 0);
+
+          disk_data.partitions.map((partition: any) => {
+            partition.size = partition.size - partition.availableStorage;
+            partition.availableStorage = 0;
           });
-          console.log(disk_data);
+
+          let temp_disk_data = JSON.parse(JSON.stringify(disk_data));
+          $partitionStore.systemStorageInfoCurrent.push({...temp_disk_data});
           $partitionStore.systemStorageInfo.push(disk_data);
-          $partitionStore.systemStorageInfoCurrent.push({...disk_data});
 
           storageDevicesList.push({
             name: disk_data.displayName,

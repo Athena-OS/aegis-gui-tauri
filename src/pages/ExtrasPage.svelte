@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createDialog } from "svelte-headlessui";
-  
+
   import kernelIcon from "../assets/icons/kernel-yellow.svg";
   import terminalIcon from "../assets/icons/terminal-yellow.svg";
   import wrenchIcon from "../assets/icons/wrench-yellow.svg";
@@ -10,6 +10,7 @@
   import Switch from "../lib/components/Switch.svelte";
   import Dropdown from "../lib/components/Dropdown.svelte";
   import extrasStore from "../lib/stores/extrasStore";
+  import InputBox from "../lib/components/InputBox.svelte";
 
   let kernelList = [
     { name: "Linux" },
@@ -35,6 +36,25 @@
     { name: "Xterm" },
   ];
   let shellsList = [{ name: "Bash" }, { name: "Fish" }, { name: "Zsh" }];
+
+  function onChangeFunctionMaxJobs(e: any) {
+    let value = parseInt(e.target.value);
+    if (value >= 1) {
+      e.target.parentElement.classList.remove("border-red-500");
+      $extrasStore.maxjobs = value;
+    } else {
+      e.target.parentElement.classList.add("border-red-500");
+    }
+  }
+  function onChangeFunctionCores(e: any) {
+    let value = parseInt(e.target.value);
+    if (value >= 0) {
+      e.target.parentElement.classList.remove("border-red-500");
+      $extrasStore.cores = value;
+    } else {
+      e.target.parentElement.classList.add("border-red-500");
+    }
+  }
 </script>
 
 <StepWrapper
@@ -102,17 +122,17 @@
         </div>
         <div class="flex w-full justify-between items-center">
           <h4 class="text-xl font-medium">Snapper</h4>
-          <Switch></Switch>
+          <Switch bind:value={$extrasStore.snapper}></Switch>
         </div>
         <div class="w-full h-[2px] bg-neutral-700"></div>
         <div class="flex w-full justify-between items-center">
           <h4 class="text-xl font-medium">Zram</h4>
-          <Switch></Switch>
+          <Switch bind:value={$extrasStore.zram}></Switch>
         </div>
         <div class="w-full h-[2px] bg-neutral-700"></div>
         <div class="flex w-full justify-between items-center">
           <h4 class="text-xl font-medium">Hardening</h4>
-          <Switch></Switch>
+          <Switch bind:value={$extrasStore.hardening}></Switch>
         </div>
       </div>
       <div
@@ -123,12 +143,48 @@
     </div>
     <div class="h-full w-1/3 space-y-4">
       <div
-        class="w-full h-[45%] text-xl flex justify-center items-center bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"
+        class="w-full h-fit text-xl flex flex-col justify-center items-center bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"
       >
-        For something else in future
+        <div class="flex space-x-3 w-full justify-center items-center">
+          <img src={wrenchIcon} alt="kernel" />
+          <h3 class="font-semibold text-3xl">Installer Additional Arguments</h3>
+        </div>
+        <div class="w-full h-[2px] bg-neutral-700"></div>
+        <div class="flex w-full justify-between items-center">
+          <h4 class="text-xl font-medium">--keep-going</h4>
+          <Switch bind:value={$extrasStore.keepgoing}></Switch>
+        </div>
+        <div class="w-full h-[2px] bg-neutral-700"></div>
+        <div class="flex w-full justify-between items-center">
+          <h4 class="text-xl font-medium">--max-jobs</h4>
+          <div class="w-1/2">
+            <InputBox
+              styleClass="text-base"
+              label=""
+              placeholderText="1"
+              inputType={"number"}
+              min={1}
+              givenOnChangeValue={onChangeFunctionMaxJobs}
+            ></InputBox>
+          </div>
+        </div>
+        <div class="w-full h-[2px] bg-neutral-700"></div>
+        <div class="flex w-full justify-between items-center">
+          <h4 class="text-xl font-medium">--cores</h4>
+          <div class="w-1/2">
+            <InputBox
+              styleClass="text-base"
+              label=""
+              placeholderText="0"
+              inputType={"number"}
+              min={0}
+              givenOnChangeValue={onChangeFunctionCores}
+            ></InputBox>
+          </div>
+        </div>
       </div>
       <div
-        class="w-full h-[45%] text-xl flex justify-center items-center bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"
+        class="w-full h-1/4 text-xl flex justify-center items-center bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"
       >
         For something else in future
       </div>

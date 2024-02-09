@@ -20,6 +20,7 @@
     <InputBox
       bind:value={$accountsStore.createNewUserTemp.userName}
       label="Username"
+      styleClass="lowercase"
       placeholderText="Create a Username"
     />
   {/if}

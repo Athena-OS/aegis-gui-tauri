@@ -9,6 +9,7 @@
   export let value: string = ""; // default input placeholder text
   export let isDisabled: boolean = false; // default input placeholder text
   export let styleClass: string = ""; // default input placeholder text
+  export let givenOnChangeValue: any = ""; // default input placeholder text
 
   export let rightLabel: string = "";
 
@@ -31,11 +32,11 @@
       class={`${styleClass} w-full h-full placeholder:text-neutral-400 outline-none bg-gray-800 px-4`}
       type={inputType}
       placeholder={placeholderText}
-      value={value}
-      on:change={onChangeValue}
+      {value}
+      on:change={e=>givenOnChangeValue !== "" ? givenOnChangeValue(e) : onChangeValue(e)}
       disabled={isDisabled}
-      max={max}
-      min={min}
+      {max}
+      {min}
       step="1024"
     />
     {#if rightLabel !== ""}

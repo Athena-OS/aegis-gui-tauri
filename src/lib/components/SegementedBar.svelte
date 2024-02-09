@@ -4,6 +4,8 @@
 
   export let totalValue = 100;
 
+  export let color: string = undefined;
+
   export let items: PartitionInfo[];
 
   const backgroundClasses = [
@@ -19,9 +21,10 @@
 <div class="w-full bg-neutral-800 h-10 flex overflow-hidden rounded-full">
   {#each items as item, index}
     <div
-      class="group flex justify-center items-center hover:border-2 hover:border-white h-full {backgroundClasses[
-        index
-      ]}"
+      class="group flex justify-center items-center hover:border-2 hover:border-white h-full {color !==
+      undefined
+        ? color
+        : backgroundClasses[index]}"
       style="width: {(parseFloat(bytesToMB(item.size)) / totalValue) * 100}%"
     >
       <h4

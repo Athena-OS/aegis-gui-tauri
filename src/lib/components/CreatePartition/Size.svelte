@@ -28,6 +28,12 @@
     { name: "/etc/start" },
     { name: "/groot/start" },
   ];
+  let swapPartitionSize = [
+    { name: "1 Gib" },
+    { name: "2 Gib" },
+    { name: "4 Gib" },
+    { name: "8 Gib" },
+  ];
 
   let newPartitionSize = 1024;
 </script>
@@ -54,9 +60,7 @@
       styleClass="w-1/2"
     />
     <InputBox
-      value={bytesToGB(
-        MBtoBytes($partitionStore.newPartition.size),
-      ).toString()}
+      value={bytesToGB(MBtoBytes($partitionStore.newPartition.size)).toString()}
       label="‎"
       rightLabel="GB"
       inputType="number"
@@ -87,6 +91,14 @@
       defaultItem={{ name: "Select Mount Point" }}
     />
   </div>
+  <Dropdown
+    on:select={(e) => {
+      $partitionStore.newPartition.swapPartitionSize = e.detail.selected.name;
+    }}
+    bind:items={swapPartitionSize}
+    label="Swap Partition Size"
+    defaultItem={{ name: "Select Swap Partition Size" }}
+  />
 
   <div class="flex space-x-2">
     <Switch bind:value={$partitionStore.newPartition.isEncrypted}></Switch>

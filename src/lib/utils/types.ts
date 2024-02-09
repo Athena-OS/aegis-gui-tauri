@@ -1,19 +1,19 @@
 export type StorageDevice = {
-    displayName: String;
-    diskModel: String;
-    logicalName: String;
+    displayName: string;
+    diskModel: string;
+    logicalName: string;
     totalStorage: number;
     availableStorage: number;
-    disklabelType: String;
-    kind: String;
+    disklabelType: string;
+    kind: string;
     partitions: PartitionInfo[];
     isRemovable: boolean;
 };
 export type PartitionInfo = {
-    partitionName: String;
+    partitionName: string;
     size: number;
     availableStorage: number;
-    name: String;
-    fileSystem: String;
-    mountPoint: String;
+    name: string;
+    fileSystem: string;
+    mountPoint: string;
 };
