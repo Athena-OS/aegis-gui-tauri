@@ -20,6 +20,9 @@ dependencies:
   svelte-transition:
     specifier: ^0.0.10
     version: 0.0.10(svelte@4.2.1)
+  tauri-plugin-system-info-api:
+    specifier: ^0.1.1
+    version: 0.1.1
 
 devDependencies:
   '@sveltejs/vite-plugin-svelte':
@@ -1428,6 +1431,13 @@ packages:
       - ts-node
     dev: true
 
+  /tauri-plugin-system-info-api@0.1.1:
+    resolution: {integrity: sha512-O3103TzE74xPDJvPWoL+KXoX+g9dDBrZbQ+Opj8YsCEDydPTz6wl6LLpwF9AjNGog6HbrZhvFCdTbCwMFQGfjw==}
+    dependencies:
+      '@tauri-apps/api': 1.5.1
+      tslib: 2.6.2
+    dev: false
+
   /thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
     engines: {node: '>=0.8'}
@@ -1454,7 +1464,6 @@ packages:
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
-    dev: true
 
   /typescript@5.2.2:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
