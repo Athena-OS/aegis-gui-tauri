@@ -1,17 +1,19 @@
 <script lang="ts">
   import { createListbox } from "svelte-headlessui";
   import Transition from "svelte-transition";
+
   import downArrow from "../../assets/icons/arrow-down-white.svg";
 
   // External props
   export let icon: string = "";
 
-  type ListItem = { name: string };
+  type ListItem = { name: string, selected?: boolean };
   export let label: string | null = null;
   export let defaultItem: ListItem = { name: "Default Item" };
   export let items: ListItem[] = [defaultItem];
+  export let isDisabled: boolean = false;
 
-  const listbox = createListbox({ label: "Dropdown", selected: defaultItem });
+  const listbox = createListbox({ label: "Dropdown", selected: items.find(item=> item.selected === true) !== undefined ? items.find(item=> item.selected === true) : defaultItem });
 
   function onSelect(e: Event) {
     dispatch("select", (e as CustomEvent).detail);
@@ -31,6 +33,7 @@
         class="w-full h-[50px] flex relative items-center space-x-4 text-left rounded-full overflow-hidden border-2 border-inset border-neutral-800 px-3.5 text-lg hover:border-primary-500 outline-none bg-neutral-900"
         use:listbox.button
         on:select={onSelect}
+        disabled={isDisabled}
       >
         {#if icon}
           <img src={icon} alt="dropdown icon" />

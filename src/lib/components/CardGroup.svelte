@@ -10,10 +10,17 @@
   export let title: string;
   export let cards: Card[];
   export let warning: boolean = true;
+
+  function onChange(e: Event) {
+    dispatch("change", (e as CustomEvent));
+  }
+
+  import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
 </script>
 
 <fieldset class="grid grid-cols-2 gap-8 w-full">
-  <legend class="py-4 font-medium text-neutral-400">{title}</legend>
+  <legend class="py-4 font-medium text-neutral-300 text-center">{title}</legend>
   {#each cards as card}
     <div class="relative">
       <input
@@ -23,6 +30,7 @@
         name="radio-group"
         value={card.value}
         checked={card.checked || false}
+        on:change={onChange}
       />
       <label
         class:aspect-square={card.icon}

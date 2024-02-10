@@ -1,95 +1,11 @@
 <script lang="ts">
   import StepWrapper from "../../lib/components/StepWrapper.svelte";
   import SegementedBar from "../../lib/components/SegementedBar.svelte";
+  import partitionStore from "../../lib/stores/partitionStore";
+  import { bytesToGB, bytesToMB } from "../../lib/utils/functions";
 
-  let partitionDisks = [{ name: "Samsung NVME SSD 500G" }];
-
-  let partitionData = [
-    {
-      device: "/dev/nvme/0n1p1",
-      name: "EFI System Partition",
-      fileSystem: "FAT32",
-      mountPoint: "/boot/efi",
-      size: "273 MB",
-      sizeInMB: 273,
-    },
-    {
-      device: "/dev/nvme/0n1p2",
-      name: "Microsoft Reserved Partition",
-      fileSystem: "Unknown",
-      mountPoint: "",
-      size: "17 MB",
-      sizeInMB: 17,
-    },
-    {
-      device: "/dev/nvme/0n1p3",
-      name: "Basic Data Partition",
-      fileSystem: "NTFS",
-      mountPoint: "",
-      size: "168 GB",
-      sizeInMB: 168,
-    },
-    {
-      device: "/dev/nvme/0n1p4",
-      name: "Grubby",
-      fileSystem: "exFat",
-      mountPoint: "/boot/grub",
-      size: "1.1 GB",
-      sizeInMB: 1100,
-    },
-    {
-      device: "/dev/nvme/0n1p5",
-      name: "Athena OS",
-      fileSystem: "Btrfs",
-      mountPoint: "/",
-      size: "85 GB",
-      sizeInMB: 8500,
-    },
-  ];
-
-  let partitionDataNew = [
-    {
-      device: "/dev/nvme/0n1p1",
-      name: "This is New",
-      fileSystem: "FAT32",
-      mountPoint: "/boot/efi",
-      size: "548 MB",
-      sizeInMB: 548,
-    },
-    {
-      device: "/dev/nvme/0n1p2",
-      name: "Im new too",
-      fileSystem: "Unknown",
-      mountPoint: "",
-      size: "1200 MB",
-      sizeInMB: 1200,
-    },
-    {
-      device: "/dev/nvme/0n1p3",
-      name: "Im old",
-      fileSystem: "NTFS",
-      mountPoint: "",
-      size: "168 GB",
-      sizeInMB: 168,
-    },
-    {
-      device: "/dev/nvme/0n1p4",
-      name: "You Ask",
-      fileSystem: "exFat",
-      mountPoint: "/boot/grub",
-      size: "7.1 GB",
-      sizeInMB: 7100,
-    },
-    {
-      device: "/dev/nvme/0n1p5",
-      name: "Same Here",
-      fileSystem: "Btrfs",
-      mountPoint: "/",
-      size: "2.5 GB",
-      sizeInMB: 2500,
-    },
-  ];
-
+  let partitionNewData: any[] = [];
+  let partitionCurrentData: any[] = [];
   const colorList = [
     "bg-red-500",
     "bg-green-500",
@@ -99,26 +15,31 @@
     "bg-neutral-500",
   ];
 
-  partitionData.forEach((partition, index) => {
-    partition.color = colorList[index % colorList.length];
-  });
+  function gatherInfo() {
+    $partitionStore.systemStorageInfo.map((diskData) => {
+      if (diskData.displayName === $partitionStore.selectedDevice) {
+        diskData.partitions.map((partition) => {
+          partitionNewData.push(partition);
+        });
+      }
+    });
+    $partitionStore.systemStorageInfoCurrent.map((diskData) => {
+      if (diskData.displayName === $partitionStore.selectedDevice) {
+        diskData.partitions.map((partition) => {
+          partitionCurrentData.push(partition);
+        });
+      }
+    });
 
-  const totalSizeInMB = 500 * 1024;
-  const usedSizeInMB = partitionData.reduce(
-    (total, partition) => total + partition.sizeInMB,
-    0
-  );
-  const unusedSizeInMB = totalSizeInMB - usedSizeInMB;
-
-  function handleSelect(event: CustomEvent<any>) {
-    console.log("Selected item:", event.detail);
+    partitionNewData.forEach((partition, index) => {
+      partition.color = colorList[index % colorList.length];
+    });
+    partitionCurrentData.forEach((partition, index) => {
+      partition.color = colorList[index % colorList.length];
+    });
   }
 
-  let selectedOption: null | string = null;
-
-  function handleOptionSelect(option: string) {
-    selectedOption = option;
-  }
+  gatherInfo();
 </script>
 
 <StepWrapper
@@ -128,18 +49,119 @@
   prev="configure-partition"
   next="accounts"
 >
-  <div class="space-y-10">
-    <div class="flex flex-col items-center mx-5 h-fit space-y-6">
+  <div class="space-y-5">
+    <div class="flex flex-col items-center mx-5 h-fit space-y-2">
       <div class="text-left w-full text-2xl font-semibold">
         1. Current Partition
       </div>
-      <SegementedBar totalValue={20000} items={partitionData} />
+      <SegementedBar
+        totalValue={parseFloat(
+          bytesToMB(
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0].totalStorage,
+          ),
+        )}
+        items={partitionCurrentData}
+      />
+      <div
+        class="rounded-2xl overflow-hidden w-full bg-[#1A1A1A] border-2 border-[#2F2F2F]"
+      >
+        <div class="max-h-[18.3em] overflow-auto w-full">
+          {#if $partitionStore.systemStorageInfoCurrent.length > 0}
+            <table class="min-w-full w-full">
+              <thead class="bg-[#363636] sticky top-0">
+                <tr>
+                  <th class="w-1/6 text-left p-3">Block Device</th>
+                  <th class="text-left p-3">Name</th>
+                  <th class="text-left p-3">File System</th>
+                  <th class="text-left p-3">Mount Point</th>
+                  <th class="text-left p-3">Size</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each partitionCurrentData as row, index}
+                  <tr class="border-t border-[#2F2F2F]">
+                    <td
+                      class="text-white font-semibold p-3 flex items-center gap-2"
+                    >
+                      <div class={`${colorList[index]} rounded-full w-3 h-3`} />
+                      {row.partitionName}
+                    </td>
+                    <td class="text-[#B0B0B0] p-3">{row.name.toUpperCase()}</td>
+                    <td class="text-[#B0B0B0] p-3"
+                      >{row.fileSystem.toUpperCase()}</td
+                    >
+                    <td class="text-[#B0B0B0] p-3">{row.mountPoint}</td>
+                    <td class="text-[#B0B0B0] font-semibold p-3"
+                      >{bytesToMB(parseInt(row.size))} MB / {bytesToGB(
+                        parseInt(row.size),
+                      )} GB</td
+                    >
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          {/if}
+        </div>
+      </div>
     </div>
-    <div class="flex flex-col items-center mx-5 h-fit space-y-6">
+    <div class="flex flex-col items-center mx-5 h-fit space-y-2">
       <div class="text-left w-full text-2xl font-semibold">
         2. New Partition
       </div>
-      <SegementedBar totalValue={20000} items={partitionDataNew} />
+      <SegementedBar
+        totalValue={parseFloat(
+          bytesToMB(
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0].totalStorage,
+          ),
+        )}
+        items={partitionNewData}
+      />
+
+      <div
+        class="rounded-2xl overflow-hidden w-full bg-[#1A1A1A] border-2 border-[#2F2F2F]"
+      >
+        <div class="max-h-[18.3em] overflow-auto w-full">
+          {#if $partitionStore.systemStorageInfo.length > 0}
+            <table class="min-w-full w-full">
+              <thead class="bg-[#363636] sticky top-0">
+                <tr>
+                  <th class="w-1/6 text-left p-3">Block Device</th>
+                  <th class="text-left p-3">Name</th>
+                  <th class="text-left p-3">File System</th>
+                  <th class="text-left p-3">Mount Point</th>
+                  <th class="text-left p-3">Size</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each partitionNewData as row, index}
+                  <tr class="border-t border-[#2F2F2F]">
+                    <td
+                      class="text-white font-semibold p-3 flex items-center gap-2"
+                    >
+                      <div class={`${colorList[index]} rounded-full w-3 h-3`} />
+                      {row.partitionName}
+                    </td>
+                    <td class="text-[#B0B0B0] p-3">{row.name.toUpperCase()}</td>
+                    <td class="text-[#B0B0B0] p-3"
+                      >{row.fileSystem.toUpperCase()}</td
+                    >
+                    <td class="text-[#B0B0B0] p-3">{row.mountPoint}</td>
+                    <td class="text-[#B0B0B0] font-semibold p-3"
+                      >{bytesToMB(parseInt(row.size))} MB / {bytesToGB(
+                        parseInt(row.size),
+                      )} GB</td
+                    >
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          {/if}
+        </div>
+      </div>
     </div>
   </div>
 </StepWrapper>

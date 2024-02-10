@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "tauri-dev": "WEBKIT_DISABLE_COMPOSITING_MODE=1 && tauri dev",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -33,6 +34,7 @@
     "@tauri-apps/api": "^1.5.1",
     "class-variance-authority": "^0.7.0",
     "svelte-headlessui": "^0.0.26",
-    "svelte-transition": "^0.0.10"
+    "svelte-transition": "^0.0.10",
+    "tauri-plugin-system-info-api": "^0.1.1"
   }
 }

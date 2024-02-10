@@ -3,10 +3,21 @@
 
   export let label = "Test Keyboard"; // default label text
   export let placeholderText = "Type to test.."; // default input placeholder text
+  export let inputType: string = "text"; // default
+  export let max: number = 10; // default
+  export let min: number = 0; // default
+  export let value: string = ""; // default input placeholder text
+  export let isDisabled: boolean = false; // default input placeholder text
+  export let styleClass: string = ""; // default input placeholder text
+  export let givenOnChangeValue: any = ""; // default input placeholder text
 
   export let rightLabel: string = "";
 
   let inputID = uuid(); // just to generate a unique id for label
+
+  function onChangeValue(e: any) {
+    value = e.target.value;
+  }
 </script>
 
 <div class="w-full space-y-3">
@@ -18,9 +29,15 @@
   >
     <input
       id={inputID}
-      class="w-full h-full placeholder:text-neutral-400 outline-none bg-gray-800 px-4"
-      type="text"
+      class={`${styleClass} w-full h-full placeholder:text-neutral-400 outline-none bg-gray-800 px-4`}
+      type={inputType}
       placeholder={placeholderText}
+      {value}
+      on:change={e=>givenOnChangeValue !== "" ? givenOnChangeValue(e) : onChangeValue(e)}
+      disabled={isDisabled}
+      {max}
+      {min}
+      step="1024"
     />
     {#if rightLabel !== ""}
       <div

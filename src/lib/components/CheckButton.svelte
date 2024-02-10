@@ -6,7 +6,12 @@
   import arrowDownIcon from "../../assets/icons/arrow-down-black.svg";
 
   export let label: string;
-  export let options: { label: string; value: string; selected?: boolean }[];
+  export let options: {
+    special?: boolean;
+    label: string;
+    description: string;
+    selected?: boolean;
+  }[];
   export let expanded: boolean = false;
   let allSelected: boolean = false;
   let isHovered: boolean = false;
@@ -48,7 +53,7 @@
   <div class="flex p-2 gap-2">
     <div class="border-l-2 border-[#2F2F2F] min-h-[fit-content]" />
     <div class="flex flex-col gap-4 ml-2">
-      {#each options as option, index (option.value)}
+      {#each options as option, index (index)}
         <label class="flex items-center cursor-pointer">
           <input
             type="checkbox"
@@ -68,7 +73,9 @@
               />
             {/if}
           </span>
-          {option.label}
+          <span class={`font-medium ${option.special ? "text-red-500" : ""}`}>
+            {option.label}
+          </span>
         </label>
       {/each}
     </div>

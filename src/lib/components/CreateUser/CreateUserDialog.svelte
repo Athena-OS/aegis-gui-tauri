@@ -1,9 +1,13 @@
 <script lang="ts">
   import Transition from "svelte-transition";
+  
   import Button from "../Button.svelte";
   import Intro from "./Intro.svelte";
   import Password from "./Password.svelte";
   import Misc from "./Misc.svelte";
+
+  import crossIcon from "../../../assets/icons/cross.svg";
+  import accountsStore from "../../stores/accountsStore";
 
   export let dialog: any;
 
@@ -30,9 +34,96 @@
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      currentStep++;
+      if (currentStep === 0) {
+        if (
+          $accountsStore.createNewUserTemp.name !== "" &&
+          $accountsStore.createNewUserTemp.userName !== "" &&
+          $accountsStore.users.filter(
+            (item) =>
+              item.userName === $accountsStore.createNewUserTemp.userName,
+          ).length <= 1
+        ) {
+          currentStep++;
+        }
+      } else if (currentStep === 1) {
+        if ($accountsStore.createNewUserTemp.passwordSameAsRoot === false) {
+          if (
+            $accountsStore.createNewUserTemp.password !== "" &&
+            $accountsStore.createNewUserTemp.confirmPassword !== "" &&
+            $accountsStore.createNewUserTemp.password ===
+              $accountsStore.createNewUserTemp.confirmPassword
+          ) {
+            currentStep++;
+          }
+        } else {
+          currentStep++;
+        }
+      }
     } else {
-      dialog.close();
+      if (currentStep === 2) {
+        if ($accountsStore.createNewUserTemp.passwordSameAsRoot) {
+          if ($accountsStore.createNewUserTemp.isEditing) {
+            $accountsStore.users[
+              $accountsStore.users.indexOf(
+                $accountsStore.users.filter(
+                  (item) =>
+                    item.userName === $accountsStore.createNewUserTemp.userName,
+                )[0],
+              )
+            ] = {
+              name: $accountsStore.createNewUserTemp.name,
+              userName: $accountsStore.createNewUserTemp.userName,
+              password: $accountsStore.users.filter(
+                (item) => item.hasRoot === true,
+              )[0].password,
+              hasRoot: $accountsStore.createNewUserTemp.hasRoot,
+            };
+          } else {
+            $accountsStore.users.push({
+              name: $accountsStore.createNewUserTemp.name,
+              userName: $accountsStore.createNewUserTemp.userName,
+              password: $accountsStore.users.filter(
+                (item) => item.hasRoot === true,
+              )[0].password,
+              hasRoot: $accountsStore.createNewUserTemp.hasRoot,
+            });
+          }
+        } else {
+          if ($accountsStore.createNewUserTemp.isEditing) {
+            $accountsStore.users[
+              $accountsStore.users.indexOf(
+                $accountsStore.users.filter(
+                  (item) =>
+                    item.userName === $accountsStore.createNewUserTemp.userName,
+                )[0],
+              )
+            ] = {
+              name: $accountsStore.createNewUserTemp.name,
+              userName: $accountsStore.createNewUserTemp.userName,
+              password: $accountsStore.createNewUserTemp.password,
+              hasRoot: $accountsStore.createNewUserTemp.hasRoot,
+            };
+          } else {
+            $accountsStore.users.push({
+              name: $accountsStore.createNewUserTemp.name,
+              userName: $accountsStore.createNewUserTemp.userName,
+              password: $accountsStore.createNewUserTemp.password,
+              hasRoot: $accountsStore.createNewUserTemp.hasRoot,
+            });
+          }
+        }
+        currentStep = 0;
+        $accountsStore.createNewUserTemp = {
+          name: "",
+          userName: "",
+          password: "",
+          confirmPassword: "",
+          passwordSameAsRoot: false,
+          hasRoot: false,
+          isEditing: false,
+        };
+        dialog.close();
+      }
     }
   };
 </script>
@@ -67,9 +158,15 @@
             class="w-full max-w-lg border border-neutral-700 transform overflow-hidden rounded-2xl bg-gray-800 px-4 py-3 text-left align-middle shadow-xl transition-all"
             use:dialog.modal
           >
-            <h3 class="text-xl leading-6 text-neutral-400">
-              Create a new user
-            </h3>
+            <div class="w-full justify-between pt-2 flex items-center">
+              <h3 class="text-xl leading-6 font-medium text-neutral-400">
+                Create a new user
+              </h3>
+              <button on:click={dialog.close}
+                ><img src={crossIcon} alt="" /></button
+              >
+            </div>
+
             <div class="mt-2 transition-height ease-out p-6">
               {#each steps as step, index}
                 {#if index === currentStep}
