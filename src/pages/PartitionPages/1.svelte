@@ -21,16 +21,24 @@
 
   async function fetchAndParseStorageInfo() {
     let sysInfo_Disks = await disks();
-
+    console.log(sysInfo_Disks)
+    /*sysInfo_Disks.forEach(item => {
+      console.log(item.total_space)
+      storageDevicesList.push({"name":item.kind})
+    })*/
+    console.log(storageDevicesList)
+    /*invoke("get_partitions").then(p:any) =>{
+      console.log(p)
+    }*/
     invoke("get_partitions_file_systems").then((file_systems_response: any) => {
       invoke("get_storage_devices").then((response: any) => {
         let commandOutput = response
           .split("\n\n\n")
           .filter((item: string) => item.includes("Disk model"));
-
+        console.log(commandOutput)
         commandOutput.map((disksData: any) => {
           let DisksDataLines = disksData.split("\n");
-
+          console.log(DisksDataLines)
           let disk_data: StorageDevice = {
             diskModel: DisksDataLines[1].split(":")[1].trim(),
             logicalName: DisksDataLines[0].split(":")[0].split(" ")[1].trim(),
@@ -64,9 +72,9 @@
             let elements = DisksDataLines[index]
               .split(" ")
               .filter((item: any) => item.length > 0);
-
+            console.log(elements)
             let elementPartitionInfo = currentDiskPartitionsSysInfo.find(
-              (item) => item.name === elements[0].trim(),
+              (item) => item.name === elements[0]?.trim(),
             );
 
             elements.splice(0, 1);
@@ -111,7 +119,7 @@
             partition.size = partition.size - partition.availableStorage;
             partition.availableStorage = 0;
           });
-
+          console.log(disk_data)
           let temp_disk_data = JSON.parse(JSON.stringify(disk_data));
           $partitionStore.systemStorageInfoCurrent.push({...temp_disk_data});
           $partitionStore.systemStorageInfo.push(disk_data);
@@ -122,6 +130,7 @@
         });
       });
     });
+
   }
 
   fetchAndParseStorageInfo();
@@ -130,7 +139,7 @@
   function IsOkayToMoveNextPage() {
     if ($partitionStore.selectedDevice !== "default") {
       if ($partitionStore.mode === "auto") {
-        nextPage = "/accounts";
+        nextPage = "/summary";
       } else {
         nextPage = "/configure-partition";
       }

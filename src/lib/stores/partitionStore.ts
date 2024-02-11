@@ -4,6 +4,8 @@ import { type StorageDevice } from "../utils/types"
 const partitionStore: Writable<{
   selectedDevice: string,
   mode: string,
+  efi:boolean,
+  swap:boolean,
   systemStorageInfo: StorageDevice[],
   systemStorageInfoCurrent: StorageDevice[],
   newPartition: {
@@ -25,6 +27,8 @@ const partitionStore: Writable<{
 }> = writable({
   selectedDevice: "default",
   mode: "auto",
+  efi:true,
+  swap: true,
   systemStorageInfo: [],
   systemStorageInfoCurrent: [],
   newPartition: {

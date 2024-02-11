@@ -119,7 +119,7 @@
   dialogTitle="Header Here"
   dialogContent="Your text here"
   prev="/desktop"
-  next="/partition"
+  next="/accounts"
 >
   <div class="flex flex-col items-center justify-center h-full">
     <div

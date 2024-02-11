@@ -9,8 +9,14 @@
   import langIcon from "../assets/icons/lang-icon.svg";
   import keyboard from "../assets/keyboard.svg";
   import keyboardIcon from "../assets/icons/keyboard-icon.svg";
-
-  let regionList = [
+  import { invoke } from "@tauri-apps/api";
+  let regionList: any[] = []
+  invoke("get_timezones").then((timezones: any) => {
+    regionList = timezones.split("\n").map((i: string) => {
+      return {name: i, selected: $keyboardStore.region === i}
+    })
+  })
+  let regionLis = [
     { name: "English (US)", selected: $keyboardStore.region === "English (US)" },
     { name: "German", selected: $keyboardStore.region === "German" },
     { name: "Spanish", selected: $keyboardStore.region === "Spanish" },
@@ -21,9 +27,10 @@
     { name: "Spanish", selected: $keyboardStore.language === "Spanish" },
   ];
   let layoutList = [
-    { name: "English (US)", selected: $keyboardStore.layout === "English (US)" },
-    { name: "German", selected: $keyboardStore.layout === "German" },
-    { name: "Spanish", selected: $keyboardStore.layout === "Spanish" },
+    { name: "AZERTY", selected: $keyboardStore.layout === "AZERTY" },
+    { name: "QWERTY", selected: $keyboardStore.layout === "QWERTY" },
+    { name: "QWERTZ", selected: $keyboardStore.layout === "QWERTZ" },
+    { name: "QZERTY", selected: $keyboardStore.layout === "QZERTY" },
   ];
 
   let nextPage = "";

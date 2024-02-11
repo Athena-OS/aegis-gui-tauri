@@ -65,7 +65,7 @@
   next={$extrasStore.kernel !== "default" &&
   $extrasStore.terminal !== "default" &&
   $extrasStore.shell !== "default"
-    ? "/summary"
+    ? "/partition"
     : ""}
 >
   <div class="flex w-full h-full space-x-4">

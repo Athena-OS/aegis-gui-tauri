@@ -24,7 +24,7 @@
   title="Accounts"
   dialogTitle="Header Here"
   dialogContent="Your text here"
-  prev={$partitionStore.mode === "auto" ? "/partition" : "/finalize-partition"}
+  prev="/packages"
   next={$accountsStore.users.filter((item) => item.hasRoot === true).length > 0
     ? "/extras"
     : ""}

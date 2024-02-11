@@ -4,11 +4,26 @@
 // sudo lshw -c disk -c storage
 // df | grep -v ^/dev/loop
 
-use std::{
-    error::Error,
-    process::{Command, Stdio},
-};
+use std::process::{Command, Stdio};
+//use serde_json::Result;
+#[tauri::command]
+fn get_partitions() -> Result<String, tauri::Error> {
+    let output: Result<std::process::Output, std::io::Error> = Command::new("lsblk").output();
+    println!("{:?}", output);
 
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(_) => todo!(),
+    }
+}
 #[tauri::command]
 fn get_storage_devices() -> Result<String, tauri::Error> {
     let output: Result<std::process::Output, std::io::Error> = Command::new("pkexec")
@@ -58,10 +73,49 @@ fn get_partitions_file_systems() -> Result<String, tauri::Error>{
         Err(_) => todo!(),
     }
 }
+#[tauri::command]
+fn get_timezones() -> Result<String, tauri::Error> {
+    let output: Result<std::process::Output, std::io::Error> = Command::new("timedatectl")
+    .arg("list-timezones")
+    .output();
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(_)=>todo!()
+    }
+}
+
+#[tauri::command]
+fn is_uefi() -> Result<String, tauri::Error> {
+    let output: Result<std::process::Output, std::io::Error> = Command::new("sh")
+    .arg("-c")
+    .arg("[ -d /sys/firmware/efi ] && echo true || echo false")
+    .output();
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(_)=>todo!()
+    }
+}
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_storage_devices, get_partitions_file_systems])
+        .invoke_handler(tauri::generate_handler![get_storage_devices, get_partitions_file_systems, get_partitions, is_uefi, get_timezones])
         .plugin(tauri_plugin_system_info::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
