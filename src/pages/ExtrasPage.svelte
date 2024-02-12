@@ -4,6 +4,7 @@
   import kernelIcon from "../assets/icons/kernel-yellow.svg";
   import terminalIcon from "../assets/icons/terminal-yellow.svg";
   import wrenchIcon from "../assets/icons/wrench-yellow.svg";
+  import globeIcon from "../assets/icons/globe-icon.svg"
 
   import Dialog from "../lib/components/Dialog.svelte";
   import StepWrapper from "../lib/components/StepWrapper.svelte";
@@ -35,6 +36,11 @@
     { name: "Xfce" },
     { name: "Xterm" },
   ];
+  let browserList = [
+    {name:"firefox"}, 
+    {name: "brave"},
+    {name:"chromium"}
+  ];
   let shellsList = [{ name: "Bash" }, { name: "Fish" }, { name: "Zsh" }];
 
   function onChangeFunctionMaxJobs(e: any) {
@@ -51,6 +57,15 @@
     if (value >= 0) {
       e.target.parentElement.classList.remove("border-red-500");
       $extrasStore.cores = value;
+    } else {
+      e.target.parentElement.classList.add("border-red-500");
+    }
+  }
+  function onChangeFunctionHostName(e: any) {
+    let value = e.target.value;
+    if (value != "") {
+      e.target.parentElement.classList.remove("border-red-500");
+      $extrasStore.hostname = value;
     } else {
       e.target.parentElement.classList.add("border-red-500");
     }
@@ -121,8 +136,8 @@
           <h3 class="font-semibold text-4xl">System</h3>
         </div>
         <div class="flex w-full justify-between items-center">
-          <h4 class="text-xl font-medium">Snapper</h4>
-          <Switch bind:value={$extrasStore.snapper}></Switch>
+          <h4 class="text-xl font-medium">ipv6</h4>
+          <Switch bind:value={$extrasStore.ipv6}></Switch>
         </div>
         <div class="w-full h-[2px] bg-neutral-700"></div>
         <div class="flex w-full justify-between items-center">
@@ -131,9 +146,48 @@
         </div>
         <div class="w-full h-[2px] bg-neutral-700"></div>
         <div class="flex w-full justify-between items-center">
+          <h4 class="text-xl font-medium">Snapper</h4>
+          <Switch bind:value={$extrasStore.snapper}></Switch>
+        </div>
+        <div class="w-full h-[2px] bg-neutral-700"></div>
+        <div class="flex w-full justify-between items-center">
+          <h4 class="text-xl font-medium">Flatpak</h4>
+          <Switch bind:value={$extrasStore.flatpak}></Switch>
+        </div>
+        <div class="w-full h-[2px] bg-neutral-700"></div>
+        <div class="flex w-full justify-between items-center">
           <h4 class="text-xl font-medium">Hardening</h4>
           <Switch bind:value={$extrasStore.hardening}></Switch>
         </div>
+        <div class="w-full h-[2px] bg-neutral-700"></div>
+        <div class="flex w-full justify-between items-center">
+          <h4 class="text-xl font-medium">HostName</h4>
+          <div class="w-1/2">
+            <InputBox
+              styleClass="text-base"
+              label=""
+              placeholderText="Enter your desired hostname"
+              inputType={"text"}
+              value="AthenaOS"
+              givenOnChangeValue={onChangeFunctionHostName}
+            ></InputBox>
+          </div>
+        </div>
+      </div>
+      <div
+        class="w-full flex flex-col min:h-1/3 bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"
+      >
+        <div class="flex space-x-3 w-full justify-center items-center">
+          <img src={globeIcon} alt="browser" />
+          <h3 class="font-semibold text-4xl">Browser</h3>
+        </div>
+        <Dropdown
+          bind:items={browserList}
+          label="Choose your browser"
+          on:select={(event) =>
+            ($extrasStore.browser = event.detail.selected.name)}
+          defaultItem={{ name: "Select Browser" }}
+        />
       </div>
       <div
         class="w-full h-2/6 text-xl flex justify-center items-center bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"

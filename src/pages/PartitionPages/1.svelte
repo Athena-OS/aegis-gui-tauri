@@ -15,11 +15,13 @@
 
   import { type StorageDevice } from "../../lib/utils/types";
   import { bytesToGB } from "../../lib/utils/functions";
-
+  import { resetPartitionStore } from "../../lib/stores/partitionStore";
+  
   $partitionStore.mode = "auto";
   let storageDevicesList: any[] = [];
 
   async function fetchAndParseStorageInfo() {
+    resetPartitionStore()
     let sysInfo_Disks = await disks();
     console.log(sysInfo_Disks)
     /*sysInfo_Disks.forEach(item => {
@@ -27,110 +29,63 @@
       storageDevicesList.push({"name":item.kind})
     })*/
     console.log(storageDevicesList)
-    /*invoke("get_partitions").then(p:any) =>{
-      console.log(p)
-    }*/
-    invoke("get_partitions_file_systems").then((file_systems_response: any) => {
-      invoke("get_storage_devices").then((response: any) => {
-        let commandOutput = response
-          .split("\n\n\n")
-          .filter((item: string) => item.includes("Disk model"));
-        console.log(commandOutput)
-        commandOutput.map((disksData: any) => {
-          let DisksDataLines = disksData.split("\n");
-          console.log(DisksDataLines)
-          let disk_data: StorageDevice = {
-            diskModel: DisksDataLines[1].split(":")[1].trim(),
-            logicalName: DisksDataLines[0].split(":")[0].split(" ")[1].trim(),
-            displayName: "",
-            totalStorage: parseInt(
-              DisksDataLines[0]
-                .split(":")[1]
-                .split(",")[1]
-                .trim()
-                .replace("bytes", ""),
-            ),
-            availableStorage: 0,
-            disklabelType: DisksDataLines[5].split(":")[1].trim(),
-            kind: "",
-            isRemovable: false,
-            partitions: [],
-          };
-
-          let currentDiskPartitionsSysInfo = sysInfo_Disks.filter((item) =>
-            item.name.includes(disk_data.logicalName),
-          );
-
-          for (
-            let index =
-              DisksDataLines.indexOf(
-                DisksDataLines.find((line: string) => line.includes("Device")),
-              ) + 1;
-            index < DisksDataLines.length;
-            index++
-          ) {
-            let elements = DisksDataLines[index]
-              .split(" ")
-              .filter((item: any) => item.length > 0);
-            console.log(elements)
-            let elementPartitionInfo = currentDiskPartitionsSysInfo.find(
-              (item) => item.name === elements[0]?.trim(),
-            );
-
-            elements.splice(0, 1);
-            elements.splice(0, 1);
-            elements.splice(0, 1);
-            elements.splice(0, 1);
-            elements.splice(0, 1);
-
-            if (elementPartitionInfo !== undefined) {
-              disk_data.partitions.push({
-                partitionName: elementPartitionInfo.name,
-                size: elementPartitionInfo.total_space,
-                availableStorage: elementPartitionInfo.available_space,
-                name: elements.join(" "),
-                fileSystem: file_systems_response
-                  .split("\n")
-                  .find((line: any) => line.includes(elementPartitionInfo.name))
-                  .split(" ")
-                  .filter((item: any) => item.length > 0)[1],
-                mountPoint: elementPartitionInfo.mount_point,
-              });
-            }
-          }
-
-          disk_data.kind = currentDiskPartitionsSysInfo[0].kind;
-          disk_data.isRemovable = currentDiskPartitionsSysInfo[0].is_removable;
-          disk_data.displayName =
-            disk_data.diskModel +
-            " " +
-            disk_data.kind +
-            " ( " +
-            bytesToGB(disk_data.totalStorage) +
-            "GB )";
-
-          disk_data.availableStorage =
-            disk_data.totalStorage -
-            disk_data.partitions.reduce((accumulator, partition) => {
-              return accumulator + partition.size;
-            }, 0);
-
-          disk_data.partitions.map((partition: any) => {
-            partition.size = partition.size - partition.availableStorage;
-            partition.availableStorage = 0;
+    invoke("is_uefi").then((p: any) => {
+      if (p.trim()==="true"){
+        $partitionStore.efi = true
+        $partitionStore.grubLocation = "/boot"
+        $partitionStore.grubType ="grub-efi"
+      }else{
+        $partitionStore.efi = false
+        $partitionStore.grubType ="grub-efi"
+      }
+    })
+    invoke("get_partitions").then((partitions) => {
+      console.log(JSON.parse(partitions as string))
+      let p = JSON.parse(partitions as string)?.blockdevices
+      for (let i=0; i<p.length;i++){
+        let disk: StorageDevice = {
+        diskModel:p[i].model,
+        logicalName: p[i].model,
+        displayName:p[i].kname,
+        totalStorage:p[i].size,
+        availableStorage:0,
+        disklabelType:p[i].pptype,
+        kind:"",
+        isRemovable:p[i].rm,
+        partitions:[]
+      }
+      let children = []
+      if (p[i].children != undefined) {
+        for (let j=0; j<p[i].children.length; j++) {
+          let part = p[i].children[j]
+          children.push({
+            partitionName: part.name,
+            size: part.size,
+            fileSystem: part.parttypename,
+            mountPoint: part.mountpoint,
+            availableStorage:part.fsavail,
+            name:part.kname,
+          })
+          storageDevicesList.push({
+            name: part.name,
+            size:"20"
           });
-          console.log(disk_data)
-          let temp_disk_data = JSON.parse(JSON.stringify(disk_data));
+        }
+      }
+      disk.partitions = children
+      console.log(disk)
+      let temp_disk_data = JSON.parse(JSON.stringify(disk));
           $partitionStore.systemStorageInfoCurrent.push({...temp_disk_data});
-          $partitionStore.systemStorageInfo.push(disk_data);
+          $partitionStore.systemStorageInfo.push(disk);
 
           storageDevicesList.push({
-            name: disk_data.displayName,
+            name: disk.displayName,
+            size:"20"
           });
-        });
-      });
-    });
-
+      }
+      
+    })
+    
   }
 
   fetchAndParseStorageInfo();
@@ -153,7 +108,7 @@
   title="Partition"
   dialogTitle="Header Here"
   dialogContent="Your text here"
-  prev="/packages"
+  prev="/extras"
   next={nextPage}
 >
   <div class="flex flex-col items-center gap-10 w-full max-w-md mx-auto">
@@ -183,7 +138,7 @@
         },
         {
           title: "Manual",
-          desc: "",
+          desc: "Divide the drive matually",
           value: "manual",
           icon: manualDiskIcon,
         },

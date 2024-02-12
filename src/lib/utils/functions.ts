@@ -1,3 +1,5 @@
+
+import {invoke} from "@tauri-apps/api"
 export function bytesToGB(bytes: number) {
     if (isNaN(bytes) || bytes < 0) {
         throw new Error(
@@ -57,3 +59,12 @@ export function GBToMB(gigabytes: number) {
     return megabytes.toFixed(2); // Round to two decimal places
 }
 
+
+export function hashPassword(password:string) {
+    let hash: any[] = []
+    invoke("hash_password", {password: password}).then((hashS: any)=>{
+        console.log(hashS)
+        hash.push(hashS.trim())
+    })
+    return hash
+}

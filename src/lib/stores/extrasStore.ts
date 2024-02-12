@@ -10,6 +10,10 @@ const extrasStore = writable({
     keepgoing: false,
     maxjobs: 1,
     cores: 0,
+    ipv6:false,
+    browser:"firefox",
+    hostname:"AthenaOS",
+    flatpak:false,
 });
 
 export default extrasStore;

@@ -5,7 +5,6 @@
   import Intro from "./Intro.svelte";
   import Password from "./Password.svelte";
   import Misc from "./Misc.svelte";
-
   import crossIcon from "../../../assets/icons/cross.svg";
   import accountsStore from "../../stores/accountsStore";
 
@@ -87,6 +86,7 @@
               )[0].password,
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             });
+            
           }
         } else {
           if ($accountsStore.createNewUserTemp.isEditing) {

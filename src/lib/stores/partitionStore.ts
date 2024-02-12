@@ -6,6 +6,8 @@ const partitionStore: Writable<{
   mode: string,
   efi:boolean,
   swap:boolean,
+  grubLocation:string,
+  grubType:string,
   systemStorageInfo: StorageDevice[],
   systemStorageInfoCurrent: StorageDevice[],
   newPartition: {
@@ -29,6 +31,8 @@ const partitionStore: Writable<{
   mode: "auto",
   efi:true,
   swap: true,
+  grubType:"",
+  grubLocation:"",
   systemStorageInfo: [],
   systemStorageInfoCurrent: [],
   newPartition: {
@@ -51,3 +55,33 @@ const partitionStore: Writable<{
 });
 
 export default partitionStore;
+
+export function resetPartitionStore() {
+  partitionStore.set({
+    selectedDevice: "default",
+    mode: "auto",
+    efi:true,
+    swap: true,
+    grubType:"",
+    grubLocation:"",
+    systemStorageInfo: [],
+    systemStorageInfoCurrent: [],
+    newPartition: {
+      partitionName: "",
+      size: 1024,
+      fileSystem: "",
+      mountPoint: "",
+      name: "Athena OS",
+      isEncrypted: false,
+      swapPartitionSize: "1 Gib"
+    },
+    replacedPartition: {
+      partitionName: "",
+      size: 1024,
+      fileSystem: "",
+      mountPoint: "",
+      name: "Athena OS",
+      //isEncrypted: false
+    },
+  })
+}

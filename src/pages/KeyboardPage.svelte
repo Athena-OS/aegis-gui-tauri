@@ -11,9 +11,22 @@
   import keyboardIcon from "../assets/icons/keyboard-icon.svg";
   import { invoke } from "@tauri-apps/api";
   let regionList: any[] = []
+  let keymapList: any[] = []
+  let timezoneList: any[] = []
+  let localeList: any[] = []
   invoke("get_timezones").then((timezones: any) => {
-    regionList = timezones.split("\n").map((i: string) => {
+    timezoneList = timezones.split("\n").map((i: string) => {
+      return {name: i, selected: $keyboardStore.keymaps === i}
+    })
+  })
+  invoke("get_keymaps").then((keymaps:any) => {
+    keymapList = keymaps.split("\n").map((i: string) => {
       return {name: i, selected: $keyboardStore.region === i}
+    })
+  })
+  invoke("get_locale").then((keymaps:any) => {
+    localeList = keymaps.split("\n").map((i: string) => {
+      return {name: i, selected: $keyboardStore.locale === i}
     })
   })
   let regionLis = [
@@ -36,9 +49,9 @@
   let nextPage = "";
   function IsOkayToMoveNextPage() {
     if (
-      $keyboardStore.region !== "default" &&
-      $keyboardStore.language !== "default" &&
-      $keyboardStore.layout !== "default"
+      $keyboardStore.timezone !== "default" &&
+      $keyboardStore.locale !== "default" &&
+      $keyboardStore.keymaps !== "default"
     ) {
       nextPage = "/desktop";
     }
@@ -58,27 +71,27 @@
       <img src={keyboard} class="h-28" alt="" />
       <Dropdown
         icon={globeIcon}
-        bind:items={regionList}
-        label="Select Region"
+        bind:items={timezoneList}
+        label="Select timezone"
         on:select={(event) =>
-          ($keyboardStore.region = event.detail.selected.name)}
-        defaultItem={{ name: "Select Region" }}
+          ($keyboardStore.timezone = event.detail.selected.name)}
+        defaultItem={{ name: "Select Timezone" }}
       />
       <Dropdown
         icon={langIcon}
-        bind:items={languageList}
-        label="Select Language"
+        bind:items={keymapList}
+        label="Select Keymap"
         on:select={(event) =>
-          ($keyboardStore.language = event.detail.selected.name)}
-        defaultItem={{ name: "Select Language" }}
+          ($keyboardStore.keymaps = event.detail.selected.name)}
+        defaultItem={{ name: "Select Keymap" }}
       />
       <Dropdown
         icon={keyboardIcon}
-        bind:items={layoutList}
-        label="Select Layout"
+        bind:items={localeList}
+        label="Select Locale"
         on:select={(event) =>
-          ($keyboardStore.layout = event.detail.selected.name)}
-        defaultItem={{ name: "Select Layout" }}
+          ($keyboardStore.locale = event.detail.selected.name)}
+        defaultItem={{ name: "Select Locale" }}
       />
       <InputBox label="Test Keyboard" placeholderText="Type here.." />
     </div>
