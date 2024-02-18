@@ -7,6 +7,7 @@
   import Misc from "./Misc.svelte";
   import crossIcon from "../../../assets/icons/cross.svg";
   import accountsStore from "../../stores/accountsStore";
+    import { hashPassword } from "../../utils/functions";
 
   export let dialog: any;
 
@@ -31,7 +32,7 @@
     if (currentStep > 0) currentStep--;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < steps.length - 1) {
       if (currentStep === 0) {
         if (
@@ -104,10 +105,11 @@
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             };
           } else {
+            let p = await hashPassword($accountsStore.createNewUserTemp.password)
             $accountsStore.users.push({
               name: $accountsStore.createNewUserTemp.name,
               userName: $accountsStore.createNewUserTemp.userName,
-              password: $accountsStore.createNewUserTemp.password,
+              password: p,
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             });
           }

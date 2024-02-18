@@ -60,11 +60,8 @@ export function GBToMB(gigabytes: number) {
 }
 
 
-export function hashPassword(password:string) {
-    let hash: any[] = []
-    invoke("hash_password", {password: password}).then((hashS: any)=>{
-        console.log(hashS)
-        hash.push(hashS.trim())
-    })
-    return hash
+export async  function hashPassword(password:string) {
+    let hash: string
+    hash = await invoke("hash_password", {password: password})
+    return hash.trim()
 }

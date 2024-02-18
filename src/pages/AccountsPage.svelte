@@ -14,6 +14,7 @@
   import InputBox from "../lib/components/InputBox.svelte";
   import Button from "../lib/components/Button.svelte";
 
+
   let dialog = createDialog({ label: "dialogTitle" });
 </script>
 
@@ -70,7 +71,8 @@
               </div>
               <div class="flex items-center">
                 <button
-                  on:click={() => {
+                  on:click={async () => {
+                    
                     $accountsStore.createNewUserTemp = {
                       name: user.name,
                       userName: user.userName,

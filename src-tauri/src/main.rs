@@ -1,13 +1,13 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-
+mod fs;
 use std::{
     process::Command,
     path::Path,
-    fs,
     error::Error
 };
+use fs::fs as other_fs;
 use bcrypt::{hash, DEFAULT_COST};
 // Get partitions use the lsblk command to get disks and their partitions
 #[tauri::command]
@@ -73,17 +73,7 @@ fn is_uefi() -> Result<String, tauri::Error> {
     }
 }
 
-// save the config file in /tmp/conf.file
-#[tauri::command]
-fn save_conf(data: String) {
-    let path = Path::new("/tmp/config.json");
-    if path.exists() {
-        println!("The file exists.");
-    } else {
-        println!("The file exists");
-    }
-    println!("{}", data);
-}
+
 
 // hash password hashes the password
 #[tauri::command]
@@ -94,7 +84,7 @@ fn hash_password(password: &str) -> Result<String, tauri::Error> {
 }
 
 fn read_file(path: &str) -> Result<String, Box<dyn Error>> {
-    let file_content = fs::read_to_string(path)?;
+    let file_content = std::fs::read_to_string(path)?;
     Ok(file_content)
 }
 
@@ -113,7 +103,7 @@ fn get_locale() -> Result<String, tauri::Error> {
 } 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_partitions, is_uefi, get_timezones, save_conf, hash_password, get_keymaps, get_locale])
+        .invoke_handler(tauri::generate_handler![get_partitions, is_uefi, get_timezones, other_fs::save_conf, hash_password, get_keymaps, get_locale])
         .plugin(tauri_plugin_system_info::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

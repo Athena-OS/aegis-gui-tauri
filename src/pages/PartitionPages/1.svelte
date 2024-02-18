@@ -67,7 +67,7 @@
             name:part.kname,
           })
           storageDevicesList.push({
-            name: part.name,
+            name: part.kname,
             size:"20"
           });
         }
@@ -79,7 +79,7 @@
           $partitionStore.systemStorageInfo.push(disk);
 
           storageDevicesList.push({
-            name: disk.displayName,
+            name: disk.diskModel,
             size:"20"
           });
       }
