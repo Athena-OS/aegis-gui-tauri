@@ -21,6 +21,10 @@ tauri = { version = "1.4.0", features = [ "api-all"] }
 regex = "1.10.2"
 tauri-plugin-system-info = "0.1.1"
 bcrypt = "0.15.0"
+dbus = "0.9.7"
+udev = "0.8.0"
+lazy_static = "1.4.0"
+tracing = "0.1.40"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
