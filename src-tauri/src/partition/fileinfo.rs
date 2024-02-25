@@ -1,5 +1,5 @@
 use crate::partition::utils;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Debug, Deserialize)]
 pub struct FileSystemInfo {
@@ -11,6 +11,7 @@ pub struct FileSystemInfo {
     mounted_on: String,
 }
 
+#[allow(dead_code)]
 pub fn get_file_info() -> Result<String, serde_json::Error> {
     let output = std::process::Command::new("df")
         .arg("-h") // Human-readable sizes
@@ -22,10 +23,14 @@ pub fn get_file_info() -> Result<String, serde_json::Error> {
     let mut fs_infos: Vec<FileSystemInfo> = Vec::new();
 
     for (i, line) in output_str.lines().enumerate() {
-        if i == 0 { continue; } // Skip headers
+        if i == 0 {
+            continue;
+        } // Skip headers
 
         let parts: Vec<&str> = line.split_whitespace().collect();
-        if parts.len() < 6 { continue; } // Basic validation
+        if parts.len() < 6 {
+            continue;
+        } // Basic validation
 
         let fs_info = FileSystemInfo {
             filesystem: parts[0].to_string(),

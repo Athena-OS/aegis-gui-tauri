@@ -1,11 +1,7 @@
-
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
-pub struct Partition {
-
-}
+pub struct Partition {}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone)]
 pub enum Action {
@@ -14,5 +10,5 @@ pub enum Action {
     Format,
     InstallAlong,
 }
-
-pub static MinimumSize: &str = "20G";
+#[allow(dead_code)]
+pub static MINIMUM_SIZE: &str = "20G";

@@ -1,10 +1,8 @@
-
-
 use serde::{Deserialize, Serialize};
 use std::process::Command;
 use std::str;
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct OsProber {
     subpath: Option<String>,
     long: Option<String>,
@@ -33,7 +31,7 @@ pub fn probe_os() -> Vec<OsProber> {
 
             OsProber {
                 subpath: Some(parts.get(0).unwrap_or(&"").to_string()),
-                long:Some(long),
+                long: Some(long),
                 label: Some(parts.get(2).unwrap_or(&"").to_string()),
                 type_: Some(parts.get(3).unwrap_or(&"").to_string()),
                 version,

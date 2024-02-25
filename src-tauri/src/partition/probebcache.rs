@@ -1,30 +1,29 @@
-use std::fs;
-use std::process::Command;
-use std::path::Path;
 use regex::Regex;
 use std::collections::HashMap;
-
+use std::fs;
+use std::path::Path;
+use std::process::Command;
+#[allow(dead_code)]
 pub fn sane_block_devices() -> Vec<String> {
     let mut devices = Vec::new();
     let paths = fs::read_dir("/sys/block").unwrap();
-    
+
     for path in paths {
         let path = path.unwrap().path();
         let device_name = path.file_name().unwrap().to_string_lossy().into_owned();
-        
+
         // You might want to filter out certain devices here, similar to checking the MAJOR number
         // For example, to skip loop devices, you might check if the device name starts with "loop"
         if !device_name.starts_with("loop") {
             devices.push(device_name);
         }
     }
-    
+
     devices
 }
 
-
-
 /// Runs the `bcache-super-show` command and returns its output as a String.
+#[allow(dead_code)]
 pub fn run_bcache_super_show(device: &str) -> Option<String> {
     let output = Command::new("bcache-super-show")
         .arg(device)
@@ -38,6 +37,7 @@ pub fn run_bcache_super_show(device: &str) -> Option<String> {
 }
 
 /// Parses bcache superblock data from a string, returning a HashMap.
+#[allow(dead_code)]
 pub fn parse_superblock_data(data: &str) -> HashMap<String, String> {
     let mut bcache_super = HashMap::new();
     let line_regex = Regex::new(r"^(.*):\s*(.*)$").unwrap();
@@ -50,11 +50,17 @@ pub fn parse_superblock_data(data: &str) -> HashMap<String, String> {
 }
 
 /// Checks if the given device path is a bcache backing device.
+#[allow(dead_code)]
 pub fn is_backing(device: &str) -> bool {
     Path::new(&format!("/sys/class/block/{}/bcache/label", device)).exists()
 }
 
 /// Checks if the given device path is a bcache caching device.
+#[allow(dead_code)]
 pub fn is_caching(device: &str) -> bool {
-    Path::new(&format!("/sys/class/block/{}/bcache/cache_replacement_policy", device)).exists()
+    Path::new(&format!(
+        "/sys/class/block/{}/bcache/cache_replacement_policy",
+        device
+    ))
+    .exists()
 }

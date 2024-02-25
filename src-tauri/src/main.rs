@@ -3,21 +3,16 @@
 
 mod fs;
 mod partition;
-use std::{
-    process::Command,
-    path::Path,
-    error::Error
-};
-use fs::fs as other_fs;
 use bcrypt::{hash, DEFAULT_COST};
+use std::{error::Error, process::Command};
 // Get partitions use the lsblk command to get disks and their partitions
 #[tauri::command]
 fn get_partitions() -> Result<String, tauri::Error> {
     let output: Result<std::process::Output, std::io::Error> = Command::new("lsblk")
-    .arg("-O") // all fields
-    .arg("-J") // json output
-    .arg("--bytes") // bytes format
-    .output();
+        .arg("-O") // all fields
+        .arg("-J") // json output
+        .arg("--bytes") // bytes format
+        .output();
 
     match output {
         Ok(output) => {
@@ -36,9 +31,8 @@ fn get_partitions() -> Result<String, tauri::Error> {
 // Get a list of timezones
 #[tauri::command]
 fn get_timezones() -> Result<String, tauri::Error> {
-    let output: Result<std::process::Output, std::io::Error> = Command::new("timedatectl")
-    .arg("list-timezones")
-    .output();
+    let output: Result<std::process::Output, std::io::Error> =
+        Command::new("timedatectl").arg("list-timezones").output();
     match output {
         Ok(output) => {
             if output.status.success() {
@@ -49,7 +43,7 @@ fn get_timezones() -> Result<String, tauri::Error> {
                 Err(tauri::Error::InvalidWindowUrl(var_name))
             }
         }
-        Err(_)=>todo!()
+        Err(_) => todo!(),
     }
 }
 
@@ -57,9 +51,9 @@ fn get_timezones() -> Result<String, tauri::Error> {
 #[tauri::command]
 fn is_uefi() -> Result<String, tauri::Error> {
     let output: Result<std::process::Output, std::io::Error> = Command::new("sh")
-    .arg("-c")
-    .arg("[ -d /sys/firmware/efi ] && echo true || echo false")
-    .output();
+        .arg("-c")
+        .arg("[ -d /sys/firmware/efi ] && echo true || echo false")
+        .output();
     match output {
         Ok(output) => {
             if output.status.success() {
@@ -70,11 +64,9 @@ fn is_uefi() -> Result<String, tauri::Error> {
                 Err(tauri::Error::InvalidWindowUrl(var_name))
             }
         }
-        Err(_)=>todo!()
+        Err(_) => todo!(),
     }
 }
-
-
 
 // hash password hashes the password
 #[tauri::command]
@@ -83,7 +75,7 @@ fn hash_password(password: &str) -> Result<String, tauri::Error> {
         .map_err(|_| tauri::Error::InvalidWindowUrl("Failed to hash password"))?;
     Ok(hashed)
 }
-
+#[allow(dead_code)]
 fn read_file(path: &str) -> Result<String, Box<dyn Error>> {
     let file_content = std::fs::read_to_string(path)?;
     Ok(file_content)
@@ -94,19 +86,28 @@ fn read_file(path: &str) -> Result<String, Box<dyn Error>> {
 fn get_keymaps() -> Result<String, tauri::Error> {
     let keymap_content = include_str!("keymaps");
     Ok(keymap_content.to_string())
-}     
+}
 
 // locale
 #[tauri::command]
 fn get_locale() -> Result<String, tauri::Error> {
     let locale_content = include_str!("locale");
     Ok(locale_content.to_string())
-} 
+}
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_partitions, is_uefi, get_timezones, other_fs::save_conf, hash_password, get_keymaps, get_locale])
-        .plugin(tauri_plugin_system_info::init())
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    .invoke_handler(tauri::generate_handler![
+        get_partitions,
+        is_uefi,
+        get_timezones,
+        fs::fs::save_conf,
+        hash_password,
+        get_keymaps,
+        get_locale
+    ])
+    .plugin(tauri_plugin_system_info::init())
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
+    let mut gs = partition::gs::GlobalStorage::new();
+    gs.probe();
 }
-

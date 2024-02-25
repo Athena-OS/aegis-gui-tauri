@@ -8,8 +8,8 @@ use std::{
 };
 //use serde::{Serialize, Deserialize};
 use serde_json;
-use tracing::{debug, error, info};
 use std::fmt;
+use tracing::{debug, error, info};
 
 #[allow(dead_code)]
 fn path_exists(path_str: &str) -> bool {
@@ -320,7 +320,8 @@ pub fn kname_to_path(kname: &str) -> String {
     match fs::canonicalize(&dev_path) {
         Ok(real_path) => {
             // Make sure the path is correct
-            if !real_path.exists() || !is_valid_device(real_path.to_str().unwrap_or("").to_string(),) {
+            if !real_path.exists() || !is_valid_device(real_path.to_str().unwrap_or("").to_string())
+            {
                 return String::new();
             } else {
                 return String::new();
@@ -371,17 +372,21 @@ fn construct_real_path(kname: &str) -> String {
         Err(_) => "".to_string(), // Provide a default value in case of an error
     }
 }
-
-pub fn unmarshal_json<T: for<'de> serde::Deserialize<'de>>(data: &str, v: &mut Option<T>) -> Result<(), serde_json::Error> {
-    *v = Some(serde_json::from_str(data)?);
+#[allow(dead_code)]
+pub fn unmarshal_json<T: for<'de> serde::Deserialize<'de>>(
+    data: &str,
+    v: &mut T,
+) -> Result<(), serde_json::Error> {
+    *v = serde_json::from_str(data)?;
     Ok(())
 }
-
+#[allow(dead_code)]
 pub fn marshal_json<T: serde::Serialize>(v: &T) -> Result<String, serde_json::Error> {
-    serde_json::to_string(v)
+    serde_json::to_string_pretty(v)
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum SizeParseError {
     InvalidInput(String),
     NegativeSize(String),
@@ -389,24 +394,32 @@ pub enum SizeParseError {
     InvalidType(String),
 }
 
-
 impl fmt::Display for SizeParseError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             SizeParseError::InvalidInput(ref cause) => write!(f, "Invalid input: {}", cause),
-            SizeParseError::NegativeSize(ref cause) => write!(f, "Size cannot be negative: {}", cause),
-            SizeParseError::NonInteger(ref cause) => write!(f, "Resulted in non-integer: {}", cause),
+            SizeParseError::NegativeSize(ref cause) => {
+                write!(f, "Size cannot be negative: {}", cause)
+            }
+            SizeParseError::NonInteger(ref cause) => {
+                write!(f, "Resulted in non-integer: {}", cause)
+            }
             SizeParseError::InvalidType(ref cause) => write!(f, "Invalid type: {}", cause),
         }
     }
 }
-
-
+#[allow(dead_code)]
 pub fn human2bytes(size: &str) -> Result<f64, SizeParseError> {
     let mut size = size.trim().to_uppercase();
     let mut multiplier = 1f64;
 
-    let units = [("B", 1f64), ("K", 1024f64), ("M", 1048576f64), ("G", 1073741824f64), ("T", 1099511627776f64)];
+    let units = [
+        ("B", 1f64),
+        ("K", 1024f64),
+        ("M", 1048576f64),
+        ("G", 1073741824f64),
+        ("T", 1099511627776f64),
+    ];
 
     for (unit, mult) in &units {
         if size.ends_with(unit) {
@@ -416,20 +429,28 @@ pub fn human2bytes(size: &str) -> Result<f64, SizeParseError> {
         }
     }
 
-    let number: f64 = size.parse().map_err(|_| SizeParseError::InvalidInput(size.clone()))?;
+    let number: f64 = size
+        .parse()
+        .map_err(|_| SizeParseError::InvalidInput(size.clone()))?;
     if number < 0.0 {
         return Err(SizeParseError::NegativeSize(size));
     }
 
     Ok(number * multiplier)
 }
-
+#[allow(dead_code)]
 pub fn bytes2human(size: f64) -> Result<String, SizeParseError> {
     if size < 0.0 {
         return Err(SizeParseError::NegativeSize(size.to_string()));
     }
 
-    let units = [("B", 1f64), ("K", 1024f64), ("M", 1048576f64), ("G", 1073741824f64), ("T", 1099511627776f64)];
+    let units = [
+        ("B", 1f64),
+        ("K", 1024f64),
+        ("M", 1048576f64),
+        ("G", 1073741824f64),
+        ("T", 1099511627776f64),
+    ];
     let mut unit = "B";
     let mut divisor = 1f64;
 
