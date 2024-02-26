@@ -1,8 +1,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-//use std::io::{self, Read};
 use std::io::BufRead;
+
 #[allow(dead_code)]
 pub fn do_umount(mountpoint: &Path, recursive: bool, private: bool) -> std::io::Result<bool> {
     let mp = fs::canonicalize(mountpoint)?;
@@ -63,4 +63,22 @@ pub fn is_mounted(
         }
     }
     Ok(false)
+}
+
+#[allow(dead_code)]
+pub fn unmount(path: String) -> bool {
+    let output = std::process::Command::new("sudo")
+        .arg("unmount")
+        .arg(&path)
+        .output();
+    match output {
+        Ok(o) => {
+            if o.status.success() {
+                true
+            } else {
+                false
+            }
+        }
+        Err(_) => false,
+    }
 }

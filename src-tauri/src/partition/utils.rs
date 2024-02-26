@@ -3,10 +3,9 @@ use std::{
     any::Any,
     collections::HashMap,
     fs,
-    os::unix::fs::FileTypeExt, // This trait provides the is_block_device method
+    os::unix::fs::FileTypeExt,
     path::{Path, PathBuf},
 };
-//use serde::{Serialize, Deserialize};
 use serde_json;
 use std::fmt;
 use tracing::{debug, error, info};

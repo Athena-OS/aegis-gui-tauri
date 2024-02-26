@@ -9,6 +9,7 @@ pub enum Action {
     Replace,
     Format,
     InstallAlong,
+    Install,
 }
 #[allow(dead_code)]
 pub static MINIMUM_SIZE: &str = "20G";

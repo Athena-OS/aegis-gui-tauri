@@ -1,32 +1,34 @@
 use crate::partition::{actions, probeos, utils};
 use serde::{Deserialize, Serialize};
 use std::{io, process::Command, str};
+use serde_json::Value;
+
 #[derive(PartialEq, Deserialize, Serialize, Debug, Clone)]
 pub struct Device {
     // Percentage Usage
-    use_percentage: Option<String>,
+    pub use_percentage: Option<String>,
     // Device KNAME
-    kname: Option<String>,
+    pub kname: Option<String>,
     // Device Size(In human form eg 20G)
-    size: Option<String>,
+    pub size: Option<String>,
     // Used space. Necessary for install along
-    used: Option<String>,
+    pub used: Option<String>,
     // A list of possible actions
-    possible_actions: Option<Vec<actions::Action>>,
+    pub possible_actions: Option<Vec<actions::Action>>,
     // can install along
-    can_install_along: Option<bool>,
+    pub can_install_along: Option<bool>,
     // has os
-    has_os: Option<bool>,
+    pub has_os: Option<bool>,
     // os details
-    os_details: Option<probeos::OsProber>,
+    pub os_details: Option<probeos::OsProber>,
     // install candindate
-    install_candidate: Option<bool>,
+    pub install_candidate: Option<bool>,
     // device name
-    name: Option<String>,
+    pub name: Option<String>,
     // Device partitions
-    partitions: Option<Vec<Partition>>,
+    pub partitions: Option<Vec<Partition>>,
     //parttable type
-    pttype: Option<String>,
+    pub pttype: Option<String>,
 }
 
 impl Default for Device {
@@ -50,8 +52,8 @@ impl Default for Device {
 
 impl Device {
     #[allow(dead_code)]
-    pub fn candidate_for_install_along(&self) -> bool {
-        match &self.possible_actions {
+    pub fn candidate_for_install_along(&mut self) -> bool {
+        let cfia = match &self.possible_actions {
             Some(action_list) => {
                 if action_list.contains(&actions::Action::InstallAlong) {
                     true
@@ -60,28 +62,85 @@ impl Device {
                 }
             }
             None => false,
-        }
+        };
+        self.can_install_along = Some(cfia);
+        cfia
     }
+
+    #[allow(dead_code)]
+    pub fn populate_partitions(&mut self) {
+       let binding = String::new();
+        let kname = match &self.kname {
+            Some(kname) => kname,
+            None => &binding
+        };
+        self.partitions = Some(get_partitions(&kname));
+    }
+
+    #[allow(dead_code)]
+    pub fn populate_possible_actions(&mut self, os_data: &Vec<probeos::OsProber>){
+        let mut possible_actions: Vec<actions::Action> = vec![];
+        // Any device can be formatted or partitioned
+        possible_actions.push(actions::Action::Partition);
+        possible_actions.push(actions::Action::Format);
+        //check for space (Candidate for install)
+        let disk_size = match &self.size {
+            Some(s) => utils::human2bytes(&s).unwrap_or(0.0),
+            None => 0.0
+        };
+        let min_size = utils::human2bytes(actions::MINIMUM_SIZE).unwrap_or(0.0);
+        if disk_size > min_size {
+            possible_actions.push(actions::Action::Install);
+            self.install_candidate = Some(true)
+        }
+        // check if disk has an installed os
+        if os_data.len() > 0 {
+            let binding = String::new();
+            let kname = match &self.kname {
+                Some(kname) => kname,
+                None => &binding
+            };
+            let os = os_data.iter().find(|item| <std::option::Option<std::string::String> as Clone>::clone(&item.subpath).expect("empty subpath").contains(&*kname));
+            self.os_details = os.cloned();
+            match os {
+                Some(_) => {
+                    possible_actions.push(actions::Action::Replace);
+                    if disk_size > min_size {
+                        possible_actions.push(actions::Action::InstallAlong);
+                        self.can_install_along = Some(true);
+                    }
+                }
+                None => {}
+            };
+        }
+        self.possible_actions = Some(possible_actions);
+    }
+
 }
 #[allow(dead_code)]
-pub fn get_device_list() -> Vec<Device> {
+pub fn get_device_list(os: &Vec<probeos::OsProber>) -> Vec<Device> {
     let dl = get_disk_info().expect("unable to get device info");
     let mut devices: Vec<Device> = vec![];
     let _ = utils::unmarshal_json(&dl, &mut devices);
 
     for device in &mut devices {
+        let b = String::new();
         let kname = match &device.kname {
-            Some(kname) => kname,
-            None => "",
+            Some(kn) => kn,
+            None => &b,
         };
         device.use_percentage = Some(disk_percentage_usage(kname.to_string()));
+    }
+    for device in &mut devices {
+        device.populate_partitions();
+        device.populate_possible_actions(os);
     }
 
     devices
 }
 #[allow(dead_code)]
-pub fn probe_devices() -> Vec<Device> {
-    get_device_list()
+pub fn probe_devices(os: &Vec<probeos::OsProber>) -> Vec<Device> {
+    get_device_list(os)
 }
 
 #[allow(dead_code)]
@@ -138,18 +197,41 @@ pub fn get_disk_info() -> Result<String, std::io::Error> {
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct Partition {
-    mounted_on: Option<String>,
     // Used space
-    used: Option<i128>,
+    #[serde(rename = "fsused")]
+    pub used: Option<String>,
     // Available space
-    available: Option<i128>,
-    // percentage used
-    use_percentage: Option<String>,
+    #[serde(rename = "fsavail")]
+    pub available: Option<String>,
     // has os(For install alongside and replace functions)
-    has_os: Option<bool>,
+    pub has_os: Option<bool>,
     // replacable(has os and minimum space)
-    can_install_along: Option<bool>,
-    os_details: Option<probeos::OsProber>,
+    pub can_install_along: Option<bool>,
+    // details of the installed OS if any
+    pub os_details: Option<probeos::OsProber>,
+    // disk name
+    pub disk_name: Option<String>,
+    //partion name
+    #[serde(rename = "kname")]
+    pub partition_name: Option<String>,
+    // start of the partition
+    pub start: Option<u64>,
+    // end of the partition
+    pub end: Option<u64>,
+    // percentage space used
+    #[serde(rename = "fsuse%")]
+    pub used_percentage: Option<String>,
+    // size of the disk
+    #[serde(rename = "size")]
+    pub size: Option<String>,
+    // partition's filesystem
+    #[serde(rename = "fstype")]
+    pub file_system: Option<String>,
+    // partition's mountpoint
+    #[serde(rename = "mountpoint")]
+    pub mounted_on: Option<String>,
+    // partition's flag
+    pub partition_flags: Option<String>,
 }
 
 fn disk_percentage_usage(kname: String) -> String {
@@ -157,11 +239,8 @@ fn disk_percentage_usage(kname: String) -> String {
     let out = std::process::Command::new("sh")
         .arg("-c")
         .arg(cmd)
-        //.arg("grep")
-        //.arg(&kname)
         .output()
         .expect("unable to run command");
-    println!("{:?}", out);
     let s = String::from_utf8(out.stdout).expect("unable to get output");
     sum_percentages(&s)
 }
@@ -178,4 +257,65 @@ fn sum_percentages(input: &str) -> String {
         Ok(sum) => format!("{}%", sum), // Format the sum as a percentage string
         Err(_) => String::from("Error parsing input"), // Return an error message if parsing failed
     }
+}
+
+#[allow(dead_code)]
+fn remove_partition(partition: &str) -> Result<(), String> {
+    // Ensure the partition string is in the correct format
+    let partition = if partition.starts_with("/dev/") {
+        partition.to_string()
+    } else {
+        format!("/dev/{}", partition)
+    };
+
+    // Execute the `parted` command to remove the partition
+    // Note: This assumes the partition is always on /dev/sda and might need adjustment for other disks
+    let output = Command::new("sudo")
+        .arg("parted")
+        .arg("--script") // Avoids interactive prompts
+        .arg(partition.rsplitn(2, '/').last().unwrap_or("")) // Gets the disk device, like `sda` from `/dev/sda1`
+        .arg("rm")
+        .arg(partition.rsplitn(2, '/').next().unwrap_or("")) // Gets the partition number, like `1` from `sda1`
+        .output();
+
+    match output {
+        Ok(output) => {
+            if !output.status.success() {
+                Err(String::from_utf8_lossy(&output.stderr).to_string())
+            } else {
+                Ok(())
+            }
+        }
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+
+
+pub fn get_partitions(disk_name: &str) -> Vec<Partition> {
+    let output = Command::new("lsblk")
+        .arg("-J")
+        .arg("-O")
+        //.arg("NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,START,END")
+        .output()
+        .expect("failed to execute process");
+    let output_str = String::from_utf8_lossy(&output.stdout);
+    let json: Value = serde_json::from_str(&output_str).unwrap();
+    let mut partitions: Vec<Partition> = Vec::new();
+    if let Some(devices) = json["blockdevices"].as_array() {
+        for device in devices {
+            if let (Some(name), Some(children)) =
+                (device["name"].as_str(), device["children"].as_array())
+            {
+                if name.starts_with(disk_name) {
+                    for child in children {                       
+                       let p: Partition = serde_json::from_value(child.clone()).expect("unable to get partition");                        
+                        partitions.push(p);                        
+                    }
+                }
+            }
+        }
+    }
+
+    partitions
 }

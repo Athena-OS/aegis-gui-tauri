@@ -4,11 +4,11 @@ use std::str;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct OsProber {
-    subpath: Option<String>,
-    long: Option<String>,
-    label: Option<String>,
-    type_: Option<String>,
-    version: Option<String>,
+    pub subpath: Option<String>,
+    pub long: Option<String>,
+    pub label: Option<String>,
+    pub type_: Option<String>,
+    pub version: Option<String>,
 }
 #[allow(dead_code)]
 pub fn probe_os() -> Vec<OsProber> {

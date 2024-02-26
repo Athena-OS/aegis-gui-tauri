@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
+
 #[allow(dead_code)]
 pub fn sane_block_devices() -> Vec<String> {
     let mut devices = Vec::new();
