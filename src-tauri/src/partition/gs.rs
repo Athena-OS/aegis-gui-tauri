@@ -1,10 +1,10 @@
 use crate::partition::{
-    device::{probe_devices, Device},
+    device::{probe_devices, Device, Partition},
     probeos::{probe_os, OsProber},
     utils,
 };
-use std::{fmt, str};
 use serde::{Deserialize, Serialize};
+use std::{fmt, str};
 
 // This struct stores the storage information details
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -13,6 +13,8 @@ pub struct GlobalStorage {
     pub operating_systems: Vec<OsProber>,
     // The disks(devices) in the system
     pub devices: Vec<Device>,
+    // all partitions for all the devices
+    pub partitions: Vec<Partition>,
 }
 
 impl Default for GlobalStorage {
@@ -20,6 +22,7 @@ impl Default for GlobalStorage {
         GlobalStorage {
             operating_systems: vec![],
             devices: vec![],
+            partitions: vec![],
         }
     }
 }
@@ -51,9 +54,28 @@ impl GlobalStorage {
         }
     }
     #[allow(dead_code)]
-    pub fn probe(&mut self) {        
+    pub fn probe(&mut self) {
         self.probe_os();
         self.probe_devices();
+        for device in &self.devices {
+            if let Some(ps) = &device.partitions {
+                for p in ps {
+                    self.partitions.push(p.clone());
+                }
+            }
+        }
+        for os in &mut self.operating_systems {
+            if let Some(index) = self.partitions.iter().position(|x| {
+                if let (Some(kname), Some(sp)) = (&x.kname, &os.subpath) {
+                    format!("/dev/{}", kname) == *sp
+                } else {
+                    false
+                }
+            }) {
+                // Now you can borrow `self.partitions[index]` as mutable
+                os.can_install_along = Some(self.partitions[index].candidate_for_install_along());
+            }
+        }
     }
 }
 

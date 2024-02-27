@@ -65,3 +65,4 @@ export async  function hashPassword(password:string) {
     hash = await invoke("hash_password", {password: password})
     return hash.trim()
 }
+

@@ -9,6 +9,8 @@ pub struct OsProber {
     pub label: Option<String>,
     pub type_: Option<String>,
     pub version: Option<String>,
+    pub raw: Option<String>,
+    pub can_install_along: Option<bool>,
 }
 #[allow(dead_code)]
 pub fn probe_os() -> Vec<OsProber> {
@@ -35,6 +37,8 @@ pub fn probe_os() -> Vec<OsProber> {
                 label: Some(parts.get(2).unwrap_or(&"").to_string()),
                 type_: Some(parts.get(3).unwrap_or(&"").to_string()),
                 version,
+                raw: Some(output_str.to_string()),
+                can_install_along: None,
             }
         })
         .collect()

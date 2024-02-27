@@ -25,6 +25,11 @@ const partitionStore: Writable<{
     fileSystem: string,
     mountPoint: string,
     name: string
+  },
+  installAlongPartition: {
+    partitionName:string
+    size:number,
+    filesystem:string,
   }
 }> = writable({
   selectedDevice: "default",
@@ -52,6 +57,11 @@ const partitionStore: Writable<{
     name: "Athena OS",
     isEncrypted: false
   },
+  installAlongPartition:{
+    partitionName:"",
+    size:1024,
+    filesystem:""
+  }
 });
 
 export default partitionStore;
@@ -83,5 +93,10 @@ export function resetPartitionStore() {
       name: "Athena OS",
       //isEncrypted: false
     },
+    installAlongPartition:{
+      partitionName:"",
+      size:0,
+      filesystem:""
+    }
   })
 }

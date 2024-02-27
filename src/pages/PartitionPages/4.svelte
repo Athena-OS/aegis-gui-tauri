@@ -64,33 +64,12 @@
     });
   }
 
-  async function changeAllowCreation() {
-    try {
-    if (
-      parseInt(
-        bytesToGB(
-          $partitionStore.systemStorageInfo.filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
-          )[0]?.availableStorage,
-        ),
-      ) > 1
-    ) {
-      allowCreation = true;
-    } else {
-      allowCreation = false;
-    }
-  }catch(_){
-    allowCreation = false;
-  }
-  }
+
 
   gatherInfo();
   $: $partitionStore.systemStorageInfo, gatherInfo();
   $: $partitionStore.selectedDevice, gatherInfo();
-  $: $partitionStore.systemStorageInfo.filter(
-    (item) => item.displayName === $partitionStore.selectedDevice,
-  )[0]?.availableStorage,
-    changeAllowCreation();
+  //$: $partitionStore.systemStorageInfo.filter((item) => item.displayName === $partitionStore.selectedDevice,)[0]?.availableStorage,    changeAllowCreation();
 
   function ResizingPartitionOnChangeValue(e: any) {
     let value = GBToMB(parseFloat(e.target.value));
@@ -147,12 +126,6 @@
     }
   }
 
-  // create new partition
-  let dialogNewPartition = createDialog({ label: "create-partition" });
-
-  let allowCreation = true;
-  // replace partition
-  let dialogReplacePartition = createDialog({ label: "replace-partition" });
   // edit existing partition
   let dialogEditPartition = createDialog({ label: "edit-partition" });
   // delete existing partition
@@ -167,93 +140,7 @@
     mountPoint: "",
   };
 </script>
-
-<!-- create new partition -->
-<CreatePartitionDialog dialog={dialogNewPartition} />
-
-<Dialog dialog={dialogReplacePartition}>
-  <div class="w-full h-fit my-4 space-y-8 flex flex-col justify-between">
-    <h4 class="text-2xl font-meidum">Replace Partition</h4>
-    <Dropdown
-      items={[
-        ...partitionData.map((partition) => {
-          return { name: partition.partitionName, selected: false };
-        }),
-      ]}
-      icon={diskIcon}
-      label="Select Partition"
-      on:select={(event) => {
-        $partitionStore.replacedPartition = $partitionStore.systemStorageInfo
-          .filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
-          )[0]
-          .partitions.filter(
-            (item) => item.partitionName === event.detail.selected.name,
-          )[0];
-      }}
-      defaultItem={{ name: "Select Partition" }}
-    />
-
-    <h4 class="text-xl my-4 font-meidum text-red-500">
-      *The following partition will be replaced with Athena OS Partition
-    </h4>
-  </div>
-  <div class="flex justify-between space-x-2">
-    <Button
-      variant="bordered"
-      on:click={() => dialogReplacePartition.close()}
-      fullWidth>Cancel</Button
-    >
-    <Button
-      on:click={() => {
-        console.log(
-          $partitionStore.systemStorageInfo
-            .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0]
-            .partitions.filter(
-              (partition) =>
-                partition.partitionName ===
-                  $partitionStore.replacedPartition.partitionName &&
-                partition.size === $partitionStore.replacedPartition.size,
-            )[0],
-        );
-
-        $partitionStore.systemStorageInfo
-          .filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
-          )[0]
-          .partitions.filter(
-            (partition) =>
-              partition.partitionName ===
-                $partitionStore.replacedPartition.partitionName &&
-              partition.size === $partitionStore.replacedPartition.size,
-          )[0].name = "Athena OS";
-
-        console.log(
-          $partitionStore.systemStorageInfo
-            .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0]
-            .partitions.filter(
-              (partition) =>
-                partition.partitionName ===
-                  $partitionStore.replacedPartition.partitionName &&
-                partition.size === $partitionStore.replacedPartition.size,
-            )[0],
-        );
-
-        gatherInfo();
-        changeAllowCreation();
-
-        dialogReplacePartition.close();
-      }}
-      fullWidth>Confirm</Button
-    >
-  </div>
-</Dialog>
-
-<Dialog dialog={dialogEditPartition}>
+<!--Dialog dialog={dialogEditPartition}>
   <div class="w-full h-fit space-y-4 py-4">
     <h4 class="text-2xl font-meidum">Resize Partition</h4>
     <div class="text-center">
@@ -377,69 +264,17 @@
               }, 0);
 
           gatherInfo();
-          changeAllowCreation();
           dialogEditPartition.close();
         }}
         fullWidth>Confirm</Button
       >
     </div>
   </div>
-</Dialog>
+</Dialog-->
 
-<Dialog dialog={dialogDeletePartition} dialogTitle="Delete Partition">
-  <div class="p-8 space-y-6 flex items-center flex-col">
-    <img src={warningIcon} alt="" />
-    <div class="text-center text-2xl font-medium">
-      Confirm Delete of "{selectedPartitionForAction.name}" of size "{bytesToMB(
-        selectedPartitionForAction.size,
-      )} MB"
-    </div>
-    <div class="text-red-500">This action is irreversable</div>
-  </div>
-  <div class="flex justify-between pt-8">
-    <div class="w-40">
-      <Button
-        variant="bordered"
-        on:click={() => dialogDeletePartition.close()}
-        fullWidth>Cancel</Button
-      >
-    </div>
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div
-      class="w-40"
-      on:click={() => {
-        $partitionStore.systemStorageInfo.filter(
-          (item) => item.displayName === $partitionStore.selectedDevice,
-        )[0].partitions = $partitionStore.systemStorageInfo
-          .filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
-          )[0]
-          .partitions.filter(
-            (item) =>
-              item.size !== selectedPartitionForAction.size &&
-              item.name !== selectedPartitionForAction.name,
-          );
-
-        $partitionStore.systemStorageInfo.filter(
-          (item) => item.displayName === $partitionStore.selectedDevice,
-        )[0].availableStorage =
-          $partitionStore.systemStorageInfo.filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
-          )[0].availableStorage + selectedPartitionForAction.size;
-
-        gatherInfo();
-
-        dialogDeletePartition.close();
-      }}
-    >
-      <Button fullWidth>Confirm</Button>
-    </div>
-  </div>
-</Dialog>
 
 <StepWrapper
-  title="Configure Partition"
+  title="Configure Partition for install along"
   dialogTitle="Header Here"
   dialogContent="Your text here"
   prev="partition"
@@ -457,7 +292,7 @@
           defaultItem={{ name: "Select Drive" }}
         />
       </div>
-      <div class="w-full">
+      <!--div class="w-full">
         <p class="text-[#B0B0B0] text-left font-semibold mb-2">Partition</p>
         {#if $partitionStore.systemStorageInfo.length > 0}
           <SegementedBar
@@ -471,7 +306,7 @@
             items={partitionData}
           />
         {/if}
-      </div>
+      </div-->
     </div>
     <div class="w-full">
       <h3 class="font-semibold mb-2 text-[#B0B0B0]">New Partition Table</h3>
@@ -541,17 +376,6 @@
         </div>
       </div>
     </div>
-    <div class="flex w-full justify-end space-x-4">
-      {#if allowCreation === true}
-        <Button variant="secondary" on:click={dialogNewPartition.open}
-          ><img src={plusWhiteIcon} alt="" />
-          <span>Create Partition</span></Button
-        >
-      {/if}
-      <Button variant="bordered" on:click={dialogReplacePartition.open}>
-        <img class="h-6" src={replaceIcon} alt="" />
-        <span>Replace</span></Button
-      >
-    </div>
+    
   </div>
 </StepWrapper>

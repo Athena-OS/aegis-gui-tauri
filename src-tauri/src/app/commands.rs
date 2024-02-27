@@ -95,8 +95,6 @@ pub fn get_locale() -> Result<String, tauri::Error> {
     Ok(locale_content.to_string())
 }
 
-
-
 #[allow(dead_code)]
 pub fn read_file1(path: &str) -> Result<String, std::io::Error> {
     std::fs::read_to_string(path)
@@ -143,3 +141,10 @@ pub fn get_gs() -> String {
     gs.to_json_string()
 }
 
+#[tauri::command]
+pub fn human_to_bytes(d: String) -> Result<String, tauri::Error> {
+    match partition::utils::human2bytes(&d) {
+        Ok(k) => Ok(format! {"{:?}", k}),
+        Err(_) => todo!(),
+    }
+}

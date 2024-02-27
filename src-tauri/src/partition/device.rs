@@ -1,7 +1,7 @@
 use crate::partition::{actions, probeos, utils};
 use serde::{Deserialize, Serialize};
-use std::{io, process::Command, str};
 use serde_json::Value;
+use std::{io, process::Command, str};
 
 #[derive(PartialEq, Deserialize, Serialize, Debug, Clone)]
 pub struct Device {
@@ -29,6 +29,9 @@ pub struct Device {
     pub partitions: Option<Vec<Partition>>,
     //parttable type
     pub pttype: Option<String>,
+
+    #[serde(rename = "id")]
+    pub display_name: Option<String>,
 }
 
 impl Default for Device {
@@ -46,6 +49,7 @@ impl Default for Device {
             install_candidate: None,
             partitions: None,
             pttype: None,
+            display_name: None,
         }
     }
 }
@@ -69,16 +73,16 @@ impl Device {
 
     #[allow(dead_code)]
     pub fn populate_partitions(&mut self) {
-       let binding = String::new();
+        let binding = String::new();
         let kname = match &self.kname {
             Some(kname) => kname,
-            None => &binding
+            None => &binding,
         };
         self.partitions = Some(get_partitions(&kname));
     }
 
     #[allow(dead_code)]
-    pub fn populate_possible_actions(&mut self, os_data: &Vec<probeos::OsProber>){
+    pub fn populate_possible_actions(&mut self, os_data: &Vec<probeos::OsProber>) {
         let mut possible_actions: Vec<actions::Action> = vec![];
         // Any device can be formatted or partitioned
         possible_actions.push(actions::Action::Partition);
@@ -86,7 +90,7 @@ impl Device {
         //check for space (Candidate for install)
         let disk_size = match &self.size {
             Some(s) => utils::human2bytes(&s).unwrap_or(0.0),
-            None => 0.0
+            None => 0.0,
         };
         let min_size = utils::human2bytes(actions::MINIMUM_SIZE).unwrap_or(0.0);
         if disk_size > min_size {
@@ -98,9 +102,13 @@ impl Device {
             let binding = String::new();
             let kname = match &self.kname {
                 Some(kname) => kname,
-                None => &binding
+                None => &binding,
             };
-            let os = os_data.iter().find(|item| <std::option::Option<std::string::String> as Clone>::clone(&item.subpath).expect("empty subpath").contains(&*kname));
+            let os = os_data.iter().find(|item| {
+                <std::option::Option<std::string::String> as Clone>::clone(&item.subpath)
+                    .expect("empty subpath")
+                    .contains(&*kname)
+            });
             self.os_details = os.cloned();
             match os {
                 Some(_) => {
@@ -115,7 +123,6 @@ impl Device {
         }
         self.possible_actions = Some(possible_actions);
     }
-
 }
 #[allow(dead_code)]
 pub fn get_device_list(os: &Vec<probeos::OsProber>) -> Vec<Device> {
@@ -134,6 +141,11 @@ pub fn get_device_list(os: &Vec<probeos::OsProber>) -> Vec<Device> {
     for device in &mut devices {
         device.populate_partitions();
         device.populate_possible_actions(os);
+        if let Some(partitions) = &mut device.partitions {
+            for partition in partitions {
+                partition.populate_possible_actions(os)
+            }
+        }
     }
 
     devices
@@ -183,7 +195,7 @@ pub fn clear_partition_device(
 pub fn get_disk_info() -> Result<String, std::io::Error> {
     let output = Command::new("sh")
         .arg("-c")
-        .arg("lsblk -d -o NAME,TYPE,SIZE,VENDOR,MODEL,SERIAL,TRAN,KNAME,PTTYPE -J | jq '[.blockdevices[] | select(.type==\"disk\")]'")
+        .arg("lsblk -d -O -J | jq '[.blockdevices[] | select(.type==\"disk\")]'")
         .output()?;
 
     if output.status.success() {
@@ -232,8 +244,76 @@ pub struct Partition {
     pub mounted_on: Option<String>,
     // partition's flag
     pub partition_flags: Option<String>,
+
+    #[serde(rename = "id")]
+    pub display_name: Option<String>,
+
+    pub possible_actions: Option<Vec<actions::Action>>,
+
+    pub install_candidate: Option<bool>,
+
+    pub kname: Option<String>,
 }
 
+impl Partition {
+    #[allow(dead_code)]
+    pub fn candidate_for_install_along(&mut self) -> bool {
+        let cfia = match &self.possible_actions {
+            Some(action_list) => {
+                if action_list.contains(&actions::Action::InstallAlong) {
+                    true
+                } else {
+                    false
+                }
+            }
+            None => false,
+        };
+        self.can_install_along = Some(cfia);
+        cfia
+    }
+    #[allow(dead_code)]
+    pub fn populate_possible_actions(&mut self, os_data: &Vec<probeos::OsProber>) {
+        let mut possible_actions: Vec<actions::Action> = vec![];
+        // Any device can be formatted or partitioned
+        possible_actions.push(actions::Action::Partition);
+        possible_actions.push(actions::Action::Format);
+        //check for space (Candidate for install)
+        let disk_size = match &self.size {
+            Some(s) => utils::human2bytes(&s).unwrap_or(0.0),
+            None => 0.0,
+        };
+        let min_size = utils::human2bytes(actions::MINIMUM_SIZE).unwrap_or(0.0);
+        if disk_size > min_size {
+            possible_actions.push(actions::Action::Install);
+            self.install_candidate = Some(true)
+        }
+        // check if disk has an installed os
+        if os_data.len() > 0 {
+            let binding = String::new();
+            let kname = match &self.kname {
+                Some(kname) => kname,
+                None => &binding,
+            };
+            let os = os_data.iter().find(|item| {
+                <std::option::Option<std::string::String> as Clone>::clone(&item.subpath)
+                    .expect("empty subpath")
+                    .contains(&*kname)
+            });
+            self.os_details = os.cloned();
+            match os {
+                Some(_) => {
+                    possible_actions.push(actions::Action::Replace);
+                    if disk_size > min_size {
+                        possible_actions.push(actions::Action::InstallAlong);
+                        self.can_install_along = Some(true);
+                    }
+                }
+                None => {}
+            };
+        }
+        self.possible_actions = Some(possible_actions);
+    }
+}
 fn disk_percentage_usage(kname: String) -> String {
     let cmd = format!("df | grep '{}' | awk '{{print $5}}'", kname);
     let out = std::process::Command::new("sh")
@@ -290,8 +370,6 @@ fn remove_partition(partition: &str) -> Result<(), String> {
     }
 }
 
-
-
 pub fn get_partitions(disk_name: &str) -> Vec<Partition> {
     let output = Command::new("lsblk")
         .arg("-J")
@@ -308,9 +386,10 @@ pub fn get_partitions(disk_name: &str) -> Vec<Partition> {
                 (device["name"].as_str(), device["children"].as_array())
             {
                 if name.starts_with(disk_name) {
-                    for child in children {                       
-                       let p: Partition = serde_json::from_value(child.clone()).expect("unable to get partition");                        
-                        partitions.push(p);                        
+                    for child in children {
+                        let p: Partition =
+                            serde_json::from_value(child.clone()).expect("unable to get partition");
+                        partitions.push(p);
                     }
                 }
             }

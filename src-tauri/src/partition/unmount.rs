@@ -1,7 +1,7 @@
 use std::fs;
+use std::io::BufRead;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::io::BufRead;
 
 #[allow(dead_code)]
 pub fn do_umount(mountpoint: &Path, recursive: bool, private: bool) -> std::io::Result<bool> {

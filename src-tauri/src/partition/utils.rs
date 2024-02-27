@@ -1,4 +1,6 @@
 use lazy_static::lazy_static;
+use serde_json;
+use std::fmt;
 use std::{
     any::Any,
     collections::HashMap,
@@ -6,8 +8,6 @@ use std::{
     os::unix::fs::FileTypeExt,
     path::{Path, PathBuf},
 };
-use serde_json;
-use std::fmt;
 use tracing::{debug, error, info};
 
 #[allow(dead_code)]
