@@ -1,5 +1,5 @@
 import { writable, type Writable } from "svelte/store";
-import { type StorageDevice } from "../utils/types"
+import { type StorageDevice, type InstallAlongPartition } from "../utils/types"
 
 const partitionStore: Writable<{
   selectedDevice: string,
@@ -10,6 +10,7 @@ const partitionStore: Writable<{
   grubType:string,
   systemStorageInfo: StorageDevice[],
   systemStorageInfoCurrent: StorageDevice[],
+  partitionsWithOS: InstallAlongPartition[],
   newPartition: {
     partitionName: string,
     size: number,
@@ -40,6 +41,7 @@ const partitionStore: Writable<{
   grubLocation:"",
   systemStorageInfo: [],
   systemStorageInfoCurrent: [],
+  partitionsWithOS: [],
   newPartition: {
     partitionName: "",
     size: 1024,
@@ -61,6 +63,7 @@ const partitionStore: Writable<{
     partitionName:"",
     size:1024,
     filesystem:""
+
   }
 });
 
@@ -76,6 +79,7 @@ export function resetPartitionStore() {
     grubLocation:"",
     systemStorageInfo: [],
     systemStorageInfoCurrent: [],
+    partitionsWithOS:[],
     newPartition: {
       partitionName: "",
       size: 1024,

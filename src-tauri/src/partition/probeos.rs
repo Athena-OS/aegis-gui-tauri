@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::process::Command;
 use std::str;
-
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct OsProber {
     pub subpath: Option<String>,

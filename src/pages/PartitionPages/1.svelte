@@ -13,7 +13,7 @@
   import { disks } from "tauri-plugin-system-info-api";
   import { invoke } from "@tauri-apps/api";
 
-  import { type StorageDevice } from "../../lib/utils/types";
+  import { type StorageDevice, type InstallAlongPartition } from "../../lib/utils/types";
   import { bytesToGB } from "../../lib/utils/functions";
   import { resetPartitionStore } from "../../lib/stores/partitionStore";
   interface Card {
@@ -58,6 +58,9 @@
           percentage_used: i.use_percentage,
           name: i.kname,
         });
+        if (i.can_install_along) {
+          $partitionStore.partitionsWithOS.push(i)
+        }
       });
     });
     let os = JSON.parse(gs).operating_systems;
@@ -70,6 +73,7 @@
 
       const result = bValues.join(", ");
       install_along_card.desc += result;
+
     }
 
     console.log(JSON.parse(gs));
@@ -145,6 +149,10 @@
       nextPage = "/configure-install-along";
     }
   }
+  function handleChange(event: Event) {
+    $partitionStore.mode = "install-along";
+    // $partitionStore.selectedDevice = $partitionStore.partitionsWithOS[0].kname;
+  }
 
   $: $partitionStore, IsOkayToMoveNextPage();
 </script>
@@ -203,7 +211,7 @@
           name="radio-group"
           value={install_along_card.value}
           checked={install_along_card.checked || false}
-          on:change={(event) => ($partitionStore.mode = "install-along")}
+          on:change={handleChange}
         />
         <label
           class:aspect-square={install_along_card.icon}

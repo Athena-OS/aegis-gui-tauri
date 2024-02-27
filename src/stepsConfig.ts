@@ -26,10 +26,8 @@ const stepsConfig: StepConfig[] = [
   { route: "/accounts", component: AccountsPage },
   { route: "/extras", component: ExtrasPage },
   { route: "/partition", component: PartitionsPage },
-  { route: "/configure-partition", component: ConfigurePartitionPage },
-  { route: "/finalize-partition", component: FinalizePartitionPage },
-  
-  
+  { route: "/configure-partition", component: ConfigurePartitionPage, exclude: true },
+  { route: "/finalize-partition", component: FinalizePartitionPage, exclude: true },
   { route: "/configure-install-along", component: ConfigureInstallAlongPage },
   { route: "/summary", component: SummaryPage },
   { route: "/install", component: InstallPage, exclude: true },

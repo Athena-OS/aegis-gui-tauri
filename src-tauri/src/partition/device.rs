@@ -224,7 +224,7 @@ pub struct Partition {
     // disk name
     pub disk_name: Option<String>,
     //partion name
-    #[serde(rename = "kname")]
+    // #[serde(rename = "kname")]
     pub partition_name: Option<String>,
     // start of the partition
     pub start: Option<u64>,
@@ -253,6 +253,8 @@ pub struct Partition {
     pub install_candidate: Option<bool>,
 
     pub kname: Option<String>,
+
+    pub suggested_partitions: Option<Vec<SuggestedPartition>>,
 }
 
 impl Partition {
@@ -282,6 +284,10 @@ impl Partition {
             Some(s) => utils::human2bytes(&s).unwrap_or(0.0),
             None => 0.0,
         };
+        let used_size = match &self.used {
+            Some(s) => utils::human2bytes(&s).unwrap_or(0.0),
+            None => 0.0,
+        };
         let min_size = utils::human2bytes(actions::MINIMUM_SIZE).unwrap_or(0.0);
         if disk_size > min_size {
             possible_actions.push(actions::Action::Install);
@@ -306,12 +312,38 @@ impl Partition {
                     if disk_size > min_size {
                         possible_actions.push(actions::Action::InstallAlong);
                         self.can_install_along = Some(true);
+                        self.calculate_sizes_for_install_along(disk_size, min_size, used_size);
                     }
                 }
                 None => {}
             };
         }
         self.possible_actions = Some(possible_actions);
+    }
+
+    // Auto suggest partition sizes for install along
+    #[allow(dead_code)]
+    pub fn calculate_sizes_for_install_along(
+        &mut self,
+        disk_size: f64,
+        min_size: f64,
+        used_size: f64,
+    ) {
+        // calculate the free size after taking into account minimun required and used
+        let free_size = disk_size - (min_size + used_size);
+        let other_os = SuggestedPartition {
+            label: String::from("other_os"),
+            minimum_size: used_size,
+            maximum_size: used_size + free_size,
+            suggested_size: used_size + free_size / 2.0,
+        };
+        let athena = SuggestedPartition {
+            label: String::from("athena"),
+            minimum_size: min_size,
+            maximum_size: min_size + free_size,
+            suggested_size: min_size + free_size / 2.0,
+        };
+        self.suggested_partitions = Some(vec![athena, other_os]);
     }
 }
 fn disk_percentage_usage(kname: String) -> String {
@@ -397,4 +429,14 @@ pub fn get_partitions(disk_name: &str) -> Vec<Partition> {
     }
 
     partitions
+}
+
+// This is the suggested partition table for install along
+// if a partition has OS, it should be resized but the its remaining size should be larger than the used space
+#[derive(Clone, Deserialize, Serialize, Debug, PartialEq)]
+pub struct SuggestedPartition {
+    pub maximum_size: f64,
+    pub minimum_size: f64,
+    pub label: String,
+    pub suggested_size: f64,
 }
