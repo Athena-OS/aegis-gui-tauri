@@ -28,7 +28,7 @@ const globalStore = derived(
         virtkeymap: $keyboardStore.keymaps,
         x11keymap: "",
       },
-      netwroking: {
+      networking: {
         hostname:$extraStore.hostname,
         ipv6:$extraStore.ipv6,
       },

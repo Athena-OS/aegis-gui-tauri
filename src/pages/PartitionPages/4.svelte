@@ -31,6 +31,7 @@
           suggested_size: s.suggested_size,
           minimum_size: s.minimum_size,
           maximum_size: s.maximum_size,
+          kname:s.kname
         });
       });
   }
@@ -52,10 +53,11 @@
         suggested_size: s.suggested_size,
         minimum_size: s.minimum_size,
         maximum_size: s.maximum_size,
+        kname:s.kname
       });
     });
     if ($partitionStore.r) {
-      partitionData = JSON.parse($globalStore.partition.installAlongPartitions);
+      partitionData = $globalStore.partition.installAlongPartitions;
     }
   }
 

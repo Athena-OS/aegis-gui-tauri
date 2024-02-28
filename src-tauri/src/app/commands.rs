@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use crate::app::config;
 use crate::partition;
 use bcrypt::{hash, DEFAULT_COST};
 use std::{error::Error, process::Command};
@@ -104,12 +105,39 @@ pub fn read_file1(path: &str) -> Result<String, std::io::Error> {
 #[tauri::command]
 #[allow(dead_code)]
 pub fn save_conf(data: String) {
+    let config = config::Config::from_json_string(data.clone());
+    let def_device = &partition::device::Device::default();
+    println!("{:#?}", config);
+    match config.partition.mode.as_str() {
+        "install-along" => {
+            let mut gs = partition::gs::GlobalStorage::new();
+            gs.probe();
+            let kname = &config.partition.installAlongPartitions[0].kname;
+            let device = gs
+                .devices
+                .iter()
+                .find(|&d| d.name == Some(get_disk_id(kname)))
+                .unwrap_or(def_device);
+            match partition::device::partition_install_along(
+                config.partition.installAlongPartitions,
+                device.clone(),
+            ) {
+                Ok(_) => {
+                    println!("partitioning successful");
+                }
+                Err(r) => {
+                    println!("error partioning for install along {:#?}", r);
+                }
+            }
+        }
+        &_ => todo!(),
+    }
     let p: &'static str = "/tmp/config.json";
     let path = Path::new(p);
     if path.exists() {
         println!("The file exists.");
         // delete file
-        delete_file(p).expect("unable to delete file")
+        delete_file(p).expect("unable to delete file");
     } else {
         println!("The file exists");
     }
@@ -119,7 +147,6 @@ pub fn save_conf(data: String) {
 pub fn save_json(data: &str, filename: &str) -> std::io::Result<()> {
     // Open the file in write mode, creating it if it doesn't exist
     let mut file = File::create(filename)?;
-
     // Write the data to the file
     file.write_all(data.as_bytes())?;
 
@@ -144,7 +171,18 @@ pub fn get_gs() -> String {
 #[tauri::command]
 pub fn human_to_bytes(d: String) -> Result<String, tauri::Error> {
     match partition::utils::human2bytes(&d) {
-        Ok(k) => Ok(format! {"{:?}", k}),
+        Ok(k) => Ok(format!("{:?}", k)),
         Err(_) => todo!(),
     }
+}
+
+fn get_disk_id(partition_id: &str) -> String {
+    partition_id
+        .chars()
+        .rev()
+        .skip_while(|c| c.is_digit(10)) // Skip digits from the end
+        .collect::<String>()
+        .chars()
+        .rev()
+        .collect::<String>()
 }

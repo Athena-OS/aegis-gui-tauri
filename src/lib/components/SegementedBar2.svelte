@@ -52,7 +52,7 @@
     "bg-purple-500",
     "bg-neutral-500",
   ];
-  $partitionStore.installAlongPartitions = JSON.stringify(items)
+  $partitionStore.installAlongPartitions = items
   let selectedItem: InstallAlongPartition;
   let dialogEditPartition = createDialog({ label: "edit-partition" });
   function partitionClicked(e: any) {
@@ -104,7 +104,7 @@
     <div class="w-40">
       <Button
         on:click={() => {
-          $partitionStore.installAlongPartitions = JSON.stringify(items);
+          $partitionStore.installAlongPartitions = items;
           $partitionStore.r = true;
           dialogEditPartition.close();
         }}

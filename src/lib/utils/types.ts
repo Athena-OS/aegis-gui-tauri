@@ -23,4 +23,5 @@ export type InstallAlongPartition = {
     minimum_size: number,
     label: string,
     suggested_size: number,
+    kname:string,
 }

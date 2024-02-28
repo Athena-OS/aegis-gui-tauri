@@ -1,7 +1,7 @@
-use crate::partition::{actions, probeos, utils};
+use crate::partition::{actions, probeos, unmount, utils};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{io, process::Command, str};
+use std::{any::Any, collections::HashMap, io, process::Command, str};
 
 #[derive(PartialEq, Deserialize, Serialize, Debug, Clone)]
 pub struct Device {
@@ -257,7 +257,40 @@ pub struct Partition {
     pub suggested_partitions: Option<Vec<SuggestedPartition>>,
 }
 
+impl Default for Partition {
+    fn default() -> Self {
+        Partition {
+            used: None,
+            available: None,
+            has_os: None,
+            can_install_along: None,
+            os_details: None,
+            disk_name: None,
+            partition_name: None,
+            start: None,
+            end: None,
+            used_percentage: None,
+            size: None,
+            file_system: None,
+            mounted_on: None,
+            partition_flags: None,
+            display_name: None,
+            possible_actions: None,
+            install_candidate: None,
+            kname: None,
+            suggested_partitions: None,
+        }
+    }
+}
 impl Partition {
+    pub fn match_self(&self, sp: Vec<SuggestedPartition>) -> bool {
+        /*if let Some(s_p) = self.suggested_partitions{
+            if
+        }else{
+            false
+        }*/
+        false
+    }
     #[allow(dead_code)]
     pub fn candidate_for_install_along(&mut self) -> bool {
         let cfia = match &self.possible_actions {
@@ -331,17 +364,22 @@ impl Partition {
     ) {
         // calculate the free size after taking into account minimun required and used
         let free_size = disk_size - (min_size + used_size);
+        let b = String::new();
         let other_os = SuggestedPartition {
             label: String::from("other_os"),
             minimum_size: used_size,
             maximum_size: used_size + free_size,
             suggested_size: used_size + free_size / 2.0,
+            kname: <std::option::Option<std::string::String> as Clone>::clone(&self.kname)
+                .unwrap_or(b.clone()),
         };
         let athena = SuggestedPartition {
             label: String::from("athena"),
             minimum_size: min_size,
             maximum_size: min_size + free_size,
             suggested_size: min_size + free_size / 2.0,
+            kname: <std::option::Option<std::string::String> as Clone>::clone(&self.kname)
+                .unwrap_or(b.clone()),
         };
         self.suggested_partitions = Some(vec![athena, other_os]);
     }
@@ -439,4 +477,49 @@ pub struct SuggestedPartition {
     pub minimum_size: f64,
     pub label: String,
     pub suggested_size: f64,
+    pub kname: String,
+}
+impl Default for SuggestedPartition {
+    fn default() -> Self {
+        SuggestedPartition {
+            maximum_size: 0.0,
+            minimum_size: 0.0,
+            label: String::new(),
+            suggested_size: 0.0,
+            kname: String::new(),
+        }
+    }
+}
+#[allow(dead_code)]
+pub fn partition_install_along(
+    parts: Vec<SuggestedPartition>,
+    device: Device,
+) -> Result<bool, std::io::Error> {
+    // get partition to shrink
+    let def_sp = SuggestedPartition::default();
+    let pts = parts
+        .iter()
+        .find(|&d| d.label == "other_os")
+        .unwrap_or(&def_sp);
+    let partitions = device.partitions.unwrap_or(vec![]);
+    let def_part = Partition::default();
+    let part = partitions
+        .iter()
+        .find(|&d| d.kname == Some(pts.kname.clone()))
+        .unwrap_or(&def_part);
+    // unmount the partition
+    if unmount::unmount(String::from(format!("/dev/{}", pts.kname))) {
+        // unmount successful
+        let mut resize: HashMap<String, Box<dyn Any>> = HashMap::new();
+        resize.insert(String::from("fstype"), Box::new(part.file_system.clone()));
+        resize.insert(String::from("size"), Box::new(pts.suggested_size));
+        utils::perform_resize(&pts.kname, resize);
+
+        Ok(true)
+    } else {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::AddrNotAvailable,
+            "Unounting",
+        ))
+    }
 }

@@ -14,6 +14,7 @@
 
   import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import "@splidejs/svelte-splide/css";
+  import { onMount } from "svelte";
 
   let consoleOpen = true;
 
@@ -23,9 +24,16 @@
 
   // uncomment to display dialog preview
 
-  // onMount(() => {
+  //onMount(() => {
   //   dialog.open();
   // });
+  import {invoke } from "@tauri-apps/api"
+  import globalStore from "../lib/stores/globalStore";
+  function saveConf() {
+    console.log(JSON.stringify($globalStore))
+    invoke("save_conf", {data: JSON.stringify($globalStore)})
+  }
+  saveConf()
 </script>
 
 <Dialog {dialog}>

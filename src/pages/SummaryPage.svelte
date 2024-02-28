@@ -14,13 +14,6 @@
   import packagesSummary from "../assets/packages-summary.svg";
   import packagesStore from "../lib/stores/packagesStore";
   import partitionStore from "../lib/stores/partitionStore";
-  import {invoke } from "@tauri-apps/api"
-  import globalStore from "../lib/stores/globalStore";
-  function saveConf() {
-    console.log(JSON.stringify($globalStore))
-    invoke("save_conf", {data: 'Hello'})
-  }
-  saveConf()
 </script>
 
 <StepWrapper

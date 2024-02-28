@@ -13,7 +13,7 @@ const partitionStore: Writable<{
   systemStorageInfo: StorageDevice[],
   systemStorageInfoCurrent: StorageDevice[],
   partitionsWithOS: InstallAlongPartition[],
-  installAlongPartitions:string,
+  installAlongPartitions:any[],
   newPartition: {
     partitionName: string,
     size: number,
@@ -38,7 +38,7 @@ const partitionStore: Writable<{
 }> = writable({
   selectedDevice: "default",
   selectedDeviceForInstallAlong: "default",
-  installAlongPartitions:"",
+  installAlongPartitions:[],
   mode: "auto",
   r:false,
   efi:true,
@@ -79,7 +79,7 @@ export function resetPartitionStore() {
   partitionStore.set({
     selectedDevice: "default",
     selectedDeviceForInstallAlong: "default",
-    installAlongPartitions:"",
+    installAlongPartitions:[],
     r:false,
     mode: "auto",
     efi:true,
