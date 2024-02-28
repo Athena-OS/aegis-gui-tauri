@@ -15,7 +15,8 @@ const globalStore = derived(
         efi: $partitionStore.efi,
         swap: $partitionStore.swap,
         swap_size:$partitionStore.newPartition.swapPartitionSize,
-        partitions:[]
+        partitions:[],
+        installAlongPartitions:$partitionStore.installAlongPartitions
       },
       bootloader:{
         type:$partitionStore.grubType,

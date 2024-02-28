@@ -13,7 +13,10 @@
   import { disks } from "tauri-plugin-system-info-api";
   import { invoke } from "@tauri-apps/api";
 
-  import { type StorageDevice, type InstallAlongPartition } from "../../lib/utils/types";
+  import {
+    type StorageDevice,
+    type InstallAlongPartition,
+  } from "../../lib/utils/types";
   import { bytesToGB } from "../../lib/utils/functions";
   import { resetPartitionStore } from "../../lib/stores/partitionStore";
   interface Card {
@@ -37,27 +40,25 @@
   async function fetchAndParseStorageInfo() {
     resetPartitionStore();
     let sysInfo_Disks = await disks();
-    console.log(sysInfo_Disks);
-    /*sysInfo_Disks.forEach(item => {
-      console.log(item.total_space)
-      storageDevicesList.push({"name":item.kind})
-    })*/
     let gs: string = await invoke("get_gs");
     let devices = JSON.parse(gs).devices;
+    console.log(devices)
     devices.map((item: any) => {
-      storageDevicesList.push({
-        display_name: item.id,
-        size: item.size,
-        percentage_used: item.use_percentage,
-        name: item.kname,
-      });
-      item.partitions.map((i: any) => {
+      if (item.install_candidate) {
         storageDevicesList.push({
+          display_name: item.id,
+          size: item.size,
+          percentage_used: item.use_percentage,
+          name: item.kname,
+        });
+      }
+      item.partitions.map((i: any) => {
+        /*storageDevicesList.push({
           display_name: i.id,
           size: i.size,
           percentage_used: i.use_percentage,
           name: i.kname,
-        });
+        });*/
         if (i.can_install_along) {
           $partitionStore.partitionsWithOS.push(i)
         }
@@ -73,11 +74,7 @@
 
       const result = bValues.join(", ");
       install_along_card.desc += result;
-
     }
-
-    console.log(JSON.parse(gs));
-    console.log(os.map((i: any) => i.raw.split(":")[1]).join(" "));
     invoke("is_uefi").then((p: any) => {
       if (p.trim() === "true") {
         $partitionStore.efi = true;
@@ -89,7 +86,6 @@
       }
     });
     invoke("get_partitions").then((partitions) => {
-      //console.log(JSON.parse(partitions as string))
       let p = JSON.parse(partitions as string)?.blockdevices;
       for (let i = 0; i < p.length; i++) {
         let disk: StorageDevice = {
@@ -115,22 +111,12 @@
               availableStorage: part.fsavail,
               name: part.kname,
             });
-            /*storageDevicesList.push({
-            name: part.kname,
-            size:"20"
-          });*/
           }
         }
         disk.partitions = children;
-        //console.log(disk)
         let temp_disk_data = JSON.parse(JSON.stringify(disk));
         $partitionStore.systemStorageInfoCurrent.push({ ...temp_disk_data });
         $partitionStore.systemStorageInfo.push(disk);
-        console.log($partitionStore);
-        /*storageDevicesList.push({
-            name: disk.diskModel,
-            size:"20"
-          });*/
       }
     });
   }
@@ -151,7 +137,7 @@
   }
   function handleChange(event: Event) {
     $partitionStore.mode = "install-along";
-    // $partitionStore.selectedDevice = $partitionStore.partitionsWithOS[0].kname;
+    $partitionStore.selectedDeviceForInstallAlong = $partitionStore.partitionsWithOS[0].kname;
   }
 
   $: $partitionStore, IsOkayToMoveNextPage();
@@ -223,6 +209,33 @@
         </label>
       </div>
     {/if}
+    <!--div class="flex align-center">
+    <div class="relative w-full h-150" style="height:150px">
+      <label
+        class:aspect-square={install_along_card.icon}
+        class="h-full w-full p-6 flex flex-col items-center ring ring-gray-700 radio-btn-label rounded-3xl relative"
+        for={install_along_card.value}
+      >
+        <div>Replace</div>
+        <div>Select a partition to replace with AthenaOS</div>
+      </label>
+    </div>
+    <div class="flex space-x-2 items-end w-full align-center" style="align-items:center; margin-left: 5px">
+      <Dropdown2
+        bind:items={storageDevicesList}
+        icon={diskIcon}
+        label="Select Partition"
+        on:select={(event) =>
+          ($partitionStore.selectedDevice = event.detail.selected.name)}
+        defaultItem={{
+          name: "Select Drive or partition",
+          size: "",
+          percentage_used: "",
+          display_name: "",
+        }}
+      />
+    </div>
+    </div-->
   </div>
 </StepWrapper>
 

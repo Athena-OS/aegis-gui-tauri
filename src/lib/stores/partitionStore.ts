@@ -3,14 +3,17 @@ import { type StorageDevice, type InstallAlongPartition } from "../utils/types"
 
 const partitionStore: Writable<{
   selectedDevice: string,
+  selectedDeviceForInstallAlong: string,
   mode: string,
   efi:boolean,
   swap:boolean,
   grubLocation:string,
   grubType:string,
+  r:boolean,
   systemStorageInfo: StorageDevice[],
   systemStorageInfoCurrent: StorageDevice[],
   partitionsWithOS: InstallAlongPartition[],
+  installAlongPartitions:string,
   newPartition: {
     partitionName: string,
     size: number,
@@ -34,7 +37,10 @@ const partitionStore: Writable<{
   }
 }> = writable({
   selectedDevice: "default",
+  selectedDeviceForInstallAlong: "default",
+  installAlongPartitions:"",
   mode: "auto",
+  r:false,
   efi:true,
   swap: true,
   grubType:"",
@@ -72,6 +78,9 @@ export default partitionStore;
 export function resetPartitionStore() {
   partitionStore.set({
     selectedDevice: "default",
+    selectedDeviceForInstallAlong: "default",
+    installAlongPartitions:"",
+    r:false,
     mode: "auto",
     efi:true,
     swap: true,
