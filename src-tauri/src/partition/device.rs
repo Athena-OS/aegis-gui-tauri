@@ -1,7 +1,16 @@
 use crate::partition::{actions, probeos, unmount, utils};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{any::Any, collections::HashMap, io, process::Command, str};
+use std::{
+    any::Any,
+    collections::HashMap,
+    io::{self, Write},
+    ops::Drop,
+    process::{Command, Stdio},
+    str,
+};
+
+use super::utils::{bytes2human, human2bytes};
 
 #[derive(PartialEq, Deserialize, Serialize, Debug, Clone)]
 pub struct Device {
@@ -283,6 +292,7 @@ impl Default for Partition {
     }
 }
 impl Partition {
+    #[allow(dead_code, unused_variables)]
     pub fn match_self(&self, sp: Vec<SuggestedPartition>) -> bool {
         /*if let Some(s_p) = self.suggested_partitions{
             if
@@ -496,30 +506,179 @@ pub fn partition_install_along(
     device: Device,
 ) -> Result<bool, std::io::Error> {
     // get partition to shrink
+
+    // device name eg /dev/sda
+    let devicename = format!("/dev/{}", device.kname.unwrap_or(String::new()));
+
+    // run partprobe one the function exits using defer()
+    let _part_probe_guard = PartProbeGuard::new(&devicename);
+
     let def_sp = SuggestedPartition::default();
+
+    // Get the other os partition. It should be shrinked.
     let pts = parts
         .iter()
         .find(|&d| d.label == "other_os")
         .unwrap_or(&def_sp);
+
+    // get partitions in the device
     let partitions = device.partitions.unwrap_or(vec![]);
+
     let def_part = Partition::default();
+
+    // get the partion that we want to install Athena OS along
     let part = partitions
         .iter()
         .find(|&d| d.kname == Some(pts.kname.clone()))
         .unwrap_or(&def_part);
-    // unmount the partition
+
+    let partnumber = get_partition_number(&pts.kname);
+    // let partsize = part.size.as_ref().unwrap_or(&String::from("1GB")).clone();
+    // calculate the end of the partition with the OS
+    let sizes: Vec<String> = partitions
+        .iter()
+        // Use filter_map to ignore None values and extract the size String
+        .filter_map(|partition| partition.size.clone())
+        .collect();
+    let mut start: f64 = 0.0;
+    let mut end: f64 = 0.0;
+    for (index, size) in sizes.iter().enumerate() {
+        let size_bytes = match human2bytes(size) {
+            Ok(b) => b,
+            Err(_) => 1024.0,
+        };
+        if index as u32 == partnumber - 1 {
+            start += pts.suggested_size;
+            end += size_bytes;
+            break;
+        }
+
+        start += size_bytes;
+        end += size_bytes;
+    }
+    let binding = String::from("1GB");
+    let start_human = match bytes2human(start) {
+        Ok(s) => s,
+        Err(_) => binding.clone(),
+    };
+    let end_human = match bytes2human(end) {
+        Ok(s) => s,
+        Err(_) => binding.clone(),
+    };
+    // unmount the partition we want to shrink if its mounted
     if unmount::unmount(String::from(format!("/dev/{}", pts.kname))) {
         // unmount successful
         let mut resize: HashMap<String, Box<dyn Any>> = HashMap::new();
         resize.insert(String::from("fstype"), Box::new(part.file_system.clone()));
         resize.insert(String::from("size"), Box::new(pts.suggested_size));
         utils::perform_resize(&pts.kname, resize);
-
-        Ok(true)
+        // shrink the partion for a new partition table
+        match resize_partition("/dev/loop0", partnumber, &start_human) {
+            Ok(true) => {
+                // shrinking successful
+                // make a a part
+                create_partition(&devicename, "ext4", &start_human, &end_human)
+            }
+            Ok(false) => Ok(false),
+            Err(e) => Err(e),
+        }
     } else {
         Err(std::io::Error::new(
             std::io::ErrorKind::AddrNotAvailable,
             "Unounting",
         ))
     }
+}
+
+fn resize_partition(
+    device: &str,
+    partition_number: u32,
+    new_size: &str,
+) -> Result<bool, io::Error> {
+    let script = format!(
+        "resizepart\n{}\n{}\nYes\nquit\n",
+        partition_number, new_size
+    );
+
+    let mut child = Command::new("sudo")
+        .arg("parted")
+        .arg(device)
+        .arg("---pretend-input-tty")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()?;
+
+    if let Some(stdin) = child.stdin.as_mut() {
+        stdin.write_all(script.as_bytes())?;
+    } else {
+        return Err(io::Error::new(io::ErrorKind::Other, "Failed to open stdin"));
+    }
+
+    let output = child.wait_with_output()?;
+
+    // Check the command's execution success based on its output or exit status
+    Ok(output.status.success())
+}
+
+fn create_partition(
+    device: &str,
+    fs_type: &str,
+    start: &str,
+    end: &str,
+) -> Result<bool, std::io::Error> {
+    let status = Command::new("sudo")
+        .arg("parted")
+        .arg(device)
+        .arg("--script")
+        .arg("mkpart")
+        .arg("primary")
+        .arg(fs_type)
+        .arg(start)
+        .arg(end)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .status()?;
+
+    Ok(status.success())
+}
+
+#[allow(dead_code)]
+fn run_partprobe(device: &str) {
+    // Attempt to run the partprobe command with sudo
+    let _ = Command::new("sudo")
+        .arg("partprobe")
+        .arg(device)
+        .status()
+        // Ignore the result, whether it's an error or Ok
+        .map_err(|e| eprintln!("Failed to execute partprobe: {}", e))
+        .ok();
+}
+
+struct PartProbeGuard<'a> {
+    device: &'a str,
+}
+
+impl<'a> PartProbeGuard<'a> {
+    fn new(device: &'a str) -> Self {
+        Self { device }
+    }
+}
+
+impl<'a> Drop for PartProbeGuard<'a> {
+    fn drop(&mut self) {
+        // Place the command to run partprobe here. This will execute when the guard is dropped.
+        let _ = Command::new("sudo")
+            .arg("partprobe")
+            .arg(self.device)
+            .spawn() // Using spawn to not wait for it to finish.
+            .expect("partprobe command failed to start");
+    }
+}
+
+fn get_partition_number(device: &str) -> u32 {
+    let re = regex::Regex::new(r"(\d+)$").unwrap();
+    re.captures(device)
+        .and_then(|cap| cap.get(1).map(|match_| match_.as_str().parse::<u32>().ok()))
+        .flatten()
+        .unwrap_or(0) // Return 0 if parsing fails or no number is found
 }

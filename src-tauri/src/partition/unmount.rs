@@ -70,6 +70,7 @@ pub fn unmount(path: String) -> bool {
     let output = std::process::Command::new("sudo")
         .arg("unmount")
         .arg(&path)
+        .stderr(std::process::Stdio::null())
         .output();
     match output {
         Ok(o) => {
