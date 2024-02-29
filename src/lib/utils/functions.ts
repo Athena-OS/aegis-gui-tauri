@@ -65,3 +65,36 @@ export async  function hashPassword(password:string) {
     hash = await invoke("hash_password", {password: password})
     return hash.trim()
 }
+
+type SizeParseError = 'InvalidInput' | 'NegativeSize';
+
+export function human2bytes(size: string) {
+    let normalizedSize = size.trim().toUpperCase();
+    let multiplier: number = 1;
+
+    const units: Array<[string, number]> = [
+        ["B", 1],
+        ["K", 1024],
+        ["M", 1048576],
+        ["G", 1073741824],
+        ["T", 1099511627776],
+    ];
+
+    for (const [unit, mult] of units) {
+        if (normalizedSize.endsWith(unit)) {
+            normalizedSize = normalizedSize.slice(0, -unit.length);
+            multiplier = mult;
+            break;
+        }
+    }
+
+    const number = parseFloat(normalizedSize);
+    if (isNaN(number)) {
+        throw new Error(`InvalidInput: ${normalizedSize}`);
+    }
+    if (number < 0) {
+        throw new Error('NegativeSize');
+    }
+
+    return number * multiplier;
+}

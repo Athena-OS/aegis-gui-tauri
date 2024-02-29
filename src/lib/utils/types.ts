@@ -17,3 +17,11 @@ export type PartitionInfo = {
     fileSystem: string;
     mountPoint: string;
 };
+
+export type InstallAlongPartition = {
+    maximum_size: number,
+    minimum_size: number,
+    label: string,
+    suggested_size: number,
+    kname:string,
+}

@@ -1,26 +1,23 @@
 use dbus::{
-    blocking::{Connection, BlockingSender},
-    message::Message
+    blocking::{BlockingSender, Connection},
+    message::Message,
 };
-use std::{
-    time::Duration,
-    string::String
-};
+use std::{string::String, time::Duration};
 
+#[allow(dead_code)]
 pub struct AutoMountInfo {
     pub has_solid: bool,
     pub was_solid_module_auto_loaded: bool,
 }
 
+#[allow(dead_code)]
 pub fn kded_call(method: &str, args: Vec<&dyn dbus::arg::RefArg>) -> Message {
-    Message::new_method_call(
-        "org.kde.kded5",
-        "/kded",
-        "org.kde.kded5",
-        method,
-    ).unwrap().append_ref(&args)
+    Message::new_method_call("org.kde.kded5", "/kded", "org.kde.kded5", method)
+        .unwrap()
+        .append_ref(&args)
 }
 
+#[allow(dead_code)]
 pub fn enable_solid_automount(dbus: &Connection, enable: bool) {
     let method = if enable { "loadModule" } else { "unloadModule" };
     let arg = String::from("device_automounter");
@@ -34,6 +31,7 @@ pub fn enable_solid_automount(dbus: &Connection, enable: bool) {
     }
 }
 
+#[allow(dead_code)]
 pub fn query_solid_automount(dbus: &Connection) -> AutoMountInfo {
     let arg = String::from("device_automounter");
     let args = vec![&arg as &dyn dbus::arg::RefArg];
@@ -47,13 +45,13 @@ pub fn query_solid_automount(dbus: &Connection) -> AutoMountInfo {
                 has_solid: true,
                 was_solid_module_auto_loaded: result,
             }
-        },
+        }
         Err(e) => {
             println!("Error querying Solid: {}", e);
             AutoMountInfo {
                 has_solid: false,
                 was_solid_module_auto_loaded: false,
             }
-        },
+        }
     }
 }

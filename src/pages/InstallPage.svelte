@@ -14,6 +14,7 @@
 
   import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import "@splidejs/svelte-splide/css";
+  import { onMount } from "svelte";
 
   let consoleOpen = true;
 
@@ -23,9 +24,16 @@
 
   // uncomment to display dialog preview
 
-  // onMount(() => {
+  //onMount(() => {
   //   dialog.open();
   // });
+  import {invoke } from "@tauri-apps/api"
+  import globalStore from "../lib/stores/globalStore";
+  function saveConf() {
+    console.log(JSON.stringify($globalStore))
+    invoke("save_conf", {data: JSON.stringify($globalStore)})
+  }
+  saveConf()
 </script>
 
 <Dialog {dialog}>
@@ -137,6 +145,36 @@
     {#if consoleOpen}
       <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2">
         <pre class="w-full whitespace-pre-line">
+        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started ***************
+        02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
+        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket.
+        03/03/22 08:51:01 INFO   :..settcpimage: Associate with TCP/IP image name = TCPCS03/22 08:51:02 INFO   :..reg_process: registering process with the system
+        03/03/22 08:51:02 INFO   :..reg_process: attempt OS/390 registration03/22 08:51:02 INFO   :..reg_process: return from registration rc=0
+        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started ***************
+        02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
+        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket.
+        03/03/22 08:51:01 INFO   :..settcpimage: Associate with TCP/IP image name = TCPCS03/22 08:51:02 INFO   :..reg_process: registering process with the system
+        03/03/22 08:51:02 INFO   :..reg_process: attempt OS/390 registration03/22 08:51:02 INFO   :..reg_process: return from registration rc=0
+        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started ***************
+        02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
+        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket.
+        03/03/22 08:51:01 INFO   :..settcpimage: Associate with TCP/IP image name = TCPCS03/22 08:51:02 INFO   :..reg_process: registering process with the system
+        03/03/22 08:51:02 INFO   :..reg_process: attempt OS/390 registration03/22 08:51:02 INFO   :..reg_process: return from registration rc=0
+        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started ***************
+        02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
+        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket.
+        03/03/22 08:51:01 INFO   :..settcpimage: Associate with TCP/IP image name = TCPCS03/22 08:51:02 INFO   :..reg_process: registering process with the system
+        03/03/22 08:51:02 INFO   :..reg_process: attempt OS/390 registration03/22 08:51:02 INFO   :..reg_process: return from registration rc=0
+        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started ***************
+        02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
+        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket.
+        03/03/22 08:51:01 INFO   :..settcpimage: Associate with TCP/IP image name = TCPCS03/22 08:51:02 INFO   :..reg_process: registering process with the system
+        03/03/22 08:51:02 INFO   :..reg_process: attempt OS/390 registration03/22 08:51:02 INFO   :..reg_process: return from registration rc=0
+        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started ***************
+        02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
+        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket.
+        03/03/22 08:51:01 INFO   :..settcpimage: Associate with TCP/IP image name = TCPCS03/22 08:51:02 INFO   :..reg_process: registering process with the system
+        03/03/22 08:51:02 INFO   :..reg_process: attempt OS/390 registration03/22 08:51:02 INFO   :..reg_process: return from registration rc=0
         01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started ***************
         02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
         03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket.

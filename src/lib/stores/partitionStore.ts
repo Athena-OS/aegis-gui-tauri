@@ -1,15 +1,19 @@
 import { writable, type Writable } from "svelte/store";
-import { type StorageDevice } from "../utils/types"
+import { type StorageDevice, type InstallAlongPartition } from "../utils/types"
 
 const partitionStore: Writable<{
   selectedDevice: string,
+  selectedDeviceForInstallAlong: string,
   mode: string,
   efi:boolean,
   swap:boolean,
   grubLocation:string,
   grubType:string,
+  r:boolean,
   systemStorageInfo: StorageDevice[],
   systemStorageInfoCurrent: StorageDevice[],
+  partitionsWithOS: InstallAlongPartition[],
+  installAlongPartitions:any[],
   newPartition: {
     partitionName: string,
     size: number,
@@ -25,16 +29,25 @@ const partitionStore: Writable<{
     fileSystem: string,
     mountPoint: string,
     name: string
+  },
+  installAlongPartition: {
+    partitionName:string
+    size:number,
+    filesystem:string,
   }
 }> = writable({
   selectedDevice: "default",
+  selectedDeviceForInstallAlong: "default",
+  installAlongPartitions:[],
   mode: "auto",
+  r:false,
   efi:true,
   swap: true,
   grubType:"",
   grubLocation:"",
   systemStorageInfo: [],
   systemStorageInfoCurrent: [],
+  partitionsWithOS: [],
   newPartition: {
     partitionName: "",
     size: 1024,
@@ -52,6 +65,12 @@ const partitionStore: Writable<{
     name: "Athena OS",
     isEncrypted: false
   },
+  installAlongPartition:{
+    partitionName:"",
+    size:1024,
+    filesystem:""
+
+  }
 });
 
 export default partitionStore;
@@ -59,6 +78,9 @@ export default partitionStore;
 export function resetPartitionStore() {
   partitionStore.set({
     selectedDevice: "default",
+    selectedDeviceForInstallAlong: "default",
+    installAlongPartitions:[],
+    r:false,
     mode: "auto",
     efi:true,
     swap: true,
@@ -66,6 +88,7 @@ export function resetPartitionStore() {
     grubLocation:"",
     systemStorageInfo: [],
     systemStorageInfoCurrent: [],
+    partitionsWithOS:[],
     newPartition: {
       partitionName: "",
       size: 1024,
@@ -83,5 +106,10 @@ export function resetPartitionStore() {
       name: "Athena OS",
       //isEncrypted: false
     },
+    installAlongPartition:{
+      partitionName:"",
+      size:0,
+      filesystem:""
+    }
   })
 }

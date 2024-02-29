@@ -27,7 +27,7 @@
   import InputBox from "../../lib/components/InputBox.svelte";
   import CardGroup from "../../lib/components/CardGroup.svelte";
   import CreatePartitionDialog from "../../lib/components/CreatePartition/CreatePartitionDialog.svelte";
-
+  console.log($partitionStore)
   let storageDevicesList: any[] = [];
   let partitionData: any[] = [];
   const colorList = [
@@ -39,7 +39,7 @@
     "bg-neutral-500",
   ];
 
-  function gatherInfo() {
+  async function gatherInfo() {
     storageDevicesList = [];
     partitionData = [];
 
@@ -64,13 +64,14 @@
     });
   }
 
-  function changeAllowCreation() {
+  async function changeAllowCreation() {
+    try {
     if (
       parseInt(
         bytesToGB(
           $partitionStore.systemStorageInfo.filter(
             (item) => item.displayName === $partitionStore.selectedDevice,
-          )[0].availableStorage,
+          )[0]?.availableStorage,
         ),
       ) > 1
     ) {
@@ -78,6 +79,9 @@
     } else {
       allowCreation = false;
     }
+  }catch(_){
+    allowCreation = false;
+  }
   }
 
   gatherInfo();
@@ -85,7 +89,7 @@
   $: $partitionStore.selectedDevice, gatherInfo();
   $: $partitionStore.systemStorageInfo.filter(
     (item) => item.displayName === $partitionStore.selectedDevice,
-  )[0].availableStorage,
+  )[0]?.availableStorage,
     changeAllowCreation();
 
   function ResizingPartitionOnChangeValue(e: any) {
@@ -481,6 +485,7 @@
                 <tr>
                   <th class="w-1/6 text-left p-3">Block Device</th>
                   <th class="text-left p-3">Name</th>
+                  <th class="text-left p-3">Type</th>
                   <th class="text-left p-3">File System</th>
                   <th class="text-left p-3">Mount Point</th>
                   <th class="text-left p-3">Size</th>
@@ -496,6 +501,7 @@
                       <div class={`${row.color} rounded-full w-3 h-3`} />
                       {row.partitionName}
                     </td>
+                    <td class="text-[#B0B0B0] p-3">{row.name.toUpperCase()}</td>
                     <td class="text-[#B0B0B0] p-3">{row.name.toUpperCase()}</td>
                     <td class="text-[#B0B0B0] p-3"
                       >{row.fileSystem.toUpperCase()}</td
