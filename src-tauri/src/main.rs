@@ -4,6 +4,7 @@ use app::commands::{
     get_gs, get_keymaps, get_locale, get_partitions, get_timezones, hash_password, human_to_bytes,
     is_uefi, save_conf,
 };
+use tracing_subscriber;
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![

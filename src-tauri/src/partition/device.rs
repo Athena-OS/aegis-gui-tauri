@@ -5,7 +5,6 @@ use std::{
     any::Any,
     collections::HashMap,
     io::{self, Write},
-    ops::Drop,
     process::{Command, Stdio},
     str,
 };
@@ -566,28 +565,36 @@ pub fn partition_install_along(
         Err(_) => binding.clone(),
     };
     // unmount the partition we want to shrink if its mounted
-    if unmount::unmount(String::from(format!("/dev/{}", pts.kname))) {
-        // unmount successful
-        let mut resize: HashMap<String, Box<dyn Any>> = HashMap::new();
-        resize.insert(String::from("fstype"), Box::new(part.file_system.clone()));
-        resize.insert(String::from("size"), Box::new(pts.suggested_size));
-        utils::perform_resize(&pts.kname, resize);
-        // shrink the partion for a new partition table
-        match resize_partition("/dev/loop0", partnumber, &start_human) {
-            Ok(true) => {
-                // shrinking successful
-                // make a a part
-                create_partition(&devicename, "ext4", &start_human, &end_human)
-            }
-            Ok(false) => Ok(false),
-            Err(e) => Err(e),
+    // TODO: Unmonut
+    // if unmount::unmount(String::from(format!("/dev/{}", pts.kname))) {
+    // unmount successful
+    let mut resize: HashMap<String, Box<dyn Any>> = HashMap::new();
+    resize.insert(String::from("fstype"), Box::new(part.file_system.clone()));
+    resize.insert(String::from("size"), Box::new(pts.suggested_size));
+    utils::perform_resize(&pts.kname, resize);
+    // shrink the partion for a new partition table
+    match resize_partition(&format!("/dev/{}", pts.kname), partnumber, &start_human) {
+        Ok(true) => {
+            // shrinking successful
+            // make a a part
+            println!("successful shrinking partitions");
+            create_partition(&devicename, "ext4", &start_human, &end_human)
         }
-    } else {
+        Ok(false) => {
+            println!("unsuccessful shrinking partitions");
+            Ok(false)
+        }
+        Err(e) => {
+            println!("unsuccessful shrinking partitions with error:{:#?}", e);
+            Err(e)
+        }
+    }
+    /*} else {
         Err(std::io::Error::new(
             std::io::ErrorKind::AddrNotAvailable,
-            "Unounting",
+            "Unmounting",
         ))
-    }
+    }*/
 }
 
 fn resize_partition(
@@ -595,6 +602,11 @@ fn resize_partition(
     partition_number: u32,
     new_size: &str,
 ) -> Result<bool, io::Error> {
+    let base_device = extract_base_device(device);
+    println!(
+        "resizing/shrinking part:{} of device: {} to size: {}",
+        partition_number, base_device, new_size
+    );
     let script = format!(
         "resizepart\n{}\n{}\nYes\nquit\n",
         partition_number, new_size
@@ -602,7 +614,7 @@ fn resize_partition(
 
     let mut child = Command::new("sudo")
         .arg("parted")
-        .arg(device)
+        .arg(&base_device)
         .arg("---pretend-input-tty")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -626,9 +638,14 @@ fn create_partition(
     start: &str,
     end: &str,
 ) -> Result<bool, std::io::Error> {
+    let base_device = extract_base_device(device);
+    println!(
+        "creating partition for device: {} fs_type: {} start: {} end: {}",
+        base_device, fs_type, start, end
+    );
     let status = Command::new("sudo")
         .arg("parted")
-        .arg(device)
+        .arg(&base_device)
         .arg("--script")
         .arg("mkpart")
         .arg("primary")
@@ -681,4 +698,12 @@ fn get_partition_number(device: &str) -> u32 {
         .and_then(|cap| cap.get(1).map(|match_| match_.as_str().parse::<u32>().ok()))
         .flatten()
         .unwrap_or(0) // Return 0 if parsing fails or no number is found
+}
+
+fn extract_base_device(path: &str) -> String {
+    let re = regex::Regex::new(r"(/dev/sd[a-z])\d*").unwrap(); // Adjusted to include sd[a-z]
+    match re.captures(path) {
+        Some(caps) => caps[1].to_string(),
+        None => path.to_string(), // Return the original path if no match is found
+    }
 }
