@@ -72,18 +72,14 @@ impl GlobalStorage {
                     false
                 }
             }) {
-                // Now you can borrow `self.partitions[index]` as mutable
                 os.can_install_along = Some(self.partitions[index].candidate_for_install_along());
             }
         }
     }
 }
 
-// Implementing Display for GlobalStorage
 impl fmt::Display for GlobalStorage {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Write your formatted string to `f`
-        // This is a simple example; adjust it according to your struct's fields
         let gs = self;
         write!(f, "{}", gs.to_json_string())
     }

@@ -8,7 +8,7 @@ use std::{
     os::unix::fs::FileTypeExt,
     path::{Path, PathBuf},
 };
-use tracing::{debug, error, info};
+use tracing::{ error, info};
 
 #[allow(dead_code)]
 fn path_exists(path_str: &str) -> bool {
@@ -262,7 +262,6 @@ lazy_static! {
 #[allow(dead_code)]
 pub fn perform_resize(kname: &str, resize: HashMap<String, Box<dyn Any>>) {
     let path = format!("/dev/{}", kname);
-    // let bx: Box<dyn Any> = Box::new(Some("ext4".to_string()));
     let binding = Some("ext4".to_string());
     let fstype = match resize.get("fstype") {
         Some(value) => match value.downcast_ref::<Option<String>>() {
@@ -281,14 +280,8 @@ pub fn perform_resize(kname: &str, resize: HashMap<String, Box<dyn Any>>) {
         "Resizing {} of type {:#?} {:#?} to {:#?}",
         path, fstype, direction, size
     );
-    //let size_f64 = human2bytes(&size).unwrap_or(100000000000000000000000000000000000000000.0).round() as i64;
+    
     if let Some(&resize_function) = RESIZERS.get(fstype.as_str()) {
-        // Now you can call resize_function, which is a function pointer
-        // Assuming `size` is of type Option<&Box<dyn Any>>
-        /*match size {
-        Some(size_box) => {
-            // Attempt to downcast to i64
-            if let Some(size_value) = size_box.downcast_ref::<i64>() {*/
         match resize_function(path.as_str(), size.round() as i64) {
             Ok(_) => {
                 info!("resize successful")
@@ -297,14 +290,6 @@ pub fn perform_resize(kname: &str, resize: HashMap<String, Box<dyn Any>>) {
                 error!("resize unsuccessful with error:{}", e.to_string())
             }
         }
-        /*} else {
-                    error!("invalid size")
-                }
-            }
-            None => {
-                error!("unknown error")
-            }
-        }*/
     } else {
         eprintln!("No resize function found for fstype");
     }

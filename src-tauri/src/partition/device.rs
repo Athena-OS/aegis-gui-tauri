@@ -1,4 +1,4 @@
-use crate::partition::{actions, probeos, unmount, utils};
+use crate::partition::{actions, probeos,  utils};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
@@ -291,15 +291,6 @@ impl Default for Partition {
     }
 }
 impl Partition {
-    #[allow(dead_code, unused_variables)]
-    pub fn match_self(&self, sp: Vec<SuggestedPartition>) -> bool {
-        /*if let Some(s_p) = self.suggested_partitions{
-            if
-        }else{
-            false
-        }*/
-        false
-    }
     #[allow(dead_code)]
     pub fn candidate_for_install_along(&mut self) -> bool {
         let cfia = match &self.possible_actions {
@@ -318,7 +309,7 @@ impl Partition {
     #[allow(dead_code)]
     pub fn populate_possible_actions(&mut self, os_data: &Vec<probeos::OsProber>) {
         let mut possible_actions: Vec<actions::Action> = vec![];
-        // Any device can be formatted or partitioned
+        // Any partition can be formatted or partitioned
         possible_actions.push(actions::Action::Partition);
         possible_actions.push(actions::Action::Format);
         //check for space (Candidate for install)
@@ -453,7 +444,6 @@ pub fn get_partitions(disk_name: &str) -> Vec<Partition> {
     let output = Command::new("lsblk")
         .arg("-J")
         .arg("-O")
-        //.arg("NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,START,END")
         .output()
         .expect("failed to execute process");
     let output_str = String::from_utf8_lossy(&output.stdout);
