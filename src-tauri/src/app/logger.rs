@@ -1,12 +1,25 @@
-use tracing::Subscriber;
-use tracing_core::Event;
-
-use tracing_subscriber::Layer;
-
-use std::fs::File;
-use std::io::{self, Write};
-use std::sync::{Arc, Mutex};
-
+use std::{
+    fs::File,
+    io::{self, Write},
+    sync::{Arc, Mutex},
+};
+use tauri::{AppHandle, Manager};
+use tracing::{
+    field::{Field},
+    Event, Subscriber,
+};
+use tracing_appender::rolling;
+use tracing_subscriber::{
+    fmt,
+    layer::{Context, SubscriberExt},
+    registry::LookupSpan,
+    util::SubscriberInitExt,
+    Layer,
+};
+/*
+Handling of the logging. Sends the logs to the frontend,
+to the file and to the terminal(stdout).
+*/
 #[derive(Debug)]
 
 pub struct FileLogger {
@@ -57,20 +70,59 @@ impl<S: Subscriber> Layer<S> for FileLoggerLayer {
     }
 }
 
-/*use tracing::subscriber::set_global_default;
-use tracing_subscriber::{util::SubscriberInitExt, Registry};
+pub struct Logger {}
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let file_logger = Arc::new(FileLogger::new("app.log")?);
-    let file_logger_layer = FileLoggerLayer::new(file_logger);
+impl Logger {
+    // initialize a global subscriber
+    pub fn start(app_handle: AppHandle) {
+        let file_appender = rolling::daily("./logs/app", "prefix.log");
+        let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
 
-    let subscriber = tracing_subscriber::Registry::default().with(file_logger_layer);
+        // Set up the subscriber to write to both the terminal and the file
+        tracing_subscriber::registry()
+            
+            .with(
+                fmt::layer().with_writer(std::io::stdout), // For terminal output
+            )
+            .with(
+                fmt::layer().with_writer(non_blocking), // For file output
+            )
+            .with(TauriLogEmitter {
+                app_handle: app_handle.clone(),
+            }) // Sending to the frontend
+            .init();
+    }
+}
 
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+pub struct TauriLogEmitter {
+    pub app_handle: AppHandle,
+}
 
-    // Your application logic here
-    tracing::info!("testing");
-    tracing::info!("testing 2");
-    println!("testing 3");
-    Ok(())
-}*/
+impl TauriLogEmitter {
+    #[allow(dead_code)]
+    pub fn new(app_handle: AppHandle) -> Self {
+        TauriLogEmitter { app_handle }
+    }
+}
+
+impl<S> Layer<S> for TauriLogEmitter
+where
+    S: Subscriber + for<'a> LookupSpan<'a>,
+{
+    fn on_event(&self, event: &Event<'_>, _ctx: Context<'_, S>) {
+        let mut message = String::new();
+        let timestamp = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Micros, true);
+        message.push_str(&format!("{timestamp} [{}]", event.metadata().level().as_str().to_uppercase()));
+        event.record(&mut |field: &Field, value: &dyn std::fmt::Debug| {
+            if !message.is_empty() {
+                message.push_str(", ");
+            }
+            message.push_str(&format!("{}: {:?}", field.name(), value));
+        });
+
+        // emit log event to the frontend
+        self.app_handle
+            .emit_all("log", message)
+            .expect("Failed to emit log event");
+    }
+}

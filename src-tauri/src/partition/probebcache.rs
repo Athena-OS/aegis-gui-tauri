@@ -12,9 +12,6 @@ pub fn sane_block_devices() -> Vec<String> {
     for path in paths {
         let path = path.unwrap().path();
         let device_name = path.file_name().unwrap().to_string_lossy().into_owned();
-
-        // You might want to filter out certain devices here, similar to checking the MAJOR number
-        // For example, to skip loop devices, you might check if the device name starts with "loop"
         if !device_name.starts_with("loop") {
             devices.push(device_name);
         }

@@ -2,7 +2,7 @@ use dbus::{
     blocking::{BlockingSender, Connection},
     message::Message,
 };
-use std::{string::String, time::Duration};
+use std::time::Duration;
 
 #[allow(dead_code)]
 pub struct AutoMountInfo {

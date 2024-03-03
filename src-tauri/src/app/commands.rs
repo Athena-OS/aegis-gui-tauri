@@ -1,11 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use crate::app::config;
-use crate::partition;
+use crate::app::{config, global_app};
+use crate::partition::{self, utils};
 use bcrypt::{hash, DEFAULT_COST};
 use std::{error::Error, process::Command};
-use std::{fs::File, io::Write, path::Path};
+use std::{fs::File, io::Write};
+use tracing::{error, info};
 // Get partitions use the lsblk command to get disks and their partitions
 #[tauri::command]
 pub fn get_partitions() -> Result<String, tauri::Error> {
@@ -85,6 +86,7 @@ pub fn read_file(path: &str) -> Result<String, Box<dyn Error>> {
 // keymaps
 #[tauri::command]
 pub fn get_keymaps() -> Result<String, tauri::Error> {
+    tracing::info!(testing = true, "Getting keymaps");
     let keymap_content = include_str!("keymaps");
     Ok(keymap_content.to_string())
 }
@@ -92,6 +94,7 @@ pub fn get_keymaps() -> Result<String, tauri::Error> {
 // locale
 #[tauri::command]
 pub fn get_locale() -> Result<String, tauri::Error> {
+    tracing::info!("Getting locale");
     let locale_content = include_str!("locale");
     Ok(locale_content.to_string())
 }
@@ -105,19 +108,51 @@ pub fn read_file1(path: &str) -> Result<String, std::io::Error> {
 #[tauri::command]
 #[allow(dead_code)]
 pub fn save_conf(data: String) {
-    let config = config::Config::from_json_string(data.clone());
+    let mut config = config::Config::from_json_string(data.clone());
     let def_device = &partition::device::Device::default();
-    println!("{:#?}", config);
+    // TODO: Remove partitioning from this function.
+    // Create a thread (that should not be waited for handling installation.)
+    // The thread should be called on successful save of the conf file after which
+    // install fail event should be fired. The saving of the conf file should not fail
+    // whatsoever.
     match config.partition.mode.as_str() {
         "install-along" => {
+            // Get global storage
             let mut gs = partition::gs::GlobalStorage::new();
             gs.probe();
             let kname = &config.partition.installAlongPartitions[0].kname;
+            // device being used for installation
             let device = gs
                 .devices
                 .iter()
                 .find(|&d| d.name == Some(get_disk_id(kname)))
                 .unwrap_or(def_device);
+            // update config
+            config.partition.mode = String::from("manual");
+            config.partition.device = format!(
+                "/dev/{}",
+                device
+                    .partitions
+                    .as_ref()
+                    .map(|p| p.clone())
+                    .unwrap_or(vec![])
+                    .len()
+                    + 1
+            );
+            // TODO: Add the partitions part of the partition field of the config
+            info!("saving config. config: {:?}", config);
+            let config_str = match utils::marshal_json(&config) {
+                Ok(s) => s,
+                Err(e) => {
+                    error!("error converting config to string with error: {:?}", e);
+                    // send install event failure
+                    global_app::emit_global_event("install-fail", "");
+                    return;
+                }
+            };
+            let _ = save_json(&config_str, "/tmp/config.json");
+            // install along
+            
             match partition::device::partition_install_along(
                 config.partition.installAlongPartitions,
                 device.clone(),
@@ -126,22 +161,30 @@ pub fn save_conf(data: String) {
                     println!("partitioning successful");
                 }
                 Err(r) => {
+                    // notify the frontend of the installation failure.
+                    global_app::emit_global_event("install-fail", "");
                     println!("error partioning for install along {:#?}", r);
                 }
             }
         }
-        &_ => todo!(),
+        &_ => {
+            info!("not handled");
+            
+            info!("saving config. config: {:?}", config);
+            let config_str = match utils::marshal_json(&config) {
+                Ok(s) => s,
+                Err(e) => {
+                    error!("error converting config to string with error: {:?}", e);
+                    // send install event failure
+                    global_app::emit_global_event("install-fail", "");
+                    return;
+                }
+            };
+            let _ = save_json(&config_str, "/tmp/config.json");
+            
+        }
     }
-    let p: &'static str = "/tmp/config.json";
-    let path = Path::new(p);
-    if path.exists() {
-        println!("The file exists.");
-        // delete file
-        delete_file(p).expect("unable to delete file");
-    } else {
-        println!("The file exists");
-    }
-    println!("{}", data);
+    
 }
 #[allow(dead_code)]
 pub fn save_json(data: &str, filename: &str) -> std::io::Result<()> {

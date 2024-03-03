@@ -8,7 +8,7 @@ use std::{
     os::unix::fs::FileTypeExt,
     path::{Path, PathBuf},
 };
-use tracing::{debug, error, info};
+use tracing::{ error, info};
 
 #[allow(dead_code)]
 fn path_exists(path_str: &str) -> bool {
@@ -261,35 +261,33 @@ lazy_static! {
 }
 #[allow(dead_code)]
 pub fn perform_resize(kname: &str, resize: HashMap<String, Box<dyn Any>>) {
-    let path = kname_to_path(kname);
-    let fstype = resize.get("fstype");
-    let size = resize.get("'size");
+    let path = format!("/dev/{}", kname);
+    let binding = Some("ext4".to_string());
+    let fstype = match resize.get("fstype") {
+        Some(value) => match value.downcast_ref::<Option<String>>() {
+            Some(option_string) => option_string.clone().unwrap_or_else(|| "ext4".to_string()),
+            None => "ext4".to_string(),
+        },
+        None => binding.clone().unwrap_or_else(|| "ext4".to_string()),
+    };
+    let binding2: f64 = 100000000000000000000000000000000000000000.0;
+    let size: f64 = match resize.get("size") {
+        Some(value) => *value.downcast_ref::<f64>().unwrap_or(&binding2),
+        None => binding2,
+    };
     let direction = resize.get("direction");
-    debug!(
+    println!(
         "Resizing {} of type {:#?} {:#?} to {:#?}",
         path, fstype, direction, size
     );
-    if let Some(&resize_function) = RESIZERS.get("fstype") {
-        // Now you can call resize_function, which is a function pointer
-        // Assuming `size` is of type Option<&Box<dyn Any>>
-        match size {
-            Some(size_box) => {
-                // Attempt to downcast to i64
-                if let Some(size_value) = size_box.downcast_ref::<i64>() {
-                    match resize_function(path.as_str(), *size_value) {
-                        Ok(_) => {
-                            info!("resize successful")
-                        }
-                        Err(e) => {
-                            error!("resize unsuccessful with error:{}", e.to_string())
-                        }
-                    }
-                } else {
-                    error!("invalid size")
-                }
+    
+    if let Some(&resize_function) = RESIZERS.get(fstype.as_str()) {
+        match resize_function(path.as_str(), size.round() as i64) {
+            Ok(_) => {
+                info!("resize successful")
             }
-            None => {
-                error!("unknown error")
+            Err(e) => {
+                error!("resize unsuccessful with error:{}", e.to_string())
             }
         }
     } else {
