@@ -30,14 +30,14 @@ impl Default for Partition {
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct Bootloader {
     #[serde(rename = "type")]
-    pub bootloader_type: String,
+    pub r#type: String,
     pub location: String,
 }
 
 impl Default for Bootloader {
     fn default() -> Bootloader {
         Bootloader {
-            bootloader_type: String::new(),
+            r#type: String::new(),
             location: String::new(),
         }
     }
@@ -110,6 +110,8 @@ pub struct Config {
     pub hardened: bool,
     pub flatpak: bool,
     pub params: Params,
+    pub terminal: String,
+    pub base: String,
 }
 
 impl Default for Config {
@@ -133,6 +135,8 @@ impl Default for Config {
             hardened: false,
             flatpak: false,
             params: Params::default(),
+            terminal: String::from("default"),
+            base: String::from("arch")
         }
     }
 }

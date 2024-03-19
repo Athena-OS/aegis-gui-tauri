@@ -44,9 +44,9 @@ pub fn probe_os() -> Vec<OsProber> {
 }
 #[allow(dead_code)]
 pub fn os_probers_to_string(probers: &[OsProber]) -> String {
-    serde_json::to_string(probers).unwrap()
+    serde_json::to_string(probers).unwrap_or(String::new())
 }
 #[allow(dead_code)]
 pub fn string_to_os_probers(data: &str) -> Vec<OsProber> {
-    serde_json::from_str(data).unwrap()
+    serde_json::from_str(data).unwrap_or(vec![])
 }

@@ -18,7 +18,7 @@ pub fn get_file_info() -> Result<String, serde_json::Error> {
         .output()
         .expect("Failed to execute command");
 
-    let output_str = std::str::from_utf8(&output.stdout).unwrap();
+    let output_str = std::str::from_utf8(&output.stdout).unwrap_or("");
 
     let mut fs_infos: Vec<FileSystemInfo> = Vec::new();
 

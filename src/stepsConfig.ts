@@ -11,6 +11,7 @@ import ExtrasPage from "./pages/ExtrasPage.svelte";
 import SummaryPage from "./pages/SummaryPage.svelte";
 import InstallPage from "./pages/InstallPage.svelte";
 import DonePage from "./pages/DonePage.svelte";
+import BaseDitroPage from "./pages/BaseDitroPage.svelte";
 
 export interface StepConfig {
   route: string;
@@ -20,6 +21,7 @@ export interface StepConfig {
 
 const stepsConfig: StepConfig[] = [
   { route: "/", component: WelcomePage, exclude: true },
+  { route: "/base", component: BaseDitroPage},
   { route: "/keyboard", component: KeyboardPage },
   { route: "/desktop", component: DesktopPage },
   { route: "/packages", component: PackagesPage },

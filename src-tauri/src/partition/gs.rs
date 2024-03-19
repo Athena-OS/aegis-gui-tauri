@@ -42,7 +42,7 @@ impl GlobalStorage {
     }
     #[allow(dead_code)]
     pub fn to_json_string(&self) -> String {
-        utils::marshal_json(&self).unwrap()
+        utils::marshal_json(&self).unwrap_or(String::new())
     }
     #[allow(dead_code)]
     pub fn from_json_string(data: String) -> Result<GlobalStorage, serde_json::Error> {

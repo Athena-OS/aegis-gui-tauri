@@ -34,7 +34,7 @@
   // save config. This triggers the backend install
   async function saveConf() {
     console.log(JSON.stringify($globalStore));
-    await invoke("save_conf", { data: JSON.stringify($globalStore) });
+    await invoke("install", { data: JSON.stringify($globalStore) });
   }
   saveConf();
 </script>

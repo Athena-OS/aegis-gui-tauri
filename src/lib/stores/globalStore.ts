@@ -9,6 +9,7 @@ const globalStore = derived(
   [keyboardStore, desktopStore, partitionStore, packagesStore, accountsStore, extrasStore],
   ([$keyboardStore, $desktopStore, $partitionStore, $packagesStore, $accountStore, $extraStore]) => {
     return {
+      base:$extraStore.base,
       partition: {
         device:$partitionStore.selectedDevice,
         mode:$partitionStore.mode,
@@ -40,7 +41,7 @@ const globalStore = derived(
       browser:$extraStore.browser,
       
       packagesStore: $packagesStore,
-      
+      terminal: $extraStore.terminal,
       extra_packages:[],
       kernel: $extraStore.kernel,
       snapper:$extraStore.snapper,

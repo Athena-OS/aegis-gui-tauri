@@ -1,4 +1,4 @@
-use crate::partition::{actions, probeos,  utils};
+use crate::partition::{actions, probeos, utils};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
@@ -40,6 +40,8 @@ pub struct Device {
 
     #[serde(rename = "id")]
     pub display_name: Option<String>,
+
+    pub path: Option<String>,
 }
 
 impl Default for Device {
@@ -58,6 +60,7 @@ impl Default for Device {
             partitions: None,
             pttype: None,
             display_name: None,
+            path: None,
         }
     }
 }
@@ -86,7 +89,8 @@ impl Device {
             Some(kname) => kname,
             None => &binding,
         };
-        self.partitions = Some(get_partitions(&kname));
+
+        self.partitions = Some(get_partitions(&kname).unwrap_or(vec![]));
     }
 
     #[allow(dead_code)]
@@ -263,6 +267,8 @@ pub struct Partition {
     pub kname: Option<String>,
 
     pub suggested_partitions: Option<Vec<SuggestedPartition>>,
+
+    pub path: Option<String>,
 }
 
 impl Default for Partition {
@@ -287,6 +293,7 @@ impl Default for Partition {
             install_candidate: None,
             kname: None,
             suggested_partitions: None,
+            path: None,
         }
     }
 }
@@ -440,15 +447,16 @@ fn remove_partition(partition: &str) -> Result<(), String> {
     }
 }
 
-pub fn get_partitions(disk_name: &str) -> Vec<Partition> {
-    let output = Command::new("lsblk")
-        .arg("-J")
-        .arg("-O")
-        .output()
-        .expect("failed to execute process");
+pub fn get_partitions(disk_name: &str) -> Result<Vec<Partition>, Box<dyn std::error::Error>> {
+    let output = Command::new("lsblk").arg("-J").arg("-O").output()?;
+
     let output_str = String::from_utf8_lossy(&output.stdout);
-    let json: Value = serde_json::from_str(&output_str).unwrap();
-    let mut partitions: Vec<Partition> = Vec::new();
+
+    // Using serde_json::from_str and handling the Result with `?` to propagate errors
+    let json: Value = serde_json::from_str(&output_str)?;
+
+    let mut partitions = Vec::new();
+
     if let Some(devices) = json["blockdevices"].as_array() {
         for device in devices {
             if let (Some(name), Some(children)) =
@@ -456,16 +464,19 @@ pub fn get_partitions(disk_name: &str) -> Vec<Partition> {
             {
                 if name.starts_with(disk_name) {
                     for child in children {
-                        let p: Partition =
-                            serde_json::from_value(child.clone()).expect("unable to get partition");
-                        partitions.push(p);
+                        // Handle potential error from serde_json::from_value
+                        let p: Result<Partition, _> = serde_json::from_value(child.clone());
+                        match p {
+                            Ok(part) => partitions.push(part),
+                            Err(e) => return Err(Box::new(e)), // You might want to handle errors differently
+                        }
                     }
                 }
             }
         }
     }
 
-    partitions
+    Ok(partitions)
 }
 
 // This is the suggested partition table for install along
@@ -673,27 +684,35 @@ impl<'a> PartProbeGuard<'a> {
 
 impl<'a> Drop for PartProbeGuard<'a> {
     fn drop(&mut self) {
-        // Place the command to run partprobe here. This will execute when the guard is dropped.
         let _ = Command::new("sudo")
             .arg("partprobe")
             .arg(self.device)
-            .spawn() // Using spawn to not wait for it to finish.
+            .spawn()
             .expect("partprobe command failed to start");
     }
 }
 
 fn get_partition_number(device: &str) -> u32 {
-    let re = regex::Regex::new(r"(\d+)$").unwrap();
+    let re = match regex::Regex::new(r"(\d+)$") {
+        Ok(regex) => regex,
+        Err(_) => return 0,
+    };
+
     re.captures(device)
-        .and_then(|cap| cap.get(1).map(|match_| match_.as_str().parse::<u32>().ok()))
+        .and_then(|cap| cap.get(1).map(|match_| match_.as_str().parse().ok()))
         .flatten()
-        .unwrap_or(0) // Return 0 if parsing fails or no number is found
+        .unwrap_or(0)
 }
 
 fn extract_base_device(path: &str) -> String {
-    let re = regex::Regex::new(r"(/dev/sd[a-z])\d*").unwrap(); // Adjusted to include sd[a-z]
+    let re = match regex::Regex::new(r"(/dev/sd[a-z])\d*") {
+        Ok(regex) => regex,
+        Err(_) => return path.to_string(),
+    };
     match re.captures(path) {
-        Some(caps) => caps[1].to_string(),
-        None => path.to_string(), // Return the original path if no match is found
+        Some(caps) => caps
+            .get(1)
+            .map_or(path.to_string(), |m| m.as_str().to_string()),
+        None => path.to_string(),
     }
 }
