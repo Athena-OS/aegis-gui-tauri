@@ -124,8 +124,8 @@
 
 <StepWrapper
   title="Select Environment"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
+  dialogTitle="About Environment"
+  dialogContent="In this page, you select your desktop environment"
   prev="/keyboard"
   next={nextPage}
 >

@@ -1,7 +1,9 @@
 use crate::app::*;
 use crate::partition;
 use crate::partition::*;
+use install::config::SystemStorageInfo;
 use log::*;
+use serde_json::json;
 use std::{io::*, process::*};
 pub fn install() {
     // We first partition the disks.
@@ -439,16 +441,27 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .unwrap_or(def_device);
             // update config
             config.partition.mode = String::from("manual");
-            config.partition.device = device.path.as_ref().unwrap_or(&String::from("")).to_string();
+            config.partition.device = device
+                .path
+                .as_ref()
+                .unwrap_or(&String::from(""))
+                .to_string();
             let mut partition: Vec<String> = device
-                    .partitions.as_ref()
-                    .unwrap_or(&Vec::new())
-                    .iter().map(|item| {
-                // Check if the path is Some or None and format accordingly
-                format!("none:{}:none", item.path.as_ref().unwrap_or(&"".to_string()))
-            }).collect();
+                .partitions
+                .as_ref()
+                .unwrap_or(&Vec::new())
+                .iter()
+                .map(|item| {
+                    // Check if the path is Some or None and format accordingly
+                    format!(
+                        "none:{}:none",
+                        item.path.as_ref().unwrap_or(&"".to_string())
+                    )
+                })
+                .collect();
             partition.push(format!(
-                "/mnt:{}{}:btrfs",device.path.as_ref().unwrap_or(&String::from("")),
+                "/mnt:{}{}:btrfs",
+                device.path.as_ref().unwrap_or(&String::from("")),
                 device
                     .partitions
                     .as_ref()
@@ -457,7 +470,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                     .len()
                     + 1
             ));
-            // TODO: Add the partitions part of the partition field of the config
+            config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
             info!("saving config. config: {:?}", config);
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
@@ -481,6 +494,67 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
         }
         // auto
         "auto" => {
+            info!("saving config. config: {:?}", config);
+            // Partitions ingnored since  the device will be formatted anyway.
+            let config_str = match utils::marshal_json(&config) {
+                Ok(s) => s,
+                Err(e) => {
+                    error!("error converting config to string with error: {:?}", e);
+                    // send install event failure
+                    global_app::emit_global_event("install-fail", "");
+                    return Err(Box::new(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        "Error saving config",
+                    )));
+                }
+            };
+            match commands::save_json(&config_str, "/tmp/config.json") {
+                Ok(_) => {
+                    global_app::update_progress();
+                    Ok(true)
+                }
+                Err(e) => Err(Box::new(e)),
+            }
+        }
+        // replace
+        "replace-partition" => {
+            /*println!("{:#?}", config.partition.system_storage_info.clone());
+            let si: Vec<&SystemStorageInfo> = config
+                .partition
+                .system_storage_info
+                .iter()
+                .filter(|s| s.partitions.len() > 0)
+                .collect();*/
+            //println!("si {:#?}", si);
+            let mut partition: Vec<String> = config
+                .partition
+                .system_storage_info
+                .iter()
+                .flat_map(|s| {
+                    s.partitions.iter().map(|item| {
+                        if item.name == Some(String::from("Athena OS")) {
+                            format!(
+                                "/mnt:/dev/{}:btrfs",
+                                item.partitionName.as_ref().unwrap_or(&"".to_string())
+                            )
+                        } else {
+                            format!(
+                                "none:/dev/{}:none",
+                                item.partitionName.as_ref().unwrap_or(&"".to_string())
+                            )
+                        }
+                    })
+                })
+                .collect();
+            partition = partition
+                .iter()
+                .filter(|item| item.contains(&config.partition.device))
+                .cloned()
+                .collect();
+
+            config.partition.mode = String::from("manual");
+            println!("partition {:#?}", partition);
+            config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
             info!("saving config. config: {:?}", config);
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,

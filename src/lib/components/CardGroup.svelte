@@ -5,6 +5,7 @@
     value: string;
     icon?: string;
     checked?: boolean;
+    disabled?: boolean;
   }
 
   export let title: string;
@@ -30,6 +31,7 @@
         name="radio-group"
         value={card.value}
         checked={card.checked || false}
+        disabled={card.disabled || false }
         on:change={onChange}
       />
       <label

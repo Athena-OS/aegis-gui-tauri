@@ -74,8 +74,8 @@
 
 <StepWrapper
   title="Extras"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
+  dialogTitle="Extras Page"
+  dialogContent="This page allows you to select other configurations and packages to install"
   prev="/accounts"
   next={$extrasStore.kernel !== "default" &&
   $extrasStore.terminal !== "default" &&

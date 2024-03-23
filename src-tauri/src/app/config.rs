@@ -11,9 +11,22 @@ pub struct Partition {
     pub swap: bool,
     pub swap_size: String,
     pub partitions: Value,
+    #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
     pub installAlongPartitions: Vec<partition::device::SuggestedPartition>,
+    #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
+    pub system_storage_info: Vec<SystemStorageInfo>
+}
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+pub struct  SystemStorageInfo{
+    pub partitions: Vec<P>
 }
 
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+#[allow(non_snake_case)]
+pub struct P{
+    pub name: Option<String>,
+    pub partitionName: Option<String>
+}
 impl Default for Partition {
     fn default() -> Partition {
         Partition {
@@ -24,6 +37,7 @@ impl Default for Partition {
             swap_size: String::new(),
             partitions: json!(null),
             installAlongPartitions: Vec::new(),
+            system_storage_info:Vec::new()
         }
     }
 }

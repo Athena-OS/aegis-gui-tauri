@@ -14,7 +14,7 @@
   import logStore from "../lib/stores/logStore";
   import { invoke } from "@tauri-apps/api";
   import globalStore from "../lib/stores/globalStore";
-
+  import partitionStore from "../lib/stores/partitionStore";
   let consoleOpen = true;
   let progress = 0; // in percentage
   let dialog = createDialog({ label: "failed" });
@@ -33,6 +33,18 @@
 
   // save config. This triggers the backend install
   async function saveConf() {
+    /*if (($globalStore.partition.mode = "replace-partition")) {
+      //$partitionStore.systemStorageInfo =
+        $partitionStore.systemStorageInfo.filter((s) => {
+          let partitionDisNAme = s.partitions.map((p) => p.partitionName);
+          // check if any of the partionNames has the selected device
+          if (
+            partitionDisNAme[0]?.indexOf($globalStore.partition.device) != 1
+          ) {
+            return s;
+          }
+        });
+    }*/
     console.log(JSON.stringify($globalStore));
     await invoke("install", { data: JSON.stringify($globalStore) });
   }

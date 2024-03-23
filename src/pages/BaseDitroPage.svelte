@@ -33,7 +33,7 @@
   <StepWrapper
     title="Base system"
     dialogTitle="About base system"
-    dialogContent="This is the base system"
+    dialogContent="This is the base system. You can either select NixOS Distro or Arch Linux Distro"
     prev="/"
     next="/keyboard"
   >

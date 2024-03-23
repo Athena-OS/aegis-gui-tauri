@@ -23,7 +23,18 @@
   title="Summary"
   dialogTitle="Header Here"
   dialogContent="Your text here"
-  prev={$partitionStore.mode === "auto" ? "/partition" : "/finalize-partition"}
+  prev={(() => {
+    const pm = $partitionStore.mode;
+    if (pm === "auto") {
+      return "/partition";
+    } else if (pm == "replace-partition") {
+      return "/replace-partition";
+    }else if (pm == "install-along"){
+      return "/configure-install-along"
+    } else {
+      return "/finalize-partition";
+    }
+  })()}
   next="/install"
 >
   <div
@@ -33,12 +44,14 @@
       <div class="space-y-4 flex w-full h-full items-center">
         <div class="w-1/2 h-inherit items-center">
           {#if $globalStore.base == "arch"}
-          <img src={arch} class="h-[50] relative z-50" alt="" />
+            <img src={arch} class="h-[50] relative z-50" alt="" />
           {:else}
-          <img src={nix} class="h-[50px] relative z-50" alt="" />
+            <img src={nix} class="h-[50px] relative z-50" alt="" />
           {/if}
         </div>
-        <div class="grow h-inherit flex flex-col text-5xl space-y-8 pt-8 -ml-16">
+        <div
+          class="grow h-inherit flex flex-col text-5xl space-y-8 pt-8 -ml-16"
+        >
           <h1 class="text-primary-400 mb-6">Base OS</h1>
 
           <h4 class="">
@@ -52,7 +65,7 @@
     <div class="w-full bg-transparent h-full py-4 justify-center">
       <div class="space-y-4 flex w-full h-full overflow-hidden items-center">
         <div class="w-1/2 h-full flex items-center flex items-center p-10">
-          <img src={keyboardSummary} class="" alt="" >
+          <img src={keyboardSummary} class="" alt="" />
         </div>
         <div class="w-1/2 h-full flex flex-col text-5xl space-y-8 pt-8 -ml-16">
           <h1 class="text-primary-400 mb-6">Keyboard</h1>

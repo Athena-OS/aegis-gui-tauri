@@ -69,5 +69,6 @@
           # https://github.com/tauri-apps/tauri/issues/4315#issuecomment-1207755694
           WEBKIT_DISABLE_COMPOSITING_MODE = 1;
         };
+        defaultPackage.x86_64-linux = self.packages.x86_64-linux.default;
       });
 }

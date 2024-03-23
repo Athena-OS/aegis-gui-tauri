@@ -1,6 +1,5 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use log::*;
 use crate::app::{config, global_app, install};
 use crate::partition::*;
 use bcrypt::{hash, DEFAULT_COST};
@@ -108,6 +107,14 @@ pub fn install(data: String) {
     global_app::update_config(config::Config::from_json_string(data));
     // start installation in the background
     thread::spawn(move || install::install());
+    /*let config = match global_app::get_config() {
+        Ok(c) => c,
+        Err(e) => {
+            error!("failed to get config from global storage:{}", e);
+            config::Config::default()
+        }
+    };
+    println!("{:#?}", config);*/
 }
 #[allow(dead_code)]
 pub fn save_json(data: &str, filename: &str) -> std::io::Result<()> {

@@ -61,8 +61,8 @@
 
 <StepWrapper
   title="Select Keyboard"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
+  dialogTitle="About Keyboad Page"
+  dialogContent="In this page, you setup your keyboard, timezone and locale"
   prev="/base"
   next={nextPage}
 >

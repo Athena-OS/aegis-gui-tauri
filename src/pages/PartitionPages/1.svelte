@@ -3,13 +3,13 @@
   import diskIcon from "../../assets/icons/disk.svg";
   import eraseDiskIcon from "../../assets/icons/erase-disk.svg";
   import manualDiskIcon from "../../assets/icons/manual-disk.svg";
-
+  import installAlongIcon from "../../assets/icons/wrench-yellow.svg"
   import StepWrapper from "../../lib/components/StepWrapper.svelte";
   import Dropdown2 from "../../lib/components/Dropdown2.svelte";
   import CardGroup from "../../lib/components/CardGroup.svelte";
   import Button from "../../lib/components/Button.svelte";
   import partitionStore from "../../lib/stores/partitionStore";
-
+  import replacePartitionIcon from "../../assets/icons/replace-yellow.svg"
   import { disks } from "tauri-plugin-system-info-api";
   import { invoke } from "@tauri-apps/api";
 
@@ -128,6 +128,8 @@
     if ($partitionStore.selectedDevice !== "default") {
       if ($partitionStore.mode === "auto") {
         nextPage = "/summary";
+      }else if ($partitionStore.mode === "replace-partition"){
+        nextPage = "/replace-partition";
       } else {
         nextPage = "/configure-partition";
       }
@@ -145,8 +147,11 @@
 
 <StepWrapper
   title="Partition"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
+  dialogTitle="Partitions page"
+  dialogContent="This page allows you to select where to install your operating system. There are 4 modes
+    There is Auto mode where the whole device selected is used for installation, there is manual mode where you are allowed to manually partition a disk,
+    install along mode that allows you to install Athena OS alongside a partition that has another OS, and lastly the replace partion mode where you replace 
+    the content of an existing partition with Athena OS."
   prev="/extras"
   next={nextPage}
 >
@@ -171,7 +176,7 @@
     </div>
     <CardGroup
       title="How do you want to partition ?"
-      on:change={(event) => ($partitionStore.mode = event.detail.target.value)}
+      on:change={(event) => {$partitionStore.mode = event.detail.target.value; if ($partitionStore.mode == "install-along"){$partitionStore.selectedDeviceForInstallAlong = $partitionStore.partitionsWithOS[0].kname;}}}
       cards={[
         {
           title: "Automatic",
@@ -186,9 +191,22 @@
           value: "manual",
           icon: manualDiskIcon,
         },
+        {
+          title: "Replace Partition",
+          desc: "Replace the content of an existing partition with athena OS",
+          value: "replace-partition",
+          icon: replacePartitionIcon,
+        },
+        {
+          title: "Install Along",
+          desc: install_along_card.desc,
+          value: "install-along",
+          icon: installAlongIcon,
+          disabled: !hasOs,
+        },
       ]}
     />
-    {#if hasOs}
+    <!--{#if hasOs}
       <div class="relative w-full h-150" style="height:150px">
         <input
           class="absolute top-2 right-2 radio-btn"
@@ -208,7 +226,7 @@
           <div>{install_along_card.desc}</div>
         </label>
       </div>
-    {/if}
+    {/if}-->
     <!--div class="flex align-center">
     <div class="relative w-full h-150" style="height:150px">
       <label
