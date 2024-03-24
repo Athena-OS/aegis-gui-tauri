@@ -171,6 +171,42 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 }
             }
         }
+        "manual" => {
+            // Get global storage. Should never call default
+            let gs = global_app::get_global_storage().unwrap_or_default();
+            let kname = &config.partition.installAlongPartitions[0].kname;
+            // device being used for installation
+            let device = gs
+                .devices
+                .iter()
+                .find(|&d| d.name == Some(utils::get_disk_id(kname)))
+                .unwrap_or(def_device);
+            global_app::emit_global_event("install-fail", "");
+            println!("{:#?}", device );
+            info!("not handled");
+            Ok(true)
+            /*match partition::device::partition_install_along(
+                config.partition.installAlongPartitions,
+                device.clone(),
+            ) {
+                Ok(_) => {
+                    info!("partitioning successful");
+                    global_app::update_progress();
+                    // continue installation
+                    Ok(true)
+                }
+                Err(r) => {
+                    // notify the frontend of the installation failure.
+                    global_app::emit_global_event("install-fail", "");
+                    error!("error partioning for install along {:#?}", r);
+                    // Return error to be used to exit installation.
+                    Err(Box::new(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        "Error partioning for install along",
+                    )))
+                }
+            }*/
+        }
         &_ => {
             info!("not handled");
             Ok(true)
@@ -516,16 +552,60 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 Err(e) => Err(Box::new(e)),
             }
         }
-        // replace
-        "replace-partition" => {
-            /*println!("{:#?}", config.partition.system_storage_info.clone());
-            let si: Vec<&SystemStorageInfo> = config
+        // replace partition
+        "replace-partition" => {            
+            let mut partition: Vec<String> = config
                 .partition
                 .system_storage_info
                 .iter()
-                .filter(|s| s.partitions.len() > 0)
-                .collect();*/
-            //println!("si {:#?}", si);
+                .flat_map(|s| {
+                    s.partitions.iter().map(|item| {
+                        if item.name == Some(String::from("Athena OS")) {
+                            format!(
+                                "/mnt:/dev/{}:btrfs",
+                                item.partitionName.as_ref().unwrap_or(&"".to_string())
+                            )
+                        } else {
+                            format!(
+                                "none:/dev/{}:none",
+                                item.partitionName.as_ref().unwrap_or(&"".to_string())
+                            )
+                        }
+                    })
+                })
+                .collect();
+            partition = partition
+                .iter()
+                .filter(|item| item.contains(&config.partition.device))
+                .cloned()
+                .collect();
+
+            config.partition.mode = String::from("manual");
+            println!("partition {:#?}", partition);
+            config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
+            info!("saving config. config: {:?}", config);
+            let config_str = match utils::marshal_json(&config) {
+                Ok(s) => s,
+                Err(e) => {
+                    error!("error converting config to string with error: {:?}", e);
+                    // send install event failure
+                    global_app::emit_global_event("install-fail", "");
+                    return Err(Box::new(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        "Error saving config",
+                    )));
+                }
+            };
+            match commands::save_json(&config_str, "/tmp/config.json") {
+                Ok(_) => {
+                    global_app::update_progress();
+                    Ok(true)
+                }
+                Err(e) => Err(Box::new(e)),
+            }
+        }
+        // replace partition
+        "manual" => {            
             let mut partition: Vec<String> = config
                 .partition
                 .system_storage_info

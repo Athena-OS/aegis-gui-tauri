@@ -9,6 +9,7 @@ pub struct Partition {
     pub mode: String,
     pub efi: bool,
     pub swap: bool,
+    #[serde(skip_serializing_if = "is_default", default)]
     pub swap_size: String,
     pub partitions: Value,
     #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
@@ -20,7 +21,9 @@ pub struct Partition {
 pub struct  SystemStorageInfo{
     pub partitions: Vec<P>
 }
-
+fn is_default(s: &String) -> bool {
+    s.is_empty()
+}
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 #[allow(non_snake_case)]
 pub struct P{

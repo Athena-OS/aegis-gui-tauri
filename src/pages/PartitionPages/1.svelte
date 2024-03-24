@@ -3,13 +3,13 @@
   import diskIcon from "../../assets/icons/disk.svg";
   import eraseDiskIcon from "../../assets/icons/erase-disk.svg";
   import manualDiskIcon from "../../assets/icons/manual-disk.svg";
-  import installAlongIcon from "../../assets/icons/wrench-yellow.svg"
+  import installAlongIcon from "../../assets/icons/wrench-yellow.svg";
   import StepWrapper from "../../lib/components/StepWrapper.svelte";
   import Dropdown2 from "../../lib/components/Dropdown2.svelte";
   import CardGroup from "../../lib/components/CardGroup.svelte";
   import Button from "../../lib/components/Button.svelte";
   import partitionStore from "../../lib/stores/partitionStore";
-  import replacePartitionIcon from "../../assets/icons/replace-yellow.svg"
+  import replacePartitionIcon from "../../assets/icons/replace-yellow.svg";
   import { disks } from "tauri-plugin-system-info-api";
   import { invoke } from "@tauri-apps/api";
 
@@ -42,7 +42,7 @@
     let sysInfo_Disks = await disks();
     let gs: string = await invoke("get_gs");
     let devices = JSON.parse(gs).devices;
-    console.log(devices)
+    console.log(devices);
     devices.map((item: any) => {
       if (item.install_candidate) {
         storageDevicesList.push({
@@ -60,7 +60,7 @@
           name: i.kname,
         });*/
         if (i.can_install_along) {
-          $partitionStore.partitionsWithOS.push(i)
+          $partitionStore.partitionsWithOS.push(i);
         }
       });
     });
@@ -93,27 +93,87 @@
           logicalName: p[i].model,
           displayName: p[i].kname,
           totalStorage: p[i].size,
-          availableStorage: 0,
+          availableStorage: 0, // This will be calculated later
           disklabelType: p[i].pptype,
           kind: "",
           isRemovable: p[i].rm,
           partitions: [],
         };
-        let children = [];
-        if (p[i].children != undefined) {
-          for (let j = 0; j < p[i].children.length; j++) {
-            let part = p[i].children[j];
-            children.push({
-              partitionName: part.name,
-              size: part.size,
-              fileSystem: part.parttypename,
-              mountPoint: part.mountpoint,
-              availableStorage: part.fsavail,
-              name: part.kname,
+
+        let children = p[i].children ?? [];
+        // Assuming children are already sorted by 'start'. If not, sort them here.
+
+        // Calculate spaces between partitions and at the end
+        let lastEnd = children[0]?.start;
+        children.forEach((part: any, index: any) => {
+          let start = parseInt(part.start, 10);
+          let size = parseInt(part.size, 10);
+          let end = start + size / 512;
+
+          // Calculate space before this partition (if any)
+          if (index == 0 && part.start != 4096) {
+            disk.partitions.push({
+              partitionName: "free-space-" + index,
+              size: (part.start - 4096) * 512,
+              fileSystem: "",
+              mountPoint: "",
+              availableStorage: start - lastEnd,
+              name: "free",
+              start: 4096,
+              end: part.start,
+              resized:false,
+            });
+          } else if (start - lastEnd > 0) {
+            // Insert a free space partition object before this partition
+            disk.partitions.push({
+              partitionName: "free-space-" + index,
+              size: (start - lastEnd) * 512,
+              fileSystem: "",
+              mountPoint: "",
+              availableStorage: start - lastEnd,
+              name: "free",
+              start: lastEnd,
+              end: 0,
+              resized:false
             });
           }
+
+          // Add the current partition
+          disk.partitions.push({
+            partitionName: part.name,
+            size: part.size,
+            fileSystem: part.parttypename,
+            mountPoint: part.mountpoint,
+            availableStorage: part.fsavail,
+            name: part.kname,
+            start: part.start,
+            end: part.start + part.size / 512,
+            resized:false
+          });
+
+          lastEnd = end; 
+        });
+
+        // Check for space at the end of the disk
+        let diskTotalSize = disk.totalStorage;
+        if (diskTotalSize/512 - lastEnd > 0) {
+          disk.partitions.push({
+            partitionName: "free-space-end",
+            size: diskTotalSize - lastEnd*512,
+            fileSystem: "",
+            mountPoint: "",
+            availableStorage: diskTotalSize - lastEnd,
+            name: "free",
+            start: lastEnd,
+            end: diskTotalSize/512,
+            resized:false
+          });
         }
-        disk.partitions = children;
+
+        // Now that we've added all free spaces, calculate availableStorage for the disk
+        disk.availableStorage = disk.partitions
+          .filter((part) => part.name === "free")
+          .reduce((acc, curr) => acc + curr.size, 0);
         let temp_disk_data = JSON.parse(JSON.stringify(disk));
         $partitionStore.systemStorageInfoCurrent.push({ ...temp_disk_data });
         $partitionStore.systemStorageInfo.push(disk);
@@ -128,7 +188,7 @@
     if ($partitionStore.selectedDevice !== "default") {
       if ($partitionStore.mode === "auto") {
         nextPage = "/summary";
-      }else if ($partitionStore.mode === "replace-partition"){
+      } else if ($partitionStore.mode === "replace-partition") {
         nextPage = "/replace-partition";
       } else {
         nextPage = "/configure-partition";
@@ -139,7 +199,8 @@
   }
   function handleChange(event: Event) {
     $partitionStore.mode = "install-along";
-    $partitionStore.selectedDeviceForInstallAlong = $partitionStore.partitionsWithOS[0].kname;
+    $partitionStore.selectedDeviceForInstallAlong =
+      $partitionStore.partitionsWithOS[0].kname;
   }
 
   $: $partitionStore, IsOkayToMoveNextPage();
@@ -176,7 +237,13 @@
     </div>
     <CardGroup
       title="How do you want to partition ?"
-      on:change={(event) => {$partitionStore.mode = event.detail.target.value; if ($partitionStore.mode == "install-along"){$partitionStore.selectedDeviceForInstallAlong = $partitionStore.partitionsWithOS[0].kname;}}}
+      on:change={(event) => {
+        $partitionStore.mode = event.detail.target.value;
+        if ($partitionStore.mode == "install-along") {
+          $partitionStore.selectedDeviceForInstallAlong =
+            $partitionStore.partitionsWithOS[0].kname;
+        }
+      }}
       cards={[
         {
           title: "Automatic",

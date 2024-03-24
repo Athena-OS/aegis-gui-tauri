@@ -16,6 +16,9 @@ export type PartitionInfo = {
     name: string;
     fileSystem: string;
     mountPoint: string;
+    start: number;
+    end: number;
+    resized:boolean
 };
 
 export type InstallAlongPartition = {
@@ -23,5 +26,5 @@ export type InstallAlongPartition = {
     minimum_size: number,
     label: string,
     suggested_size: number,
-    kname:string,
+    kname: string,
 }
