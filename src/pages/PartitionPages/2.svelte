@@ -410,6 +410,22 @@
     fileSystem: "",
     mountPoint: "",
   };
+
+  let nextPage = "";
+  // Athena OS's parition for installation must be selected
+  function IsOkayToMoveNextPage() {
+    const selectedDeviceStorageInfo = $partitionStore.systemStorageInfo.find(
+      (item) => item.displayName === $partitionStore.selectedDevice,
+    );
+    const athenaOSPartitionSource = selectedDeviceStorageInfo?.partitions.find(
+      (partition) => partition.name === "Athena OS",
+    );
+    if (athenaOSPartitionSource) {
+      nextPage = "finalize-partition";
+    }
+  }
+
+  $: $partitionStore, IsOkayToMoveNextPage();
 </script>
 
 <!-- create new partition -->
@@ -420,9 +436,11 @@
     <h4 class="text-2xl font-meidum">Replace Partition</h4>
     <Dropdown
       items={[
-        ...partitionData.map((partition) => {
-          return { name: partition.partitionName, selected: false };
-        }),
+        ...partitionData
+          .filter((p) => p.size > 2e10) // remove partitions below 20gb in size
+          .map((partition) => {
+            return { name: partition.partitionName, selected: false };
+          }),
       ]}
       icon={diskIcon}
       label="Select Partition"
@@ -445,7 +463,10 @@
   <div class="flex justify-between space-x-2">
     <Button
       variant="bordered"
-      on:click={() => dialogReplacePartition.close()}
+      on:click={() => {
+        IsOkayToMoveNextPage();
+        dialogReplacePartition.close();
+      }}
       fullWidth>Cancel</Button
     >
     <Button
@@ -463,6 +484,27 @@
             )[0],
         );
 
+        const selectedDeviceStorageInfo =
+          $partitionStore.systemStorageInfo.find(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          );
+
+        const athenaOSPartitionSource =
+          selectedDeviceStorageInfo?.partitions.find(
+            (partition) => partition.name === "Athena OS",
+          );
+
+        const athenaOSPartitionTarget =
+          selectedDeviceStorageInfo?.partitions.find(
+            (partition) => partition.name === "Athena OS",
+          );
+
+        if (athenaOSPartitionTarget && athenaOSPartitionSource) {
+          athenaOSPartitionTarget.name =
+            athenaOSPartitionSource.partitionName ??
+            athenaOSPartitionTarget.name;
+        }
+
         $partitionStore.systemStorageInfo
           .filter(
             (item) => item.displayName === $partitionStore.selectedDevice,
@@ -474,22 +516,10 @@
               partition.size === $partitionStore.replacedPartition.size,
           )[0].name = "Athena OS";
 
-        console.log(
-          $partitionStore.systemStorageInfo
-            .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0]
-            .partitions.filter(
-              (partition) =>
-                partition.partitionName ===
-                  $partitionStore.replacedPartition.partitionName &&
-                partition.size === $partitionStore.replacedPartition.size,
-            )[0],
-        );
-
         gatherInfo();
         changeAllowCreation();
-
+        IsOkayToMoveNextPage();
+        console.log(nextPage);
         dialogReplacePartition.close();
       }}
       fullWidth>Confirm</Button
@@ -630,18 +660,66 @@
     <div
       class="w-40"
       on:click={() => {
-        $partitionStore.systemStorageInfo.filter(
-          (item) => item.displayName === $partitionStore.selectedDevice,
-        )[0].partitions = $partitionStore.systemStorageInfo
+        // Check if the next partition is a free space
+        let index = $partitionStore.systemStorageInfo
           .filter(
             (item) => item.displayName === $partitionStore.selectedDevice,
           )[0]
-          .partitions.filter(
-            (item) =>
-              item.size !== selectedPartitionForAction.size &&
-              item.name !== selectedPartitionForAction.name,
+          .partitions.findIndex(
+            (partition) =>
+              partition.partitionName ===
+              selectedPartitionForAction.partitionName,
           );
-
+        if (
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].partitions[index + 1] != undefined && // Exists (Not the last)
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions[index + 1].name.includes("free") // Is a free space
+        ) {
+          // Update the start and the size of the free space
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].partitions[index + 1].size +=
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0].partitions[index].size;
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].partitions[index + 1].start =
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0].partitions[index].start;
+          // Delete the current partition
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.splice(index, 1);
+        } else {
+          // Instead of deleting this partition, convert it to a free space
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.filter(
+              (item) =>
+                item.size == selectedPartitionForAction.size &&
+                item.name == selectedPartitionForAction.name,
+            )[0].name = "free";
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.filter(
+              (item) =>
+                item.size == selectedPartitionForAction.size &&
+                item.name == selectedPartitionForAction.name,
+            )[0].partitionName = "free-space";
+        }
         $partitionStore.systemStorageInfo.filter(
           (item) => item.displayName === $partitionStore.selectedDevice,
         )[0].availableStorage =
@@ -664,7 +742,7 @@
   dialogTitle="Header Here"
   dialogContent="Your text here"
   prev="partition"
-  next="finalize-partition"
+  next={nextPage}
 >
   <div class="flex flex-col items-center mx-5 h-full space-y-6">
     <div class="flex flex-row items-center gap-4 w-full">
@@ -741,7 +819,24 @@
 
                         <Button
                           variant="secondary"
-                          on:click={dialogNewPartition.open}
+                          on:click={() => {
+                            selectedPartitionForAction = {
+                              ...row,
+                            };
+                            $partitionStore.ind = $partitionStore.systemStorageInfo
+                              .filter(
+                                (item) =>
+                                  item.displayName ===
+                                  $partitionStore.selectedDevice,
+                              )[0]
+                              .partitions.findIndex(
+                                (partition) =>
+                                  partition.partitionName ===
+                                  selectedPartitionForAction.partitionName,
+                              );
+                            console.log($partitionStore)
+                            dialogNewPartition.open();
+                          }}
                           ><img src={plusWhiteIcon} alt="" />
                           <span>Create Partition</span></Button
                         >
@@ -776,15 +871,15 @@
       </div>
     </div>
     <div class="flex w-full justify-end space-x-4">
-      {#if allowCreation === true}
+      <!--{#if allowCreation === true}
         <Button variant="secondary" on:click={dialogNewPartition.open}
           ><img src={plusWhiteIcon} alt="" />
           <span>Create Partition</span></Button
         >
-      {/if}
+      {/if}-->
       <Button variant="bordered" on:click={dialogReplacePartition.open}>
         <img class="h-6" src={replaceIcon} alt="" />
-        <span>Replace</span></Button
+        <span>Replace with Athena OS</span></Button
       >
     </div>
   </div>
