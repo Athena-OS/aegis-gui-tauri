@@ -67,6 +67,8 @@
               )[0].partitions[$partitionStore.ind].start +
               $partitionStore.newPartition.size / 512,
             resized: true,
+            // The last action after shrink and delete
+            action: "create"
           });
         // Update the free space
         if (

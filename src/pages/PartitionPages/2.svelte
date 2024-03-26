@@ -176,6 +176,11 @@
         ) {
           partition.size = selectedPartitionForAction.size;
           partition.resized = true;
+          // This should be the second action after delete. Shrink will also be used for expansion.
+          // If the partition action is create, it should remain create
+          if (partition.action != "create") {
+            partition.action = "shrink";
+          }
 
           // update the end. Here we create a new freespace or resize adjacent partitions
           if (partition.size / 512 + partition.start < partition.end) {
@@ -234,6 +239,7 @@
                       start: partition.size / 512 + partition.start,
                       end: start,
                       resized: false,
+                      action: "none",
                     });
                 } else {
                   // This means we have eddited the last partition and it has no trailling free space
@@ -270,6 +276,7 @@
                             item.displayName === $partitionStore.selectedDevice,
                         )[0].totalStorage / 512,
                       resized: false,
+                      action: "none",
                     });
                 }
               } else {
@@ -294,6 +301,7 @@
                     start: partition.size / 512 + partition.start,
                     end: start,
                     resized: false,
+                    action: "none",
                   });
               }
             } else {
@@ -330,6 +338,7 @@
                         item.displayName === $partitionStore.selectedDevice,
                     )[0].totalStorage / 512,
                   resized: false,
+                  action: "none",
                 });
             }
           } else {
@@ -516,6 +525,18 @@
               partition.size === $partitionStore.replacedPartition.size,
           )[0].name = "Athena OS";
 
+        // If its a free partition, the action should be create
+        $partitionStore.systemStorageInfo
+          .filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0]
+          .partitions.filter(
+            (partition) =>
+              partition.partitionName ===
+                $partitionStore.replacedPartition.partitionName &&
+              partition.size === $partitionStore.replacedPartition.size &&
+              partition.partitionName.includes("free"),
+          )[0].action = "create";
         gatherInfo();
         changeAllowCreation();
         IsOkayToMoveNextPage();
@@ -660,6 +681,25 @@
     <div
       class="w-40"
       on:click={() => {
+        // Update current information as delete. This will be used for delete action.
+        // Delete can only happen on partitions that only existed
+        if (
+          $partitionStore.systemStorageInfoCurrent
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.filter(
+              (item) => item.name == selectedPartitionForAction.name,
+            )[0] != undefined
+        ) {
+          $partitionStore.systemStorageInfoCurrent
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.filter(
+              (item) => item.name == selectedPartitionForAction.name,
+            )[0].action = "delete";
+        }
         // Check if the next partition is a free space
         let index = $partitionStore.systemStorageInfo
           .filter(
@@ -823,18 +863,19 @@
                             selectedPartitionForAction = {
                               ...row,
                             };
-                            $partitionStore.ind = $partitionStore.systemStorageInfo
-                              .filter(
-                                (item) =>
-                                  item.displayName ===
-                                  $partitionStore.selectedDevice,
-                              )[0]
-                              .partitions.findIndex(
-                                (partition) =>
-                                  partition.partitionName ===
-                                  selectedPartitionForAction.partitionName,
-                              );
-                            console.log($partitionStore)
+                            $partitionStore.ind =
+                              $partitionStore.systemStorageInfo
+                                .filter(
+                                  (item) =>
+                                    item.displayName ===
+                                    $partitionStore.selectedDevice,
+                                )[0]
+                                .partitions.findIndex(
+                                  (partition) =>
+                                    partition.partitionName ===
+                                    selectedPartitionForAction.partitionName,
+                                );
+                            console.log($partitionStore);
                             dialogNewPartition.open();
                           }}
                           ><img src={plusWhiteIcon} alt="" />

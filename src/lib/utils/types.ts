@@ -18,7 +18,8 @@ export type PartitionInfo = {
     mountPoint: string;
     start: number;
     end: number;
-    resized:boolean
+    resized:boolean,
+    action: string,
 };
 
 export type InstallAlongPartition = {

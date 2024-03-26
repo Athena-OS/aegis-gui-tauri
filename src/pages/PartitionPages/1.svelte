@@ -122,6 +122,7 @@
               start: 4096,
               end: part.start,
               resized:false,
+              action:"none"
             });
           } else if (start - lastEnd > 0) {
             // Insert a free space partition object before this partition
@@ -134,7 +135,8 @@
               name: "free",
               start: lastEnd,
               end: 0,
-              resized:false
+              resized:false,
+              action:"none"
             });
           }
 
@@ -148,7 +150,8 @@
             name: part.kname,
             start: part.start,
             end: part.start + part.size / 512,
-            resized:false
+            resized:false,
+            action:"none"
           });
 
           lastEnd = end; 
@@ -166,7 +169,8 @@
             name: "free",
             start: lastEnd,
             end: diskTotalSize/512,
-            resized:false
+            resized:false,
+            action:"none"
           });
         }
 

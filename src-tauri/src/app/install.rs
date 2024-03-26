@@ -1,9 +1,7 @@
 use crate::app::*;
 use crate::partition;
 use crate::partition::*;
-use install::config::SystemStorageInfo;
 use log::*;
-use serde_json::json;
 use std::{io::*, process::*};
 pub fn install() {
     // We first partition the disks.
@@ -172,41 +170,97 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
             }
         }
         "manual" => {
-            // Get global storage. Should never call default
-            let gs = global_app::get_global_storage().unwrap_or_default();
-            let kname = &config.partition.installAlongPartitions[0].kname;
-            // device being used for installation
-            let device = gs
-                .devices
-                .iter()
-                .find(|&d| d.name == Some(utils::get_disk_id(kname)))
-                .unwrap_or(def_device);
-            global_app::emit_global_event("install-fail", "");
-            println!("{:#?}", device );
-            info!("not handled");
+            // Get the partitions that needs deleting and delete them
+            for storage_info in &config.partition.system_storage_info_current {
+                for partition in &storage_info.partitions {
+                    if partition.action == Some(String::from("delete")) {
+                        let partition_name = partition.partitionName.clone().unwrap_or_default();
+                        let pn = device::get_partition_number(&partition_name) as i32;
+                        let dev = format!("/dev/{}", utils::get_disk_id(&partition_name));
+
+                        match device::delete_partition(&dev, pn) {
+                            Ok(_) => info!("Partition deleted successfully"),
+                            Err(e) => {
+                                error!("Deleting partition failed with error: {:#?}", e);
+                                global_app::emit_global_event("install-fail", "");
+                                return Err(Box::new(e));
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Get the partitions that needs shrinking/expanding and perform the shrinking expanding action
+            for storage_info in &config.partition.system_storage_info {
+                for item in &storage_info.partitions {
+                    if item.action == Some(String::from("shrink")) {
+                        // Here we shrink the partition
+                        // Get partition number
+                        let pn = device::get_partition_number(
+                            &item.partitionName.clone().unwrap_or(String::new()),
+                        );
+                        // Get the device
+                        let dev = format!(
+                            "/dev/{}",
+                            utils::get_disk_id(
+                                &item.partitionName.clone().unwrap_or(String::new())
+                            )
+                        );
+                        // Convert size to Human readerble form. Should never unwrap
+                        //let s =  item.size
+                        let size = utils::bytes2human(item.size.unwrap_or(0) as f64)
+                            .unwrap_or(String::from("1GB"));
+                        // Delete the partition
+                        match device::resize_partition(&dev, pn, &size) {
+                            Ok(_) => info!("partition resized successfully"),
+                            Err(e) => {
+                                error!("Resizing partition failed with error: {:#?}", e);
+                                global_app::emit_global_event("install-fail", "");
+                                return Err(Box::new(e));
+                            }
+                        };
+                    }
+                }
+            }
+
+            // With shrinked partitions, we can create new partitions now (Free spaces created out of deletion are ignored)
+            // Get the partitions that needs shrinking/expanding and perform the shrinking expanding action
+            for storage_info in &config.partition.system_storage_info {
+                for item in &storage_info.partitions {
+                    if item.action == Some(String::from("create")) {
+                        // Here we create the partition
+                        println!("{:#?}", item);
+                        // Get start and end in human readable form.
+                        let start = utils::bytes2human((item.start.unwrap_or(1024) * 512) as f64)
+                            .unwrap_or(String::from("1GB"));
+                        let end = utils::bytes2human((item.end.unwrap_or(1024) * 512) as f64)
+                            .unwrap_or(String::from("1GB"));
+                        // Get the device
+                        let dev = format!(
+                            "/dev/{}",
+                            utils::get_disk_id(
+                                &item.partitionName.clone().unwrap_or(String::new())
+                            )
+                        );
+                        //Get the fstype
+                        let fstype = item.fileSytem.clone().unwrap_or(String::from("ext4"));
+                        // Create the partition
+                        match device::create_partition(&dev, &fstype, &start, &end) {
+                            Ok(_) => info!("partition deleted successfully"),
+                            Err(e) => {
+                                error!("Creating partition failed with error: {:#?}", e);
+                                global_app::emit_global_event("install-fail", "");
+                                return Err(Box::new(e));
+                            }
+                        };
+                    }
+                }
+            }
+
+            // Here, Manual partitioning is done
             Ok(true)
-            /*match partition::device::partition_install_along(
-                config.partition.installAlongPartitions,
-                device.clone(),
-            ) {
-                Ok(_) => {
-                    info!("partitioning successful");
-                    global_app::update_progress();
-                    // continue installation
-                    Ok(true)
-                }
-                Err(r) => {
-                    // notify the frontend of the installation failure.
-                    global_app::emit_global_event("install-fail", "");
-                    error!("error partioning for install along {:#?}", r);
-                    // Return error to be used to exit installation.
-                    Err(Box::new(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        "Error partioning for install along",
-                    )))
-                }
-            }*/
         }
+        // We dont need any partition action here
         &_ => {
             info!("not handled");
             Ok(true)
@@ -284,8 +338,8 @@ fn do_locale() -> std::io::Result<()> {
 fn do_networking() -> std::io::Result<()> {
     info!("[AEGIS TAURI] setting up network service.");
     let config = global_app::get_config().unwrap_or_default();
-    log::info!("Hostname : {}", config.networking.hostname);
-    log::info!("Enabling ipv6 : {}", config.networking.ipv6);
+    info!("Hostname : {}", config.networking.hostname);
+    info!("Enabling ipv6 : {}", config.networking.ipv6);
     let mut args = vec![String::from("athean-aegis"), String::from("networking")];
     if config.networking.ipv6 {
         args.push(String::from("--ipv6"))
@@ -553,7 +607,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
             }
         }
         // replace partition
-        "replace-partition" => {            
+        "replace-partition" => {
             let mut partition: Vec<String> = config
                 .partition
                 .system_storage_info
@@ -605,7 +659,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
             }
         }
         // replace partition
-        "manual" => {            
+        "manual" => {
             let mut partition: Vec<String> = config
                 .partition
                 .system_storage_info
@@ -613,10 +667,22 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .flat_map(|s| {
                     s.partitions.iter().map(|item| {
                         if item.name == Some(String::from("Athena OS")) {
-                            format!(
-                                "/mnt:/dev/{}:btrfs",
-                                item.partitionName.as_ref().unwrap_or(&"".to_string())
-                            )
+                            // Check if its a new partition
+                            if item.action == Some(String::from("create")) {
+                                // Get the created device part number
+                                let pn = device::get_partition_number(
+                                    &item.partitionName.clone().unwrap_or(String::new()),
+                                );
+                                format!(
+                                    "/mnt:/dev/{}{}:btrfs",
+                                    config.partition.device,pn
+                                )
+                            } else {
+                                format!(
+                                    "/mnt:/dev/{}:btrfs",
+                                    item.partitionName.as_ref().unwrap_or(&"".to_string())
+                                )
+                            }
                         } else {
                             format!(
                                 "none:/dev/{}:none",
@@ -633,9 +699,9 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .collect();
 
             config.partition.mode = String::from("manual");
-            println!("partition {:#?}", partition);
+            //println!("partition {:#?}", partition);
             config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
-            info!("saving config. config: {:?}", config);
+            //info!("saving config. config: {:?}", config);
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
                 Err(e) => {
@@ -688,8 +754,15 @@ fn run_command(args: Vec<String>) -> std::io::Result<()> {
                 let stderr_reader = BufReader::new(stderr);
                 for line in stderr_reader.lines() {
                     match line {
-                        Ok(line) => info!("stderr: {}", line),
-                        Err(e) => error!("Error reading stderr line: {}", e),
+                        Ok(line) => {
+                            error!("stderr: {}", line);
+                            // Send Fails event
+                            global_app::emit_global_event("install-fail", "");
+                        }
+                        Err(e) => {
+                            error!("Error reading stderr line: {}", e);
+                            global_app::emit_global_event("install-fail", "");
+                        }
                     }
                 }
             }

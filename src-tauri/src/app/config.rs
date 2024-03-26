@@ -1,4 +1,4 @@
-use crate::partition;
+use crate::partition::{self};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -15,7 +15,9 @@ pub struct Partition {
     #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
     pub installAlongPartitions: Vec<partition::device::SuggestedPartition>,
     #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
-    pub system_storage_info: Vec<SystemStorageInfo>
+    pub system_storage_info: Vec<SystemStorageInfo>,
+    #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
+    pub system_storage_info_current: Vec<SystemStorageInfo>
 }
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct  SystemStorageInfo{
@@ -28,7 +30,12 @@ fn is_default(s: &String) -> bool {
 #[allow(non_snake_case)]
 pub struct P{
     pub name: Option<String>,
-    pub partitionName: Option<String>
+    pub partitionName: Option<String>,
+    pub start: Option<i128>,
+    pub size: Option<i128>,
+    pub action: Option<String>,
+    pub end: Option<i128>,
+    pub fileSytem: Option<String>
 }
 impl Default for Partition {
     fn default() -> Partition {
@@ -40,7 +47,8 @@ impl Default for Partition {
             swap_size: String::new(),
             partitions: json!(null),
             installAlongPartitions: Vec::new(),
-            system_storage_info:Vec::new()
+            system_storage_info:Vec::new(),
+            system_storage_info_current:Vec::new()
         }
     }
 }
@@ -58,6 +66,14 @@ impl Default for Bootloader {
             location: String::new(),
         }
     }
+}
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+#[allow(unused)]
+pub enum PartitionAction {
+    Delete,
+    Shrink,
+    Create,
+    None
 }
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct Locale {
@@ -162,11 +178,10 @@ impl Config {
     #[allow(dead_code)]
     pub fn from_json_string(v: String) -> Config {
         let mut conf = Config::default();
-        println!("{}", v);
         let r = partition::utils::unmarshal_json(v.as_str(), &mut conf);
         match r {
-            Ok(_) => println!("good"),
-            Err(e) => println!("{:#?}", e),
+            Ok(_) => log::info!("Deserialized config from the frontend"),
+            Err(e) => log::error!("error deserializing config from the frontend {:#?}", e),
         };
         conf
     }

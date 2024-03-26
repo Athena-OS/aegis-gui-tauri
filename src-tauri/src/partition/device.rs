@@ -598,7 +598,7 @@ pub fn partition_install_along(
     }*/
 }
 
-fn resize_partition(
+pub fn resize_partition(
     device: &str,
     partition_number: u32,
     new_size: &str,
@@ -633,14 +633,14 @@ fn resize_partition(
     Ok(output.status.success())
 }
 
-fn create_partition(
+pub fn create_partition(
     device: &str,
     fs_type: &str,
     start: &str,
     end: &str,
 ) -> Result<bool, std::io::Error> {
     let base_device = extract_base_device(device);
-    println!(
+    log::info!(
         "creating partition for device: {} fs_type: {} start: {} end: {}",
         base_device, fs_type, start, end
     );
@@ -660,6 +660,19 @@ fn create_partition(
     Ok(status.success())
 }
 
+pub fn delete_partition(device: &str, number: i32) -> Result<bool, std::io::Error> {
+    log::info!("Deleting partition number: {} from device: {}", number, device);
+    let status = Command::new("sudo")
+        .arg("parted")
+        .arg(&device)
+        .arg("rm")
+        .arg(&number.to_string())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .status()?;
+
+    Ok(status.success())
+}
 #[allow(dead_code)]
 fn run_partprobe(device: &str) {
     // Attempt to run the partprobe command with sudo
@@ -692,7 +705,7 @@ impl<'a> Drop for PartProbeGuard<'a> {
     }
 }
 
-fn get_partition_number(device: &str) -> u32 {
+pub fn get_partition_number(device: &str) -> u32 {
     let re = match regex::Regex::new(r"(\d+)$") {
         Ok(regex) => regex,
         Err(_) => return 0,
@@ -704,7 +717,7 @@ fn get_partition_number(device: &str) -> u32 {
         .unwrap_or(0)
 }
 
-fn extract_base_device(path: &str) -> String {
+pub fn extract_base_device(path: &str) -> String {
     let re = match regex::Regex::new(r"(/dev/sd[a-z])\d*") {
         Ok(regex) => regex,
         Err(_) => return path.to_string(),
