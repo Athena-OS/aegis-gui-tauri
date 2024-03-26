@@ -1,5 +1,5 @@
 [package]
-name = "app"
+name = "aegis-gui-tauri"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
@@ -22,7 +22,7 @@ regex = "1.10.3"
 tauri-plugin-system-info = "0.2.0"
 bcrypt = "0.15.0"
 dbus = "0.9.7"
-udev = "0.8.0"
+# udev = "0.8.0"
 lazy_static = "1.4.0"
 tracing = "0.1.40"
 tracing-core = "0.1.32"

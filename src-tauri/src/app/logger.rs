@@ -73,7 +73,7 @@ impl Logger {
     // initialize a global subscriber
     #[allow(dead_code)]
     pub fn start(app_handle: AppHandle) {
-        let file_appender = rolling::daily("./logs/app", "prefix.log");
+        let file_appender = rolling::daily("./logs", "prefix.log");
         let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
 
         // Set up the subscriber to write to both the terminal and the file

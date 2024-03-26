@@ -1,74 +1,73 @@
-# Nix.flake to build Aegis GUI Tauri based on Tauri's Guides: 
-# Prerequisites -> Installing -> Setting Up Linux -> NixOS
-# https://tauri.app/v1/guides/getting-started/prerequisites/#1-system-dependencies
-#
-# To build Rust backend of Tauri `rust-overlay` is used
-# https://github.com/oxalica/rust-overlay
-
 {
-    description = "Aegis GUI Tauri";
+  # main
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-    rust-overlay.url = "github:oxalica/rust-overlay";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    fenix = {
+      url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay }:
-    flake-utils.lib.eachDefaultSystem (system:
+  # dev
+  inputs = {
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+
+  outputs =
+    { self
+    , nixpkgs
+    , flake-utils
+    , ...
+    } @ inputs:
+    flake-utils.lib.eachSystem [ "x86_64-linux" ] (
+      system:
       let
-        overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs {
-          inherit system overlays;
+          inherit system;
+          overlays = with inputs; [
+            fenix.overlays.default
+          ];
         };
-
-        libraries = with pkgs;[
-          webkitgtk
-          gtk3
-          cairo
-          gdk-pixbuf
-          glib
-          dbus
-          openssl_3
-          librsvg
-          libappindicator-gtk3
-        ];
-
-        packages = with pkgs; [
-          curl
-          wget
-          pkg-config
-          dbus
-          openssl_3
-          glib
-          gtk3
-          libsoup
-          webkitgtk
-          librsvg
-        ];
-
-        rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-          extensions = [ "rust-src" ]; # needed by rust-analyzer
-        };
+        treedom = pkgs.callPackage ./nix/treedome.nix { };
       in
       {
         devShells.default = pkgs.mkShell {
-          buildInputs = [
-            rustToolchain
-            pkgs.nodejs
-            pkgs.nodePackages.pnpm
-            #pkgs.bun # experimental in Lume
-          ] ++ packages;
-
-          shellHook =
-            ''
-              export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath libraries}:$LD_LIBRARY_PATH
-              export XDG_DATA_DIRS=${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}:${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}:$XDG_DATA_DIRS
-            '';
-
-          # Avoid white screen running with Nix
-          # https://github.com/tauri-apps/tauri/issues/4315#issuecomment-1207755694
-          WEBKIT_DISABLE_COMPOSITING_MODE = 1;
+          name = "development-environment-treedome";
+          WEBKIT_DISABLE_COMPOSITING_MODE = "1"; # essential in NVIDIA + compositor https://github.com/NixOS/nixpkgs/issues/212064#issuecomment-1400202079
+          XDG_DATA_DIRS = "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}:${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}:$XDG_DATA_DIRS";
+          packages = with pkgs;
+            [
+              (fenix.stable.withComponents [
+                "cargo"
+                "rustc"
+                "rustfmt"
+                "clippy"
+                "rust-src"
+              ])
+              nodePackages.yarn
+              glib
+              dbus
+              cairo
+              atk
+              openssl
+              libsoup
+              pango
+              gdk-pixbuf
+              gtk3
+              harfbuzz
+              zlib
+              gcc
+              pkg-config
+              webkitgtk
+              appimagekit
+              cargo-tauri
+              nixpkgs-fmt
+              gsettings-desktop-schemas
+              sqlite
+              just
+            ];
         };
-        defaultPackage.x86_64-linux = self.packages.x86_64-linux.default;
-      });
+        packages.default = treedom;
+      }
+    );
 }

@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "AthenaOS Installer",
+    "productName": "aegis-gui-tauri",
     "version": "0.1.0"
   },
   "tauri": {
