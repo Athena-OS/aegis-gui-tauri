@@ -18,14 +18,14 @@
 
 let
 
-  pname = "treedom";
-  version = "0.4.3";
+  pname = "aegisguitauri";
+  version = "0.0.0";
 
   src = ../.;
 
   frontend-build = mkYarnPackage {
     inherit version src;
-    pname = "treedome-ui";
+    pname = "aegisguitauri-ui";
 
     offlineCache = fetchYarnDeps {
       yarnLock = src + "/yarn.lock";
@@ -98,29 +98,29 @@ rustPlatform.buildRustPackage {
     mkdir -p $out/bin/
     mkdir -p $out/share/
 
-    cp target/release/bundle/deb/treedome_0.0.0_amd64/data/usr/bin/treedome $out/bin/treedome
-    cp -R target/release/bundle/deb/treedome_0.0.0_amd64/data/usr/share/** $out/share/
+    cp target/release/bundle/deb/aegisguitauri_0.0.0_amd64/data/usr/bin/aegisguitauri $out/bin/aegisguitauri
+    cp -R target/release/bundle/deb/aegisguitauri_0.0.0_amd64/data/usr/share/** $out/share/
 
     runHook postInstall
   '';
 
   postInstall = ''
-    wrapProgram "$out/bin/treedome" \
+    wrapProgram "$out/bin/aegisguitauri" \
       --set WEBKIT_DISABLE_COMPOSITING_MODE 1
   '';
 
   meta = with lib; {
     description = "A local-first, encrypted, note taking application with tree-like structures, all written and saved in markdown";
-    homepage = "https://codeberg.org/solver-orgz/treedom";
+    homepage = "https://github.com/Athena-OS/aegis-gui-tauri";
     license = licenses.agpl3Plus;
-    mainProgram = "treedome";
+    mainProgram = "aegisguitauri";
     platforms = [ "x86_64-linux" ];
     maintainers = [
       {
-        name = "Tengku Izdihar";
-        email = "tengkuizdihar@gmail.com";
-        matrix = "@tengkuizdihar:matrix.org";
-        github = "tengkuizdihar";
+        name = "Athena Team";
+        email = "keeper@athenaos.org";
+        matrix = "@AthenaOS:matrix.org";
+        github = "Athena-OS";
         githubId = 22078730;
       }
     ];

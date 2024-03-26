@@ -28,11 +28,11 @@
             fenix.overlays.default
           ];
         };
-        treedom = pkgs.callPackage ./nix/treedome.nix { };
+        aegisguitauri = pkgs.callPackage ./nix/aegis-gui-tauri.nix { };
       in
       {
         devShells.default = pkgs.mkShell {
-          name = "development-environment-treedome";
+          name = "development-environment-aegis-gui-tauri";
           WEBKIT_DISABLE_COMPOSITING_MODE = "1"; # essential in NVIDIA + compositor https://github.com/NixOS/nixpkgs/issues/212064#issuecomment-1400202079
           XDG_DATA_DIRS = "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}:${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}:$XDG_DATA_DIRS";
           packages = with pkgs;
@@ -65,9 +65,11 @@
               gsettings-desktop-schemas
               sqlite
               just
+              haskellPackages.udev
+              libudev-zero
             ];
         };
-        packages.default = treedom;
+        packages.default = aegisguitauri;
       }
     );
 }
