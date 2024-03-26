@@ -9,6 +9,7 @@ const globalStore = derived(
   [keyboardStore, desktopStore, partitionStore, packagesStore, accountsStore, extrasStore],
   ([$keyboardStore, $desktopStore, $partitionStore, $packagesStore, $accountStore, $extraStore]) => {
     return {
+      base:$extraStore.base,
       partition: {
         device:$partitionStore.selectedDevice,
         mode:$partitionStore.mode,
@@ -16,6 +17,16 @@ const globalStore = derived(
         swap: $partitionStore.swap,
         swap_size:$partitionStore.newPartition.swapPartitionSize,
         partitions:[],
+        system_storage_info:$partitionStore.systemStorageInfo.filter((s) => {
+          let partitionDisNAme = s.partitions.map((p) => p.partitionName);
+          // check if any of the partionNames has the selected device
+          if (
+            partitionDisNAme[0]?.indexOf($partitionStore.selectedDevice) != 1
+          ) {
+            return s;
+          }
+        }),
+        system_storage_info_current:$partitionStore.systemStorageInfoCurrent,
         installAlongPartitions:$partitionStore.installAlongPartitions
       },
       bootloader:{
@@ -40,7 +51,7 @@ const globalStore = derived(
       browser:$extraStore.browser,
       
       packagesStore: $packagesStore,
-      
+      terminal: $extraStore.terminal,
       extra_packages:[],
       kernel: $extraStore.kernel,
       snapper:$extraStore.snapper,

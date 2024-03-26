@@ -44,7 +44,7 @@
       bytesToMB(
         $partitionStore.systemStorageInfo.filter(
           (item) => item.displayName === $partitionStore.selectedDevice,
-        )[0].availableStorage,
+        )[0].partitions[$partitionStore.ind].size,
       ),
     )}
     min={1024}

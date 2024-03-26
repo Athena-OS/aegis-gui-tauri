@@ -22,8 +22,8 @@
 
 <StepWrapper
   title="Accounts"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
+  dialogTitle="Accounts page"
+  dialogContent="In this page, you create accounts for users. One of the accounts must have root access."
   prev="/packages"
   next={$accountsStore.users.filter((item) => item.hasRoot === true).length > 0
     ? "/extras"

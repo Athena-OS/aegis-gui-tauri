@@ -1,12 +1,9 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
-use crate::app::{config, global_app};
-use crate::partition::{self, utils};
+use crate::app::{config, global_app, install};
+use crate::partition::*;
 use bcrypt::{hash, DEFAULT_COST};
-use std::{error::Error, process::Command};
-use std::{fs::File, io::Write};
-use tracing::{error, info};
+use std::thread;
+use std::{error::Error, fs::File, io::Write, process::Command};
+
 // Get partitions use the lsblk command to get disks and their partitions
 #[tauri::command]
 pub fn get_partitions() -> Result<String, tauri::Error> {
@@ -86,17 +83,13 @@ pub fn read_file(path: &str) -> Result<String, Box<dyn Error>> {
 // keymaps
 #[tauri::command]
 pub fn get_keymaps() -> Result<String, tauri::Error> {
-    tracing::info!(testing = true, "Getting keymaps");
-    let keymap_content = include_str!("keymaps");
-    Ok(keymap_content.to_string())
+    Ok(include_str!("keymaps").to_string())
 }
 
 // locale
 #[tauri::command]
 pub fn get_locale() -> Result<String, tauri::Error> {
-    tracing::info!("Getting locale");
-    let locale_content = include_str!("locale");
-    Ok(locale_content.to_string())
+    Ok(include_str!("locale").to_string())
 }
 
 #[allow(dead_code)]
@@ -107,83 +100,11 @@ pub fn read_file1(path: &str) -> Result<String, std::io::Error> {
 // save the config file in /tmp/conf.file
 #[tauri::command]
 #[allow(dead_code)]
-pub fn save_conf(data: String) {
-    let mut config = config::Config::from_json_string(data.clone());
-    let def_device = &partition::device::Device::default();
-    // TODO: Remove partitioning from this function.
-    // Create a thread (that should not be waited for handling installation.)
-    // The thread should be called on successful save of the conf file after which
-    // install fail event should be fired. The saving of the conf file should not fail
-    // whatsoever.
-    match config.partition.mode.as_str() {
-        "install-along" => {
-            // Get global storage
-            let mut gs = partition::gs::GlobalStorage::new();
-            gs.probe();
-            let kname = &config.partition.installAlongPartitions[0].kname;
-            // device being used for installation
-            let device = gs
-                .devices
-                .iter()
-                .find(|&d| d.name == Some(get_disk_id(kname)))
-                .unwrap_or(def_device);
-            // update config
-            config.partition.mode = String::from("manual");
-            config.partition.device = format!(
-                "/dev/{}",
-                device
-                    .partitions
-                    .as_ref()
-                    .map(|p| p.clone())
-                    .unwrap_or(vec![])
-                    .len()
-                    + 1
-            );
-            // TODO: Add the partitions part of the partition field of the config
-            info!("saving config. config: {:?}", config);
-            let config_str = match utils::marshal_json(&config) {
-                Ok(s) => s,
-                Err(e) => {
-                    error!("error converting config to string with error: {:?}", e);
-                    // send install event failure
-                    global_app::emit_global_event("install-fail", "");
-                    return;
-                }
-            };
-            let _ = save_json(&config_str, "/tmp/config.json");
-            // install along
-            
-            match partition::device::partition_install_along(
-                config.partition.installAlongPartitions,
-                device.clone(),
-            ) {
-                Ok(_) => {
-                    println!("partitioning successful");
-                }
-                Err(r) => {
-                    // notify the frontend of the installation failure.
-                    global_app::emit_global_event("install-fail", "");
-                    println!("error partioning for install along {:#?}", r);
-                }
-            }
-        }
-        &_ => {
-            info!("not handled");
-            
-            info!("saving config. config: {:?}", config);
-            let config_str = match utils::marshal_json(&config) {
-                Ok(s) => s,
-                Err(e) => {
-                    error!("error converting config to string with error: {:?}", e);
-                    // send install event failure
-                    global_app::emit_global_event("install-fail", "");
-                    return;
-                }
-            };
-            let _ = save_json(&config_str, "/tmp/config.json");
-            
-        }
-    }
+pub fn install(data: String) {
+    // get config and update global store
+    global_app::update_config(config::Config::from_json_string(data));
+    // start installation in the background
+    thread::spawn(move || install::install());
     
 }
 #[allow(dead_code)]
@@ -206,26 +127,16 @@ fn delete_file(filename: &str) -> std::io::Result<()> {
 #[tauri::command]
 #[allow(dead_code)]
 pub fn get_gs() -> String {
-    let mut gs = partition::gs::GlobalStorage::new();
-    gs.probe();
-    gs.to_json_string()
+    global_app::get_global_storage()
+        .unwrap_or_default()
+        .to_json_string()
 }
 
 #[tauri::command]
 pub fn human_to_bytes(d: String) -> Result<String, tauri::Error> {
-    match partition::utils::human2bytes(&d) {
+    match utils::human2bytes(&d) {
         Ok(k) => Ok(format!("{:?}", k)),
         Err(_) => todo!(),
     }
 }
 
-fn get_disk_id(partition_id: &str) -> String {
-    partition_id
-        .chars()
-        .rev()
-        .skip_while(|c| c.is_digit(10)) // Skip digits from the end
-        .collect::<String>()
-        .chars()
-        .rev()
-        .collect::<String>()
-}

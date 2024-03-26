@@ -8,7 +8,7 @@ use std::{
     os::unix::fs::FileTypeExt,
     path::{Path, PathBuf},
 };
-use tracing::{ error, info};
+use tracing::{error, info};
 
 #[allow(dead_code)]
 fn path_exists(path_str: &str) -> bool {
@@ -280,7 +280,7 @@ pub fn perform_resize(kname: &str, resize: HashMap<String, Box<dyn Any>>) {
         "Resizing {} of type {:#?} {:#?} to {:#?}",
         path, fstype, direction, size
     );
-    
+
     if let Some(&resize_function) = RESIZERS.get(fstype.as_str()) {
         match resize_function(path.as_str(), size.round() as i64) {
             Ok(_) => {
@@ -460,4 +460,15 @@ pub fn bytes2human(size: f64) -> Result<String, SizeParseError> {
     }
 
     Ok(format!("{:.0}{}", size / divisor, unit))
+}
+
+pub fn get_disk_id(partition_id: &str) -> String {
+    partition_id
+        .chars()
+        .rev()
+        .skip_while(|c| c.is_digit(10)) // Skip digits from the end
+        .collect::<String>()
+        .chars()
+        .rev()
+        .collect::<String>()
 }

@@ -116,8 +116,8 @@
 
 <StepWrapper
   title="Select Packages"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
+  dialogTitle="Packages Page"
+  dialogContent="Here you select the packages to install"
   prev="/desktop"
   next="/accounts"
 >

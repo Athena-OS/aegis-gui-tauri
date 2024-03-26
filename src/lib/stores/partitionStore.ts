@@ -10,6 +10,7 @@ const partitionStore: Writable<{
   grubLocation:string,
   grubType:string,
   r:boolean,
+  ind: number,
   systemStorageInfo: StorageDevice[],
   systemStorageInfoCurrent: StorageDevice[],
   partitionsWithOS: InstallAlongPartition[],
@@ -21,7 +22,8 @@ const partitionStore: Writable<{
     mountPoint: string,
     name: string,
     isEncrypted: boolean,
-    swapPartitionSize: string
+    swapPartitionSize: string,
+    start: number
   },
   replacedPartition: {
     partitionName: string,
@@ -41,6 +43,7 @@ const partitionStore: Writable<{
   installAlongPartitions:[],
   mode: "auto",
   r:false,
+  ind:0,
   efi:true,
   swap: true,
   grubType:"",
@@ -55,7 +58,8 @@ const partitionStore: Writable<{
     mountPoint: "",
     name: "Athena OS",
     isEncrypted: false,
-    swapPartitionSize: "1 Gib"
+    swapPartitionSize: "1 Gib",
+    start: 1024,
   },
   replacedPartition: {
     partitionName: "",
@@ -81,6 +85,7 @@ export function resetPartitionStore() {
     selectedDeviceForInstallAlong: "default",
     installAlongPartitions:[],
     r:false,
+    ind: 0,
     mode: "auto",
     efi:true,
     swap: true,
@@ -96,7 +101,8 @@ export function resetPartitionStore() {
       mountPoint: "",
       name: "Athena OS",
       isEncrypted: false,
-      swapPartitionSize: "1 Gib"
+      swapPartitionSize: "1 Gib",
+      start: 1024
     },
     replacedPartition: {
       partitionName: "",

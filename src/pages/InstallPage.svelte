@@ -14,29 +14,27 @@
   import logStore from "../lib/stores/logStore";
   import { invoke } from "@tauri-apps/api";
   import globalStore from "../lib/stores/globalStore";
-
+  import partitionStore from "../lib/stores/partitionStore";
   let consoleOpen = true;
   let progress = 0; // in percentage
   let dialog = createDialog({ label: "failed" });
 
   // listeen to install fail event
-  listen("install-fail", (event) => {
-    console.log("Event received", event);
-    dialog.open();
-    console.log("Dialog should be open now");
-  });
-
-  // update install update
-  listen("percentage", (event) => {
-    progress = parseInt(event.payload);
-  });
+  function installFail(){
+    if ($logStore.installFailed) {
+      console.log("Event fail received", event);
+      dialog.open();
+      console.log("Dialog should be open now");
+    }
+  };
 
   // save config. This triggers the backend install
   async function saveConf() {
     console.log(JSON.stringify($globalStore));
-    await invoke("save_conf", { data: JSON.stringify($globalStore) });
+    await invoke("install", { data: JSON.stringify($globalStore) });
   }
   saveConf();
+  $: $logStore, installFail();
 </script>
 
 <Dialog {dialog}>
@@ -139,7 +137,7 @@
             class="absolute top-0 bottom-0 left-0 my-auto w-full bg-gray-700"
           />
           <div
-            style="width: {progress}%;"
+            style="width: {$logStore.progress}%;"
             class="absolute top-0 bottom-0 left-0 my-auto bg-primary-500"
           />
         </div>

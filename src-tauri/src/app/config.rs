@@ -1,4 +1,4 @@
-use crate::partition;
+use crate::partition::{self};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -9,11 +9,34 @@ pub struct Partition {
     pub mode: String,
     pub efi: bool,
     pub swap: bool,
+    #[serde(skip_serializing_if = "is_default", default)]
     pub swap_size: String,
     pub partitions: Value,
+    #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
     pub installAlongPartitions: Vec<partition::device::SuggestedPartition>,
+    #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
+    pub system_storage_info: Vec<SystemStorageInfo>,
+    #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
+    pub system_storage_info_current: Vec<SystemStorageInfo>
 }
-
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+pub struct  SystemStorageInfo{
+    pub partitions: Vec<P>
+}
+fn is_default(s: &String) -> bool {
+    s.is_empty()
+}
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+#[allow(non_snake_case)]
+pub struct P{
+    pub name: Option<String>,
+    pub partitionName: Option<String>,
+    pub start: Option<i128>,
+    pub size: Option<i128>,
+    pub action: Option<String>,
+    pub end: Option<i128>,
+    pub fileSytem: Option<String>
+}
 impl Default for Partition {
     fn default() -> Partition {
         Partition {
@@ -24,23 +47,33 @@ impl Default for Partition {
             swap_size: String::new(),
             partitions: json!(null),
             installAlongPartitions: Vec::new(),
+            system_storage_info:Vec::new(),
+            system_storage_info_current:Vec::new()
         }
     }
 }
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct Bootloader {
     #[serde(rename = "type")]
-    pub bootloader_type: String,
+    pub r#type: String,
     pub location: String,
 }
 
 impl Default for Bootloader {
     fn default() -> Bootloader {
         Bootloader {
-            bootloader_type: String::new(),
+            r#type: String::new(),
             location: String::new(),
         }
     }
+}
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+#[allow(unused)]
+pub enum PartitionAction {
+    Delete,
+    Shrink,
+    Create,
+    None
 }
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct Locale {
@@ -110,6 +143,8 @@ pub struct Config {
     pub hardened: bool,
     pub flatpak: bool,
     pub params: Params,
+    pub terminal: String,
+    pub base: String,
 }
 
 impl Default for Config {
@@ -133,6 +168,8 @@ impl Default for Config {
             hardened: false,
             flatpak: false,
             params: Params::default(),
+            terminal: String::from("default"),
+            base: String::from("arch")
         }
     }
 }
@@ -141,11 +178,10 @@ impl Config {
     #[allow(dead_code)]
     pub fn from_json_string(v: String) -> Config {
         let mut conf = Config::default();
-        println!("{}", v);
         let r = partition::utils::unmarshal_json(v.as_str(), &mut conf);
         match r {
-            Ok(_) => println!("good"),
-            Err(e) => println!("{:#?}", e),
+            Ok(_) => log::info!("Deserialized config from the frontend"),
+            Err(e) => log::error!("error deserializing config from the frontend {:#?}", e),
         };
         conf
     }

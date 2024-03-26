@@ -58,7 +58,48 @@
             mountPoint: $partitionStore.newPartition.mountPoint,
             name: $partitionStore.newPartition.name,
             availableStorage: 0,
+            start: $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0].partitions[$partitionStore.ind].start,
+            end:
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice,
+              )[0].partitions[$partitionStore.ind].start +
+              $partitionStore.newPartition.size / 512,
+            resized: true,
+            // The last action after shrink and delete
+            action: "create"
           });
+        // Update the free space
+        if (
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].partitions[$partitionStore.ind].size ==
+          $partitionStore.newPartition.size
+        ) {
+          // Remove the partition since all the free space is used
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice,
+            )[0]
+            .partitions.splice($partitionStore.ind, 1);
+        } else {
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].partitions[$partitionStore.ind].start +=
+            $partitionStore.newPartition.size / 512;
+          $partitionStore.systemStorageInfo.filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0].partitions[$partitionStore.ind].size -=
+            $partitionStore.newPartition.size;
+        }
+
+        // Sort partitions using partition size
+        $partitionStore.systemStorageInfo
+          .filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0]
+          .partitions.sort((p1, p2) => p1.start - p2.start);
 
         $partitionStore.systemStorageInfo.filter(
           (item) => item.displayName === $partitionStore.selectedDevice,
@@ -74,6 +115,8 @@
           mountPoint: "",
           name: "Athena OS",
           isEncrypted: false,
+          start: 1024,
+          swapPartitionSize: "1 Gb",
         };
 
         dialog.close();

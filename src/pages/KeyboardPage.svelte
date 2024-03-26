@@ -61,9 +61,9 @@
 
 <StepWrapper
   title="Select Keyboard"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
-  prev="/"
+  dialogTitle="About Keyboad Page"
+  dialogContent="In this page, you setup your keyboard, timezone and locale"
+  prev="/base"
   next={nextPage}
 >
   <div class="flex flex-col items-center space-y-4 w-full">

@@ -14,6 +14,7 @@ const extrasStore = writable({
     browser:"firefox",
     hostname:"AthenaOS",
     flatpak:false,
+    base:"arch"
 });
 
 export default extrasStore;
