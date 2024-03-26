@@ -9,11 +9,11 @@
 
   import accountsStore from "../lib/stores/accountsStore";
   import partitionStore from "../lib/stores/partitionStore";
-
   import StepWrapper from "../lib/components/StepWrapper.svelte";
   import CreateUserDialog from "../lib/components/CreateUser/CreateUserDialog.svelte";
   import InputBox from "../lib/components/InputBox.svelte";
   import Button from "../lib/components/Button.svelte";
+
 
   let dialog = createDialog({ label: "dialogTitle" });
 </script>
@@ -22,9 +22,9 @@
 
 <StepWrapper
   title="Accounts"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
-  prev={$partitionStore.mode === "auto" ? "/partition" : "/finalize-partition"}
+  dialogTitle="Accounts page"
+  dialogContent="In this page, you create accounts for users. One of the accounts must have root access."
+  prev="/packages"
   next={$accountsStore.users.filter((item) => item.hasRoot === true).length > 0
     ? "/extras"
     : ""}
@@ -71,7 +71,8 @@
               </div>
               <div class="flex items-center">
                 <button
-                  on:click={() => {
+                  on:click={async () => {
+                    
                     $accountsStore.createNewUserTemp = {
                       name: user.name,
                       userName: user.userName,

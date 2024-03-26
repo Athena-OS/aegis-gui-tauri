@@ -47,7 +47,7 @@
   dialogTitle="Header Here"
   dialogContent="Your text here"
   prev="configure-partition"
-  next="accounts"
+  next="summary"
 >
   <div class="space-y-5">
     <div class="flex flex-col items-center mx-5 h-fit space-y-2">

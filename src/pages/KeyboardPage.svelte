@@ -9,8 +9,27 @@
   import langIcon from "../assets/icons/lang-icon.svg";
   import keyboard from "../assets/keyboard.svg";
   import keyboardIcon from "../assets/icons/keyboard-icon.svg";
-
-  let regionList = [
+  import { invoke } from "@tauri-apps/api";
+  let regionList: any[] = []
+  let keymapList: any[] = []
+  let timezoneList: any[] = []
+  let localeList: any[] = []
+  invoke("get_timezones").then((timezones: any) => {
+    timezoneList = timezones.split("\n").map((i: string) => {
+      return {name: i, selected: $keyboardStore.keymaps === i}
+    })
+  })
+  invoke("get_keymaps").then((keymaps:any) => {
+    keymapList = keymaps.split("\n").map((i: string) => {
+      return {name: i, selected: $keyboardStore.region === i}
+    })
+  })
+  invoke("get_locale").then((keymaps:any) => {
+    localeList = keymaps.split("\n").map((i: string) => {
+      return {name: i, selected: $keyboardStore.locale === i}
+    })
+  })
+  let regionLis = [
     { name: "English (US)", selected: $keyboardStore.region === "English (US)" },
     { name: "German", selected: $keyboardStore.region === "German" },
     { name: "Spanish", selected: $keyboardStore.region === "Spanish" },
@@ -21,17 +40,18 @@
     { name: "Spanish", selected: $keyboardStore.language === "Spanish" },
   ];
   let layoutList = [
-    { name: "English (US)", selected: $keyboardStore.layout === "English (US)" },
-    { name: "German", selected: $keyboardStore.layout === "German" },
-    { name: "Spanish", selected: $keyboardStore.layout === "Spanish" },
+    { name: "AZERTY", selected: $keyboardStore.layout === "AZERTY" },
+    { name: "QWERTY", selected: $keyboardStore.layout === "QWERTY" },
+    { name: "QWERTZ", selected: $keyboardStore.layout === "QWERTZ" },
+    { name: "QZERTY", selected: $keyboardStore.layout === "QZERTY" },
   ];
 
   let nextPage = "";
   function IsOkayToMoveNextPage() {
     if (
-      $keyboardStore.region !== "default" &&
-      $keyboardStore.language !== "default" &&
-      $keyboardStore.layout !== "default"
+      $keyboardStore.timezone !== "default" &&
+      $keyboardStore.locale !== "default" &&
+      $keyboardStore.keymaps !== "default"
     ) {
       nextPage = "/desktop";
     }
@@ -41,9 +61,9 @@
 
 <StepWrapper
   title="Select Keyboard"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
-  prev="/"
+  dialogTitle="About Keyboad Page"
+  dialogContent="In this page, you setup your keyboard, timezone and locale"
+  prev="/base"
   next={nextPage}
 >
   <div class="flex flex-col items-center space-y-4 w-full">
@@ -51,27 +71,27 @@
       <img src={keyboard} class="h-28" alt="" />
       <Dropdown
         icon={globeIcon}
-        bind:items={regionList}
-        label="Select Region"
+        bind:items={timezoneList}
+        label="Select timezone"
         on:select={(event) =>
-          ($keyboardStore.region = event.detail.selected.name)}
-        defaultItem={{ name: "Select Region" }}
+          ($keyboardStore.timezone = event.detail.selected.name)}
+        defaultItem={{ name: "Select Timezone" }}
       />
       <Dropdown
         icon={langIcon}
-        bind:items={languageList}
-        label="Select Language"
+        bind:items={keymapList}
+        label="Select Keymap"
         on:select={(event) =>
-          ($keyboardStore.language = event.detail.selected.name)}
-        defaultItem={{ name: "Select Language" }}
+          ($keyboardStore.keymaps = event.detail.selected.name)}
+        defaultItem={{ name: "Select Keymap" }}
       />
       <Dropdown
         icon={keyboardIcon}
-        bind:items={layoutList}
-        label="Select Layout"
+        bind:items={localeList}
+        label="Select Locale"
         on:select={(event) =>
-          ($keyboardStore.layout = event.detail.selected.name)}
-        defaultItem={{ name: "Select Layout" }}
+          ($keyboardStore.locale = event.detail.selected.name)}
+        defaultItem={{ name: "Select Locale" }}
       />
       <InputBox label="Test Keyboard" placeholderText="Type here.." />
     </div>

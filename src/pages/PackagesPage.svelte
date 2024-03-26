@@ -116,10 +116,10 @@
 
 <StepWrapper
   title="Select Packages"
-  dialogTitle="Header Here"
-  dialogContent="Your text here"
+  dialogTitle="Packages Page"
+  dialogContent="Here you select the packages to install"
   prev="/desktop"
-  next="/partition"
+  next="/accounts"
 >
   <div class="flex flex-col items-center justify-center h-full">
     <div
@@ -142,11 +142,11 @@
             bind:options={technicalSupportOptions}
             bind:expanded={technicalSupportOptionsExpanded}
           />
-          <CheckButton
+          <!--CheckButton
             label="Browsers"
             bind:options={browsersOptions}
             bind:expanded={browsersOptionsExpanded}
-          />
+          /-->
         </div>
       </div>
       <div class="w-0.5 h-full bg-neutral-800" />
@@ -206,7 +206,7 @@
             {/if}
           {/each}
         </ul>
-        {#if browsersOptionsExpanded}
+        <!--{#if browsersOptionsExpanded}
           <div class="min-h-1 bg-neutral-800 w-auto mt-3 mb-3" />
           <h3 class="text-3xl font-medium text-[#FFB800]">Browsers</h3>
           <p class="font-base w-full text-xl"></p>
@@ -225,7 +225,7 @@
               </li>
             {/if}
           {/each}
-        </ul>
+        </ul-->
       </div>
     </div>
   </div>

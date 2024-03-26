@@ -7,14 +7,14 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "aegis-gui",
+    "productName": "AthenaOS Installer",
     "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
-      "all": false,
+      "all": true,
       "window": {
-        "all": false,
+        "all": true,
         "close": true,
         "hide": true,
         "show": true,
@@ -23,6 +23,9 @@
         "unmaximize": true,
         "unminimize": true,
         "startDragging": true
+      },
+      "fs":{
+        "all":true
       }
     },
     "bundle": {
@@ -68,8 +71,8 @@
       {
         "fullscreen": false,
         "height": 800,
-        "resizable": false,
-        "title": "aegis-gui",
+        "resizable": true,
+        "title": "AthenaOS Installer",
         "width": 1400
       }
     ]
