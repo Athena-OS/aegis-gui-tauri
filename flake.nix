@@ -28,7 +28,7 @@
             fenix.overlays.default
           ];
         };
-        aegisguitauri = pkgs.callPackage ./nix/aegis-gui-tauri.nix { };
+        aegis-gui-tauri = pkgs.callPackage ./nix/aegis-gui-tauri.nix { };
       in
       {
         devShells.default = pkgs.mkShell {
@@ -69,7 +69,7 @@
               libudev-zero
             ];
         };
-        packages.default = aegisguitauri;
+        packages.default = aegis-gui-tauri;
       }
     );
 }

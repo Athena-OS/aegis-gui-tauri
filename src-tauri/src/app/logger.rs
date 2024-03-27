@@ -178,7 +178,7 @@ impl log::Log for TauriLogger {
 }
 
 pub fn setup_logging(app_handle: AppHandle) {
-    let logger = TauriLogger::new(app_handle, "./logs/app/prefix.log");
+    let logger = TauriLogger::new(app_handle, "./logs/prefix.log");
     log::set_boxed_logger(Box::new(logger)).expect("Failed to set logger");
     log::set_max_level(LevelFilter::Info);
 }
