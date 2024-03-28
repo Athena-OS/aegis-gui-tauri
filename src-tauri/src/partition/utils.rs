@@ -1,5 +1,4 @@
 use lazy_static::lazy_static;
-use serde_json;
 use std::fmt;
 use std::{
     any::Any,
@@ -142,6 +141,7 @@ lazy_static! {
 }
 
 #[derive(Clone)]
+#[allow(dead_code)]
 pub enum FlagValue {
     Single(&'static str),
     Double((&'static str, &'static str)),

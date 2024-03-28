@@ -2,19 +2,19 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod app;
 mod partition;
-use std::thread;
-
+use async_std::task;
 use app::commands::*;
 use tauri::Manager;
 
+async fn p() {
+    let mut gs = partition::gs::GlobalStorage::new();
+    gs.probe();
+    // update global store
+    app::global_app::update_global_storage(gs);
+}
 fn main() {
     // probe global storage in the background
-    thread::spawn(move || {
-        let mut gs = partition::gs::GlobalStorage::new();
-        gs.probe();
-        // update global store
-        app::global_app::update_global_storage(gs);
-    });
+    task::spawn(async move {p().await});
     let appp = tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             get_partitions,

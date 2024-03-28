@@ -10,7 +10,7 @@
       <span>Allow ROOT Access</span>
       <Switch bind:value={$accountsStore.createNewUserTemp.hasRoot} />
     </li>
-    <li>
+    <!--li>
       <span>Permission 2</span>
       <Switch />
     </li>
@@ -25,7 +25,7 @@
     <li>
       <span>Permission 5</span>
       <Switch />
-    </li>
+    </li-->
   </ul>
 </div>
 

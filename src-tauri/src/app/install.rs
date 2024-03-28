@@ -3,7 +3,8 @@ use crate::partition;
 use crate::partition::*;
 use log::*;
 use std::{io::*, process::*};
-pub fn install() {
+
+pub async fn install() {
     // We first partition the disks.
     match do_partitions() {
         Ok(_) => info!(""),

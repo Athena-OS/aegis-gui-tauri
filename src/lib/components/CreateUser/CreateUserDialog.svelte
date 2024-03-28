@@ -73,18 +73,18 @@
             ] = {
               name: $accountsStore.createNewUserTemp.name,
               userName: $accountsStore.createNewUserTemp.userName,
-              password: $accountsStore.users.filter(
+              password: await hashPassword($accountsStore.users.filter(
                 (item) => item.hasRoot === true,
-              )[0].password,
+              )[0].password),
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             };
           } else {
             $accountsStore.users.push({
               name: $accountsStore.createNewUserTemp.name,
               userName: $accountsStore.createNewUserTemp.userName,
-              password: $accountsStore.users.filter(
+              password: await hashPassword($accountsStore.users.filter(
                 (item) => item.hasRoot === true,
-              )[0].password,
+              )[0].password),
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             });
             
@@ -101,7 +101,7 @@
             ] = {
               name: $accountsStore.createNewUserTemp.name,
               userName: $accountsStore.createNewUserTemp.userName,
-              password: $accountsStore.createNewUserTemp.password,
+              password: await hashPassword($accountsStore.createNewUserTemp.password),
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             };
           } else {
