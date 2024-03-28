@@ -662,16 +662,29 @@ pub fn create_partition(
 
 pub fn delete_partition(device: &str, number: i32) -> Result<bool, std::io::Error> {
     log::info!("Deleting partition number: {} from device: {}", number, device);
-    let status = Command::new("sudo")
+    let output: Result<std::process::Output, std::io::Error> = Command::new("sudo")
         .arg("parted")
         .arg(&device)
         .arg("rm")
         .arg(&number.to_string())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .status()?;
+        //.stdout(Stdio::piped())
+        //.stderr(Stdio::piped())
+        .output();
 
-    Ok(status.success())
+        match output {
+            Ok(output) => {
+                if output.status.success() {
+                    Ok(true)
+                } else {
+                    let s = String::from_utf8_lossy(&output.stdout);
+                    Err(std::io::Error::new(std::io::ErrorKind::AddrInUse, s))
+                }
+            }
+            Err(e) => {
+                let s = format!("{:#?}", e);
+                Err(std::io::Error::new(std::io::ErrorKind::AddrInUse, s))
+            },
+        }
 }
 #[allow(dead_code)]
 fn run_partprobe(device: &str) {

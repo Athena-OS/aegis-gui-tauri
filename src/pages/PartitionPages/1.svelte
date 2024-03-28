@@ -101,8 +101,7 @@
         };
 
         let children = p[i].children ?? [];
-        // Assuming children are already sorted by 'start'. If not, sort them here.
-
+        children.sort((p1:any,p2:any) => p1.start-p2.start)
         // Calculate spaces between partitions and at the end
         let lastEnd = children[0]?.start;
         children.forEach((part: any, index: any) => {
@@ -111,7 +110,8 @@
           let end = start + size / 512;
 
           // Calculate space before this partition (if any)
-          if (index == 0 && part.start != 4096) {
+          // TODO: Come up with a better way of checking the space at the beginning.
+          if (index == 0 && part.start > 4096) {
             disk.partitions.push({
               partitionName: "free-space-" + index,
               size: (part.start - 4096) * 512,
@@ -131,10 +131,10 @@
               size: (start - lastEnd) * 512,
               fileSystem: "",
               mountPoint: "",
-              availableStorage: start - lastEnd,
+              availableStorage: (start - lastEnd)*512,
               name: "free",
               start: lastEnd,
-              end: 0,
+              end: start,
               resized: false,
               action: "none",
             });
@@ -333,7 +333,7 @@
 </StepWrapper>
 
 <style>
-  .selected {
+ /* .selected {
     border-color: #ffb800;
   }
 
@@ -348,5 +348,5 @@
   }
   .radio-btn:checked + .radio-btn-label {
     @apply ring-yellow-500;
-  }
+  }*/
 </style>

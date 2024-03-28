@@ -25,7 +25,9 @@ fn main() {
             get_keymaps,
             get_locale,
             get_gs,
-            human_to_bytes
+            human_to_bytes,
+            app::logger::share_logs,
+            app::logger::get_all_logs
         ])
         .plugin(tauri_plugin_system_info::init())
         .build(tauri::generate_context!())

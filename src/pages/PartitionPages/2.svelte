@@ -1,23 +1,18 @@
 <script lang="ts">
-  import refreshIcon from "../../assets/icons/refresh.svg";
   import replaceIcon from "../../assets/icons/replace-yellow.svg";
   import editGrayIcon from "../../assets/icons/edit-gray.svg";
   import binGrayIcon from "../../assets/icons/bin-gray.svg";
   import plusWhiteIcon from "../../assets/icons/plus-white.svg";
   import warningIcon from "../../assets/icons/warning.svg";
   import diskIcon from "../../assets/icons/disk.svg";
-
   import { createDialog } from "svelte-headlessui";
-
   import {
     GBToMB,
     MBtoBytes,
-    MBtoGB,
     bytesToGB,
     bytesToMB,
   } from "../../lib/utils/functions";
   import partitionStore from "../../lib/stores/partitionStore";
-
   import SegementedBar from "../../lib/components/SegementedBar.svelte";
   import StepWrapper from "../../lib/components/StepWrapper.svelte";
   import Dropdown from "../../lib/components/Dropdown.svelte";
@@ -27,7 +22,7 @@
   import InputBox from "../../lib/components/InputBox.svelte";
   import CardGroup from "../../lib/components/CardGroup.svelte";
   import CreatePartitionDialog from "../../lib/components/CreatePartition/CreatePartitionDialog.svelte";
-  console.log($partitionStore);
+
   let storageDevicesList: any[] = [];
   let partitionData: any[] = [];
   const colorList = [
@@ -70,9 +65,9 @@
         parseInt(
           bytesToGB(
             $partitionStore.systemStorageInfo.filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0]?.availableStorage,
-          ),
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0]?.availableStorage
+          )
         ) > 1
       ) {
         allowCreation = true;
@@ -88,7 +83,7 @@
   $: $partitionStore.systemStorageInfo, gatherInfo();
   $: $partitionStore.selectedDevice, gatherInfo();
   $: $partitionStore.systemStorageInfo.filter(
-    (item) => item.displayName === $partitionStore.selectedDevice,
+    (item) => item.displayName === $partitionStore.selectedDevice
   )[0]?.availableStorage,
     changeAllowCreation();
 
@@ -103,12 +98,12 @@
         MBtoBytes(parseFloat(value)) <=
         $partitionStore.systemStorageInfo
           .filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
+            (item) => item.displayName === $partitionStore.selectedDevice
           )[0]
           .partitions.filter(
             (partition) =>
               partition.partitionName ===
-              selectedPartitionForAction.partitionName,
+              selectedPartitionForAction.partitionName
           )[0].size
       ) {
         e.target.parentElement.classList.remove("border-red-500");
@@ -118,24 +113,24 @@
         // find index of the current partition
         let index = $partitionStore.systemStorageInfo
           .filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
+            (item) => item.displayName === $partitionStore.selectedDevice
           )[0]
           .partitions.findIndex(
             (partition) =>
               partition.partitionName ===
-              selectedPartitionForAction.partitionName,
+              selectedPartitionForAction.partitionName
           );
         // if Item exists(Not out of range/undefined)
         if (
           $partitionStore.systemStorageInfo.filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
+            (item) => item.displayName === $partitionStore.selectedDevice
           )[0].partitions[index + 1] != undefined
         ) {
           // Now that the partition is defined, lets check if its a free space
           if (
             $partitionStore.systemStorageInfo
               .filter(
-                (item) => item.displayName === $partitionStore.selectedDevice,
+                (item) => item.displayName === $partitionStore.selectedDevice
               )[0]
               .partitions[index + 1].name.includes("free")
           ) {
@@ -143,10 +138,10 @@
             // Total space of the partition and the free space
             let ts =
               $partitionStore.systemStorageInfo.filter(
-                (item) => item.displayName === $partitionStore.selectedDevice,
+                (item) => item.displayName === $partitionStore.selectedDevice
               )[0].partitions[index + 1].size +
               $partitionStore.systemStorageInfo.filter(
-                (item) => item.displayName === $partitionStore.selectedDevice,
+                (item) => item.displayName === $partitionStore.selectedDevice
               )[0].partitions[index].size;
             let v = MBtoBytes(parseFloat(value));
             if (v <= ts) {
@@ -188,7 +183,7 @@
             // We create a new free empty partition
             if (
               $partitionStore.systemStorageInfo.filter(
-                (item) => item.displayName === $partitionStore.selectedDevice,
+                (item) => item.displayName === $partitionStore.selectedDevice
               )[0].partitions.length >
               index + 1
             ) {
@@ -197,33 +192,33 @@
                 $partitionStore.systemStorageInfo
                   .filter(
                     (item) =>
-                      item.displayName === $partitionStore.selectedDevice,
+                      item.displayName === $partitionStore.selectedDevice
                   )[0]
                   .partitions[index + 1].name.includes("free")
               ) {
                 $partitionStore.systemStorageInfo
                   .filter(
                     (item) =>
-                      item.displayName === $partitionStore.selectedDevice,
+                      item.displayName === $partitionStore.selectedDevice
                   )[0]
                   .partitions.splice(index + 1, 1);
                 // Now create a free partition
                 if (
                   $partitionStore.systemStorageInfo.filter(
                     (item) =>
-                      item.displayName === $partitionStore.selectedDevice,
+                      item.displayName === $partitionStore.selectedDevice
                   )[0].partitions.length >
                   index + 1
                 ) {
                   // If its between partitions
                   let start = $partitionStore.systemStorageInfo.filter(
                     (item) =>
-                      item.displayName === $partitionStore.selectedDevice,
+                      item.displayName === $partitionStore.selectedDevice
                   )[0].partitions[index + 1].start;
                   $partitionStore.systemStorageInfo
                     .filter(
                       (item) =>
-                        item.displayName === $partitionStore.selectedDevice,
+                        item.displayName === $partitionStore.selectedDevice
                     )[0]
                     .partitions.push({
                       partitionName: "free-space" + index,
@@ -246,14 +241,14 @@
                   $partitionStore.systemStorageInfo
                     .filter(
                       (item) =>
-                        item.displayName === $partitionStore.selectedDevice,
+                        item.displayName === $partitionStore.selectedDevice
                     )[0]
                     .partitions.push({
                       partitionName: "free-space-end",
                       size:
                         ($partitionStore.systemStorageInfo.filter(
                           (item) =>
-                            item.displayName === $partitionStore.selectedDevice,
+                            item.displayName === $partitionStore.selectedDevice
                         )[0].totalStorage /
                           512 -
                           (partition.start + partition.size / 512)) *
@@ -263,7 +258,7 @@
                       availableStorage:
                         ($partitionStore.systemStorageInfo.filter(
                           (item) =>
-                            item.displayName === $partitionStore.selectedDevice,
+                            item.displayName === $partitionStore.selectedDevice
                         )[0].totalStorage /
                           512 -
                           (partition.start + partition.size / 512)) *
@@ -273,7 +268,7 @@
                       end:
                         $partitionStore.systemStorageInfo.filter(
                           (item) =>
-                            item.displayName === $partitionStore.selectedDevice,
+                            item.displayName === $partitionStore.selectedDevice
                         )[0].totalStorage / 512,
                       resized: false,
                       action: "none",
@@ -282,12 +277,12 @@
               } else {
                 // The next partition is not a free space
                 let start = $partitionStore.systemStorageInfo.filter(
-                  (item) => item.displayName === $partitionStore.selectedDevice,
+                  (item) => item.displayName === $partitionStore.selectedDevice
                 )[0].partitions[index + 1].start;
                 $partitionStore.systemStorageInfo
                   .filter(
                     (item) =>
-                      item.displayName === $partitionStore.selectedDevice,
+                      item.displayName === $partitionStore.selectedDevice
                   )[0]
                   .partitions.push({
                     partitionName: "free-space" + index,
@@ -308,14 +303,14 @@
               // This means we have eddited the last partition and it has no trailling free space
               $partitionStore.systemStorageInfo
                 .filter(
-                  (item) => item.displayName === $partitionStore.selectedDevice,
+                  (item) => item.displayName === $partitionStore.selectedDevice
                 )[0]
                 .partitions.push({
                   partitionName: "free-space-end",
                   size:
                     ($partitionStore.systemStorageInfo.filter(
                       (item) =>
-                        item.displayName === $partitionStore.selectedDevice,
+                        item.displayName === $partitionStore.selectedDevice
                     )[0].totalStorage /
                       512 -
                       (partition.start + partition.size / 512)) *
@@ -325,7 +320,7 @@
                   availableStorage:
                     ($partitionStore.systemStorageInfo.filter(
                       (item) =>
-                        item.displayName === $partitionStore.selectedDevice,
+                        item.displayName === $partitionStore.selectedDevice
                     )[0].totalStorage /
                       512 -
                       (partition.start + partition.size / 512)) *
@@ -335,7 +330,7 @@
                   end:
                     $partitionStore.systemStorageInfo.filter(
                       (item) =>
-                        item.displayName === $partitionStore.selectedDevice,
+                        item.displayName === $partitionStore.selectedDevice
                     )[0].totalStorage / 512,
                   resized: false,
                   action: "none",
@@ -346,32 +341,32 @@
             // We update the freespace. If All of it was used, we remove the partition
             if (
               $partitionStore.systemStorageInfo.filter(
-                (item) => item.displayName === $partitionStore.selectedDevice,
+                (item) => item.displayName === $partitionStore.selectedDevice
               )[0].partitions[index + 1].end ==
               partition.start + partition.size / 512
             ) {
               $partitionStore.systemStorageInfo
                 .filter(
-                  (item) => item.displayName === $partitionStore.selectedDevice,
+                  (item) => item.displayName === $partitionStore.selectedDevice
                 )[0]
                 .partitions.splice(index + 1, 1);
             } else {
               // Here, there is free space left
               // Update start
               $partitionStore.systemStorageInfo.filter(
-                (item) => item.displayName === $partitionStore.selectedDevice,
+                (item) => item.displayName === $partitionStore.selectedDevice
               )[0].partitions[index + 1].start =
                 partition.start + partition.size / 512;
               // Update size. The end remains the same
               $partitionStore.systemStorageInfo.filter(
-                (item) => item.displayName === $partitionStore.selectedDevice,
+                (item) => item.displayName === $partitionStore.selectedDevice
               )[0].partitions[index + 1].size =
                 ($partitionStore.systemStorageInfo.filter(
-                  (item) => item.displayName === $partitionStore.selectedDevice,
+                  (item) => item.displayName === $partitionStore.selectedDevice
                 )[0].partitions[index + 1].end -
                   $partitionStore.systemStorageInfo.filter(
                     (item) =>
-                      item.displayName === $partitionStore.selectedDevice,
+                      item.displayName === $partitionStore.selectedDevice
                   )[0].partitions[index + 1].start) *
                 512;
             }
@@ -387,14 +382,14 @@
       .partitions.sort((p1, p2) => p1.start - p2.start);
 
     $partitionStore.systemStorageInfo.filter(
-      (item) => item.displayName === $partitionStore.selectedDevice,
+      (item) => item.displayName === $partitionStore.selectedDevice
     )[0].availableStorage =
       $partitionStore.systemStorageInfo.filter(
-        (item) => item.displayName === $partitionStore.selectedDevice,
+        (item) => item.displayName === $partitionStore.selectedDevice
       )[0].totalStorage -
       $partitionStore.systemStorageInfo
         .filter(
-          (item) => item.displayName === $partitionStore.selectedDevice,
+          (item) => item.displayName === $partitionStore.selectedDevice
         )[0]
         .partitions.reduce((accumulator, partition) => {
           return accumulator + partition.size;
@@ -424,10 +419,10 @@
   // Athena OS's parition for installation must be selected
   function IsOkayToMoveNextPage() {
     const selectedDeviceStorageInfo = $partitionStore.systemStorageInfo.find(
-      (item) => item.displayName === $partitionStore.selectedDevice,
+      (item) => item.displayName === $partitionStore.selectedDevice
     );
     const athenaOSPartitionSource = selectedDeviceStorageInfo?.partitions.find(
-      (partition) => partition.name === "Athena OS",
+      (partition) => partition.name === "Athena OS"
     );
     if (athenaOSPartitionSource) {
       nextPage = "finalize-partition";
@@ -456,10 +451,10 @@
       on:select={(event) => {
         $partitionStore.replacedPartition = $partitionStore.systemStorageInfo
           .filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
+            (item) => item.displayName === $partitionStore.selectedDevice
           )[0]
           .partitions.filter(
-            (item) => item.partitionName === event.detail.selected.name,
+            (item) => item.partitionName === event.detail.selected.name
           )[0];
       }}
       defaultItem={{ name: "Select Partition" }}
@@ -483,29 +478,29 @@
         console.log(
           $partitionStore.systemStorageInfo
             .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
+              (item) => item.displayName === $partitionStore.selectedDevice
             )[0]
             .partitions.filter(
               (partition) =>
                 partition.partitionName ===
                   $partitionStore.replacedPartition.partitionName &&
-                partition.size === $partitionStore.replacedPartition.size,
-            )[0],
+                partition.size === $partitionStore.replacedPartition.size
+            )[0]
         );
 
         const selectedDeviceStorageInfo =
           $partitionStore.systemStorageInfo.find(
-            (item) => item.displayName === $partitionStore.selectedDevice,
+            (item) => item.displayName === $partitionStore.selectedDevice
           );
 
         const athenaOSPartitionSource =
           selectedDeviceStorageInfo?.partitions.find(
-            (partition) => partition.name === "Athena OS",
+            (partition) => partition.name === "Athena OS"
           );
 
         const athenaOSPartitionTarget =
           selectedDeviceStorageInfo?.partitions.find(
-            (partition) => partition.name === "Athena OS",
+            (partition) => partition.name === "Athena OS"
           );
 
         if (athenaOSPartitionTarget && athenaOSPartitionSource) {
@@ -516,27 +511,58 @@
 
         $partitionStore.systemStorageInfo
           .filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
+            (item) => item.displayName === $partitionStore.selectedDevice
           )[0]
           .partitions.filter(
             (partition) =>
               partition.partitionName ===
                 $partitionStore.replacedPartition.partitionName &&
-              partition.size === $partitionStore.replacedPartition.size,
+              partition.size === $partitionStore.replacedPartition.size
           )[0].name = "Athena OS";
 
         // If its a free partition, the action should be create
-        $partitionStore.systemStorageInfo
-          .filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
-          )[0]
-          .partitions.filter(
-            (partition) =>
-              partition.partitionName ===
-                $partitionStore.replacedPartition.partitionName &&
-              partition.size === $partitionStore.replacedPartition.size &&
-              partition.partitionName.includes("free"),
-          )[0].action = "create";
+        if (
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0]
+            .partitions.filter(
+              (partition) =>
+                partition.partitionName ===
+                  $partitionStore.replacedPartition.partitionName &&
+                partition.partitionName.includes("free")
+            )[0] != undefined
+        ) {
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0]
+            .partitions.filter(
+              (partition) =>
+                partition.partitionName ===
+                  $partitionStore.replacedPartition.partitionName &&
+                partition.partitionName.includes("free")
+            )[0].action = "create";
+          // The name should not longer be "free"
+          $partitionStore.systemStorageInfo
+            .filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0]
+            .partitions.filter(
+              (partition) =>
+                partition.partitionName ===
+                  $partitionStore.replacedPartition.partitionName &&
+                partition.partitionName.includes("free")
+            )[0].partitionName =
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0].logicalName +
+            `p${
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0].partitions.length + 1
+            }`;
+        }
         gatherInfo();
         changeAllowCreation();
         IsOkayToMoveNextPage();
@@ -553,7 +579,7 @@
     <h4 class="text-2xl font-meidum">Resize Partition</h4>
     <div class="text-center">
       Resizing {selectedPartitionForAction.partitionName} ({bytesToGB(
-        selectedPartitionForAction.size,
+        selectedPartitionForAction.size
       )} GB {selectedPartitionForAction.fileSystem}: {selectedPartitionForAction.name})
     </div>
     <!--SegementedBar
@@ -663,7 +689,7 @@
     <img src={warningIcon} alt="" />
     <div class="text-center text-2xl font-medium">
       Confirm Delete of "{selectedPartitionForAction.name}" of size "{bytesToMB(
-        selectedPartitionForAction.size,
+        selectedPartitionForAction.size
       )} MB"
     </div>
     <div class="text-red-500">This action is irreversable</div>
@@ -686,85 +712,161 @@
         if (
           $partitionStore.systemStorageInfoCurrent
             .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
+              (item) => item.displayName === $partitionStore.selectedDevice
             )[0]
             .partitions.filter(
-              (item) => item.name == selectedPartitionForAction.name,
+              (item) => item.name == selectedPartitionForAction.name
             )[0] != undefined
         ) {
           $partitionStore.systemStorageInfoCurrent
             .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
+              (item) => item.displayName === $partitionStore.selectedDevice
             )[0]
             .partitions.filter(
-              (item) => item.name == selectedPartitionForAction.name,
+              (item) => item.name == selectedPartitionForAction.name
             )[0].action = "delete";
         }
         // Check if the next partition is a free space
         let index = $partitionStore.systemStorageInfo
           .filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
+            (item) => item.displayName === $partitionStore.selectedDevice
           )[0]
           .partitions.findIndex(
             (partition) =>
               partition.partitionName ===
-              selectedPartitionForAction.partitionName,
+              selectedPartitionForAction.partitionName
           );
         if (
           $partitionStore.systemStorageInfo.filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
+            (item) => item.displayName === $partitionStore.selectedDevice
           )[0].partitions[index + 1] != undefined && // Exists (Not the last)
           $partitionStore.systemStorageInfo
             .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
+              (item) => item.displayName === $partitionStore.selectedDevice
             )[0]
             .partitions[index + 1].name.includes("free") // Is a free space
         ) {
-          // Update the start and the size of the free space
-          $partitionStore.systemStorageInfo.filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
-          )[0].partitions[index + 1].size +=
+          // Check if the partition before this partition is a free space
+          if (
             $partitionStore.systemStorageInfo.filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0].partitions[index].size;
-          $partitionStore.systemStorageInfo.filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
-          )[0].partitions[index + 1].start =
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0].partitions[index - 1] != undefined && // Exists (Not the first)
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0]
+              .partitions[index - 1].name.includes("free") // Is a free space
+          ) {
+            // Update the start and the size of the free space
             $partitionStore.systemStorageInfo.filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0].partitions[index].start;
-          // Delete the current partition
-          $partitionStore.systemStorageInfo
-            .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0]
-            .partitions.splice(index, 1);
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0].partitions[index + 1].size +=
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0].partitions[index].size +
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0].partitions[index - 1].size;
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0].partitions[index + 1].start =
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0].partitions[index - 1].start;
+            // Delete the partition before this one
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0]
+              .partitions.splice(index, 1);
+            // Delete the current partition
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0]
+              .partitions.splice(index-1, 1);
+          } else {
+            // Update the start and the size of the free space
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0].partitions[index + 1].size +=
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0].partitions[index].size;
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0].partitions[index + 1].start =
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0].partitions[index].start;
+            // Delete the current partition
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0]
+              .partitions.splice(index, 1);
+          }
         } else {
-          // Instead of deleting this partition, convert it to a free space
-          $partitionStore.systemStorageInfo
-            .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0]
-            .partitions.filter(
-              (item) =>
-                item.size == selectedPartitionForAction.size &&
-                item.name == selectedPartitionForAction.name,
-            )[0].name = "free";
-          $partitionStore.systemStorageInfo
-            .filter(
-              (item) => item.displayName === $partitionStore.selectedDevice,
-            )[0]
-            .partitions.filter(
-              (item) =>
-                item.size == selectedPartitionForAction.size &&
-                item.name == selectedPartitionForAction.name,
-            )[0].partitionName = "free-space";
+          // Check if the partition before this partition is a free space
+          if (
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0].partitions[index - 1] != undefined && // Exists (Not the first)
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0]
+              .partitions[index - 1].name.includes("free") // Is a free space
+          ) {
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0].partitions[index - 1].size +=
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0].partitions[index].size;
+            $partitionStore.systemStorageInfo.filter(
+              (item) => item.displayName === $partitionStore.selectedDevice
+            )[0].partitions[index - 1].end =
+              $partitionStore.systemStorageInfo.filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0].partitions[index].end;
+            // Delete the current partition
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0]
+              .partitions.splice(index, 1);
+
+          } else {
+            // Instead of deleting this partition, convert it to a free space
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0]
+              .partitions.filter(
+                (item) =>
+                  item.size == selectedPartitionForAction.size &&
+                  item.name == selectedPartitionForAction.name
+              )[0].name = "free";
+            $partitionStore.systemStorageInfo
+              .filter(
+                (item) => item.displayName === $partitionStore.selectedDevice
+              )[0]
+              .partitions.filter(
+                (item) =>
+                  item.size == selectedPartitionForAction.size &&
+                  item.name == selectedPartitionForAction.name
+              )[0].partitionName = "free-space";
+          }
         }
+
+        // After deleting, if a partition had been created, its part number is now a number less.
+        // This is important for config file
         $partitionStore.systemStorageInfo.filter(
-          (item) => item.displayName === $partitionStore.selectedDevice,
+          (item) => item.displayName === $partitionStore.selectedDevice
         )[0].availableStorage =
           $partitionStore.systemStorageInfo.filter(
-            (item) => item.displayName === $partitionStore.selectedDevice,
+            (item) => item.displayName === $partitionStore.selectedDevice
           )[0].availableStorage + selectedPartitionForAction.size;
 
         gatherInfo();
@@ -803,9 +905,9 @@
             totalValue={parseFloat(
               bytesToMB(
                 $partitionStore.systemStorageInfo.filter(
-                  (item) => item.displayName === $partitionStore.selectedDevice,
-                )[0].totalStorage,
-              ),
+                  (item) => item.displayName === $partitionStore.selectedDevice
+                )[0].totalStorage
+              )
             )}
             items={partitionData}
           />
@@ -850,7 +952,7 @@
                     <td class="text-[#B0B0B0] p-3">{row.end}</td>
                     <td class="text-[#B0B0B0] font-semibold p-3"
                       >{bytesToMB(parseInt(row.size))} MB / {bytesToGB(
-                        parseInt(row.size),
+                        parseInt(row.size)
                       )} GB</td
                     >
                     <td class="py-2 text-right p-3 pr-9">
@@ -868,12 +970,12 @@
                                 .filter(
                                   (item) =>
                                     item.displayName ===
-                                    $partitionStore.selectedDevice,
+                                    $partitionStore.selectedDevice
                                 )[0]
                                 .partitions.findIndex(
                                   (partition) =>
                                     partition.partitionName ===
-                                    selectedPartitionForAction.partitionName,
+                                    selectedPartitionForAction.partitionName
                                 );
                             console.log($partitionStore);
                             dialogNewPartition.open();

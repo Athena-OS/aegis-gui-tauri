@@ -73,8 +73,13 @@
         "height": 800,
         "resizable": true,
         "title": "AthenaOS Installer",
-        "width": 1400
+        "width": 1400,
+        "center": true,
+        "maximizable": true
       }
-    ]
+    ],
+    "systemTray":{
+      "iconPath": "./icons/icon.ico"
+    }
   }
 }
