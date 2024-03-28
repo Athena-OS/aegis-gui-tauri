@@ -1,14 +1,14 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "npm run build",
-    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "yarn run build",
+    "beforeDevCommand": "yarn run dev",
     "devPath": "http://localhost:5173",
-    "distDir": "../dist"
+    "distDir": "../dist",
+    "withGlobalTauri": false
   },
   "package": {
-    "productName": "AthenaOS Installer",
-    "version": "0.1.0"
+    "productName": "aegis-gui-tauri",
+    "version": "0.0.0"
   },
   "tauri": {
     "allowlist": {
@@ -73,8 +73,13 @@
         "height": 800,
         "resizable": true,
         "title": "AthenaOS Installer",
-        "width": 1400
+        "width": 1400,
+        "center": true,
+        "maximizable": true
       }
-    ]
+    ],
+    "systemTray":{
+      "iconPath": "./icons/icon.ico"
+    }
   }
 }

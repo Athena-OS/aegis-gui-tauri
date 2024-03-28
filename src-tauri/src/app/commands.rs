@@ -1,8 +1,7 @@
 use crate::app::{config, global_app, install};
 use crate::partition::*;
-use bcrypt::{hash, DEFAULT_COST};
-use std::thread;
 use std::{error::Error, fs::File, io::Write, process::Command};
+use async_std::task;
 
 // Get partitions use the lsblk command to get disks and their partitions
 #[tauri::command]
@@ -70,9 +69,23 @@ pub fn is_uefi() -> Result<String, tauri::Error> {
 // hash password hashes the password
 #[tauri::command]
 pub fn hash_password(password: &str) -> Result<String, tauri::Error> {
-    let hashed = hash(password, DEFAULT_COST)
-        .map_err(|_| tauri::Error::InvalidWindowUrl("Failed to hash password"))?;
-    Ok(hashed)
+    let output: Result<std::process::Output, std::io::Error> = Command::new("openssl")
+        .arg("passwd")
+        .arg("-6")
+        .arg(password)
+        .output();
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(_) => todo!(),
+    }
 }
 #[allow(dead_code)]
 pub fn read_file(path: &str) -> Result<String, Box<dyn Error>> {
@@ -104,8 +117,7 @@ pub fn install(data: String) {
     // get config and update global store
     global_app::update_config(config::Config::from_json_string(data));
     // start installation in the background
-    thread::spawn(move || install::install());
-    
+    task::spawn(async move {install::install().await});    
 }
 #[allow(dead_code)]
 pub fn save_json(data: &str, filename: &str) -> std::io::Result<()> {
@@ -139,4 +151,3 @@ pub fn human_to_bytes(d: String) -> Result<String, tauri::Error> {
         Err(_) => todo!(),
     }
 }
-

@@ -73,7 +73,7 @@ impl Logger {
     // initialize a global subscriber
     #[allow(dead_code)]
     pub fn start(app_handle: AppHandle) {
-        let file_appender = rolling::daily("./logs/app", "prefix.log");
+        let file_appender = rolling::daily("./logs", "prefix.log");
         let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
 
         // Set up the subscriber to write to both the terminal and the file
@@ -178,7 +178,53 @@ impl log::Log for TauriLogger {
 }
 
 pub fn setup_logging(app_handle: AppHandle) {
-    let logger = TauriLogger::new(app_handle, "./logs/app/prefix.log");
+    let logger = TauriLogger::new(app_handle, "prefix.log");
     log::set_boxed_logger(Box::new(logger)).expect("Failed to set logger");
     log::set_max_level(LevelFilter::Info);
+}
+
+// Read athena logs
+pub fn read_athena_logs() -> String {
+    match std::fs::read_to_string("/tmp/aegis.log") {
+        Ok(o) => o,
+        Err(_) => String::new(),
+    }
+}
+
+#[tauri::command]
+pub fn share_logs() -> Result<String, tauri::Error> {
+    // These are any logs before that backend is reached. Simply the GUI logs.
+    let mut al = match std::fs::read_to_string("prefix.log") {
+        Ok(o) => o,
+        Err(_) => String::new(),
+    };
+    // The backend logs
+    al = format!("{al} \n {}", read_athena_logs());
+
+    let output: Result<std::process::Output, std::io::Error> = std::process::Command::new("sh")
+        .arg("-c")
+        .arg(format!(r#"echo "{}" | nc termbin.com 9999"#, al))
+        .output();
+    match output {
+        Ok(o) => {
+            let s = String::from_utf8_lossy(&o.stdout);
+            Ok(s.into())
+        }
+        Err(e) => {
+            let s: &'static str = Box::leak(e.to_string().into_boxed_str());
+            Err(tauri::Error::InvalidWindowUrl(s))
+        }
+    }
+}
+
+#[tauri::command]
+pub fn get_all_logs() -> Result<String, tauri::Error> {
+    // These are any logs before that backend is reached. Simply the GUI logs.
+    let mut al = match std::fs::read_to_string("prefix.log") {
+        Ok(o) => o,
+        Err(_) => String::new(),
+    };
+    // The backend logs
+    al = format!("{al} \n {}", read_athena_logs());
+    Ok(al)
 }
