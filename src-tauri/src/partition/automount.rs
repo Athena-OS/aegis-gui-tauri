@@ -1,4 +1,4 @@
-use dbus::{
+/*use dbus::{
     blocking::{BlockingSender, Connection},
     message::Message,
 };
@@ -55,3 +55,4 @@ pub fn query_solid_automount(dbus: &Connection) -> AutoMountInfo {
         }
     }
 }
+*/

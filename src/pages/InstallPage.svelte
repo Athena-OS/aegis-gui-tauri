@@ -10,28 +10,34 @@
   import { Link } from "svelte-routing";
   import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import "@splidejs/svelte-splide/css";
-  import { listen } from "@tauri-apps/api/event";
   import logStore from "../lib/stores/logStore";
   import { invoke } from "@tauri-apps/api";
   import globalStore from "../lib/stores/globalStore";
-  import partitionStore from "../lib/stores/partitionStore";
+  import { appWindow } from "@tauri-apps/api/window";
   let consoleOpen = true;
-  let progress = 0; // in percentage
+  let shareLog = false;
+  let logLink = "";
+  let logs = ""
   let dialog = createDialog({ label: "failed" });
-
-  // listeen to install fail event
-  function installFail(){
+  let dialogCheckLogs = createDialog({ label: "check-logs" });
+  // listen to install fail event
+  function installFail() {
     if ($logStore.installFailed) {
-      console.log("Event fail received", event);
+      console.log("Event fail received");
       dialog.open();
       console.log("Dialog should be open now");
     }
-  };
+  }
 
   // save config. This triggers the backend install
   async function saveConf() {
-    console.log(JSON.stringify($globalStore));
     await invoke("install", { data: JSON.stringify($globalStore) });
+  }
+
+  async function shareLogs() {
+    shareLog = true;
+    logLink = await invoke("share_logs");
+    console.log(logLink);
   }
   saveConf();
   $: $logStore, installFail();
@@ -43,14 +49,36 @@
   >
     <img src={warningIcon} alt="" />
     <div class="text-4xl font-medium">Installation Failed</div>
-    <div class="text-xs hover:text-cyan-400"><a href="">Check logs ?</a></div>
-    <Button fullWidth variant="bordered">Do you want to share the logs ?</Button
+    <!--The link to termbin.com-->
+    {#if shareLog}
+      <div>{logLink}</div>
+    {/if}
+    <!-- svelte-ignore a11y-invalid-attribute -->
+    <button
+      class="text-xs hover:text-cyan-400"
+      on:click={async () => {
+        logs = await invoke("get_all_logs")
+        dialogCheckLogs.open()
+
+        }}>Check logs ?</button
     >
-    <Link class="w-full" to="/">
-      <Button fullWidth>Close</Button>
-    </Link>
-  </div></Dialog
->
+    <Button fullWidth variant="bordered" on:click={shareLogs}
+      >Do you want to share the logs ?</Button
+    >
+    <Button fullWidth on:click={async () => await appWindow.close()}
+      >Close</Button
+    >
+  </div>
+</Dialog>
+
+<Dialog dialog={dialogCheckLogs}>
+  <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2" style="height:400px">
+    <pre class="w-full whitespace-pre-line">
+        {logs}      
+    </pre>
+  </div>
+  <Button fullWidth on:click={() => {dialogCheckLogs.close(); dialog.open()}}>Close</Button>
+</Dialog>
 
 <main
   class="h-full p-4 space-y-4 absolute top-0 left-0 right-0 overflow-scroll bg-gradient-to-tr from-blue-700 to-indigo-700"
@@ -85,7 +113,7 @@
             <div
               class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4"
             >
-              <Button>Visit Sponser</Button>
+              <Button>Visit Sponsor</Button>
             </div>
           </div>
         </SplideSlide>
@@ -101,7 +129,7 @@
             <div
               class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4"
             >
-              <Button>Visit Sponser</Button>
+              <Button>Visit Sponsor</Button>
             </div>
           </div>
         </SplideSlide>
@@ -117,7 +145,7 @@
             <div
               class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4"
             >
-              <Button>Visit Sponser</Button>
+              <Button>Visit Sponsor</Button>
             </div>
           </div>
         </SplideSlide>

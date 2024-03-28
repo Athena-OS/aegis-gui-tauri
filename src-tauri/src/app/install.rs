@@ -3,7 +3,8 @@ use crate::partition;
 use crate::partition::*;
 use log::*;
 use std::{io::*, process::*};
-pub fn install() {
+
+pub async fn install() {
     // We first partition the disks.
     match do_partitions() {
         Ok(_) => info!(""),
@@ -179,7 +180,15 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                         let dev = format!("/dev/{}", utils::get_disk_id(&partition_name));
 
                         match device::delete_partition(&dev, pn) {
-                            Ok(_) => info!("Partition deleted successfully"),
+                            Ok(true) => info!("Partition deleted successfully"),
+                            Ok(false) => {
+                                error!("Deleting partition failed.");
+                                global_app::emit_global_event("install-fail", "");
+                                return Err(Box::new(std::io::Error::new(
+                                    std::io::ErrorKind::AddrInUse,
+                                    "",
+                                )));
+                            }
                             Err(e) => {
                                 error!("Deleting partition failed with error: {:#?}", e);
                                 global_app::emit_global_event("install-fail", "");
@@ -201,7 +210,8 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                         );
                         // Get the device
                         let dev = format!(
-                            "/dev/{}",
+                            "/dev/{}{}",
+                            config.partition.device,
                             utils::get_disk_id(
                                 &item.partitionName.clone().unwrap_or(String::new())
                             )
@@ -238,15 +248,13 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                         // Get the device
                         let dev = format!(
                             "/dev/{}",
-                            utils::get_disk_id(
-                                &item.partitionName.clone().unwrap_or(String::new())
-                            )
+                            config.partition.device
                         );
                         //Get the fstype
                         let fstype = item.fileSytem.clone().unwrap_or(String::from("ext4"));
                         // Create the partition
                         match device::create_partition(&dev, &fstype, &start, &end) {
-                            Ok(_) => info!("partition deleted successfully"),
+                            Ok(_) => info!("partition  successfully"),
                             Err(e) => {
                                 error!("Creating partition failed with error: {:#?}", e);
                                 global_app::emit_global_event("install-fail", "");
@@ -561,7 +569,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                     + 1
             ));
             config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
-            info!("saving config. config: {:?}", config);
+            info!("saving config. config.");
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
                 Err(e) => {
@@ -584,7 +592,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
         }
         // auto
         "auto" => {
-            info!("saving config. config: {:?}", config);
+            info!("saving config. config.");
             // Partitions ingnored since  the device will be formatted anyway.
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
@@ -635,9 +643,8 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .collect();
 
             config.partition.mode = String::from("manual");
-            println!("partition {:#?}", partition);
             config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
-            info!("saving config. config: {:?}", config);
+            info!("saving config. config");
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
                 Err(e) => {
@@ -673,10 +680,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                                 let pn = device::get_partition_number(
                                     &item.partitionName.clone().unwrap_or(String::new()),
                                 );
-                                format!(
-                                    "/mnt:/dev/{}{}:btrfs",
-                                    config.partition.device,pn
-                                )
+                                format!("/mnt:/dev/{}{}:btrfs", config.partition.device, pn)
                             } else {
                                 format!(
                                     "/mnt:/dev/{}:btrfs",
@@ -701,7 +705,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
             config.partition.mode = String::from("manual");
             //println!("partition {:#?}", partition);
             config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
-            //info!("saving config. config: {:?}", config);
+            info!("saving config. config.");
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
                 Err(e) => {

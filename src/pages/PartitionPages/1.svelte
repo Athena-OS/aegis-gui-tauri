@@ -101,8 +101,7 @@
         };
 
         let children = p[i].children ?? [];
-        // Assuming children are already sorted by 'start'. If not, sort them here.
-
+        children.sort((p1:any,p2:any) => p1.start-p2.start)
         // Calculate spaces between partitions and at the end
         let lastEnd = children[0]?.start;
         children.forEach((part: any, index: any) => {
@@ -111,7 +110,8 @@
           let end = start + size / 512;
 
           // Calculate space before this partition (if any)
-          if (index == 0 && part.start != 4096) {
+          // TODO: Come up with a better way of checking the space at the beginning.
+          if (index == 0 && part.start > 4096) {
             disk.partitions.push({
               partitionName: "free-space-" + index,
               size: (part.start - 4096) * 512,
@@ -121,8 +121,8 @@
               name: "free",
               start: 4096,
               end: part.start,
-              resized:false,
-              action:"none"
+              resized: false,
+              action: "none",
             });
           } else if (start - lastEnd > 0) {
             // Insert a free space partition object before this partition
@@ -131,12 +131,12 @@
               size: (start - lastEnd) * 512,
               fileSystem: "",
               mountPoint: "",
-              availableStorage: start - lastEnd,
+              availableStorage: (start - lastEnd)*512,
               name: "free",
               start: lastEnd,
-              end: 0,
-              resized:false,
-              action:"none"
+              end: start,
+              resized: false,
+              action: "none",
             });
           }
 
@@ -150,27 +150,27 @@
             name: part.kname,
             start: part.start,
             end: part.start + part.size / 512,
-            resized:false,
-            action:"none"
+            resized: false,
+            action: "none",
           });
 
-          lastEnd = end; 
+          lastEnd = end;
         });
 
         // Check for space at the end of the disk
         let diskTotalSize = disk.totalStorage;
-        if (diskTotalSize/512 - lastEnd > 0) {
+        if (diskTotalSize / 512 - lastEnd > 0) {
           disk.partitions.push({
             partitionName: "free-space-end",
-            size: diskTotalSize - lastEnd*512,
+            size: diskTotalSize - lastEnd * 512,
             fileSystem: "",
             mountPoint: "",
             availableStorage: diskTotalSize - lastEnd,
             name: "free",
             start: lastEnd,
-            end: diskTotalSize/512,
-            resized:false,
-            action:"none"
+            end: diskTotalSize / 512,
+            resized: false,
+            action: "none",
           });
         }
 
@@ -248,34 +248,38 @@
             $partitionStore.partitionsWithOS[0].kname;
         }
       }}
-      cards={[
-        {
-          title: "Automatic",
-          desc: "Wipe everything on drive.",
-          value: "auto",
-          icon: eraseDiskIcon,
-          checked: true,
-        },
-        {
-          title: "Manual",
-          desc: "Divide the drive matually",
-          value: "manual",
-          icon: manualDiskIcon,
-        },
-        {
-          title: "Replace Partition",
-          desc: "Replace the content of an existing partition with athena OS",
-          value: "replace-partition",
-          icon: replacePartitionIcon,
-        },
-        {
-          title: "Install Along",
-          desc: install_along_card.desc,
-          value: "install-along",
-          icon: installAlongIcon,
-          disabled: !hasOs,
-        },
-      ]}
+      cards={(() => {
+        let c = [
+          {
+            title: "Automatic",
+            desc: "Wipe everything on drive.",
+            value: "auto",
+            icon: eraseDiskIcon,
+            checked: true,
+          },
+          {
+            title: "Manual",
+            desc: "Divide the drive matually",
+            value: "manual",
+            icon: manualDiskIcon,
+          },
+          {
+            title: "Replace Partition",
+            desc: "Replace the content of an existing partition with athena OS",
+            value: "replace-partition",
+            icon: replacePartitionIcon,
+          },
+          ];
+          if (hasOs){
+            c.push({
+            title: "Install Along",
+            desc: install_along_card.desc,
+            value: "install-along",
+            icon: installAlongIcon,
+          })
+          }
+        return c;
+      })()}
     />
     <!--{#if hasOs}
       <div class="relative w-full h-150" style="height:150px">
@@ -329,7 +333,7 @@
 </StepWrapper>
 
 <style>
-  .selected {
+ /* .selected {
     border-color: #ffb800;
   }
 
@@ -344,5 +348,5 @@
   }
   .radio-btn:checked + .radio-btn-label {
     @apply ring-yellow-500;
-  }
+  }*/
 </style>

@@ -1,4 +1,4 @@
-use regex::Regex;
+/*use regex::Regex;
 use std::collections::HashMap;
 use std::process::Command;
 use udev::Enumerator;
@@ -88,3 +88,4 @@ fn disk_format(content: &str) -> Option<String> {
             .flatten()
     })
 }
+*/
