@@ -538,7 +538,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .find(|&d| d.name == Some(utils::get_disk_id(kname)))
                 .unwrap_or(def_device);
             // update config
-            config.partition.mode = String::from("manual");
+            config.partition.mode = String::from("Manual");
             config.partition.device = device
                 .path
                 .as_ref()
@@ -593,6 +593,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
         // auto
         "auto" => {
             info!("saving config. config.");
+            config.partition.mode = String::from("Auto");
             // Partitions ingnored since  the device will be formatted anyway.
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
@@ -642,7 +643,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .cloned()
                 .collect();
 
-            config.partition.mode = String::from("manual");
+            config.partition.mode = String::from("Manual");
             config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
             info!("saving config. config");
             let config_str = match utils::marshal_json(&config) {
@@ -702,7 +703,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .cloned()
                 .collect();
 
-            config.partition.mode = String::from("manual");
+            config.partition.mode = String::from("Manual");
             //println!("partition {:#?}", partition);
             config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
             info!("saving config. config.");
