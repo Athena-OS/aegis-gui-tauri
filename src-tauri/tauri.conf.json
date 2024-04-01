@@ -79,7 +79,8 @@
       }
     ],
     "systemTray":{
-      "iconPath": "./icons/icon.ico"
+      "iconPath": "./icons/icon.ico",
+      "iconAsTemplate": true
     }
   }
 }

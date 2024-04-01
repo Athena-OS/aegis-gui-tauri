@@ -13,102 +13,128 @@
   import Dropdown from "../lib/components/Dropdown.svelte";
   import desktopStore from "../lib/stores/desktopStore";
   import StepWrapper from "../lib/components/StepWrapper.svelte";
+    import extrasStore from "../lib/stores/extrasStore";
 
   let environmentList = [
     {
       name: "GNOME",
       desc: "An elegant, GTK-powered desktop environment designed to help you get things done with ease, comfort and control.",
-      selected: $desktopStore.environment === "GNOME",
+      selected: $desktopStore.environment === "gnome",
     },
     {
       name: "KDE",
       desc: "",
-      selected: $desktopStore.environment === "KDE",
+      selected: $desktopStore.environment === "kde",
     },
     {
       name: "MATE",
       desc: "",
-      selected: $desktopStore.environment === "MATE",
+      selected: $desktopStore.environment === "mate",
     },
     {
       name: "XFCE",
       desc: "",
-      selected: $desktopStore.environment === "XFCE",
+      selected: $desktopStore.environment === "xfce",
     },
     {
       name: "Bspwm",
       desc: "",
-      selected: $desktopStore.environment === "Bspwm",
+      selected: $desktopStore.environment === "bspwm",
     },
     {
       name: "Cinnamon",
       desc: "",
-      selected: $desktopStore.environment === "Cinnamon",
+      selected: $desktopStore.environment === "cinnamon",
     },
     {
       name: "Hyprland",
       desc: "",
-      selected: $desktopStore.environment === "Hyprland",
+      selected: $desktopStore.environment === "hyprland",
     },
   ];
 
+  let environmentListNix = [
+    {
+      name: "GNOME",
+      desc: "An elegant, GTK-powered desktop environment designed to help you get things done with ease, comfort and control.",
+      selected: $desktopStore.environment === "gnome",
+    },
+        {
+      name: "MATE",
+      desc: "",
+      selected: $desktopStore.environment === "mate",
+    },
+    {
+      name: "Cinnamon",
+      desc: "",
+      selected: $desktopStore.environment === "cinnamon",
+    },    
+  ];
   let themeList = [
     {
       name: "Akame",
       img: akameThemeImage,
-      selected: $desktopStore.theme === "Akame",
+      selected: $desktopStore.theme === "akame",
     },
     {
       name: "Graphite",
       img: graphiteThemeImage,
-      selected: $desktopStore.theme === "Graphite",
+      selected: $desktopStore.theme === "graphite",
     },
     {
-      name: "Gruvbox",
+      name: "Cyborg",
       img: gruvboxThemeImage,
-      selected: $desktopStore.theme === "Gruvbox",
+      selected: $desktopStore.theme === "cyborg",
     },
-    // {
-    //   name: "Hack The Box",
-    //   img: "",
-    // },
+    {
+       name: "Hack The Box",
+       img: "",
+       selected: $desktopStore.theme === "hackthebox",
+     },
     {
       name: "Samurai Girl",
       img: samuraiGirlThemeImage,
-      selected: $desktopStore.theme === "Samurai Girl",
+      selected: $desktopStore.theme === "samurai",
     },
     {
       name: "Sweet Dark",
       img: SweetDarkThemeImage,
-      selected: $desktopStore.theme === "Sweet Dark",
+      selected: $desktopStore.theme === "sweet",
     },
-    {
+    /*{
       name: "XXE",
       img: xxeThemeImage,
-      selected: $desktopStore.theme === "XXE",
-    },
+      selected: $desktopStore.theme === "xxe",
+    },*/
   ];
 
   let displayManagerList = [
     {
       name: "GDM ( GNOME display manager )",
       selected:
-        $desktopStore.displayManager === "GDM ( GNOME display manager )",
+        $desktopStore.displayManager === "gdm",
     },
     {
       name: "LightDM Neon",
-      selected: $desktopStore.displayManager === "LightDM Neon",
+      selected: $desktopStore.displayManager === "lightdm",
     },
-    {
-      name: "LightDM Everblush",
-      selected: $desktopStore.displayManager === "LightDM Everblush",
-    },
+  
     {
       name: "SDDM",
-      selected: $desktopStore.displayManager === "SDDM",
+      selected: $desktopStore.displayManager === "ssdm",
     },
   ];
-
+  let displayManagerListNix = [
+    {
+      name: "GDM ( GNOME display manager )",
+      selected:
+        $desktopStore.displayManager === "gdm",
+    },
+    {
+      name: "LightDM Neon",
+      selected: $desktopStore.displayManager === "lightdm",
+    },
+  ];
   let nextPage = "";
   function IsOkayToMoveNextPage() {
     if (
@@ -146,15 +172,29 @@
       {/if}
     </div>
     <div class="w-1/2 space-y-16">
-      <Dropdown
-        icon={environmentIcon}
-        bind:items={environmentList}
-        label="Select Environment"
-        on:select={(event) => {
-          $desktopStore.environment = event.detail.selected.name;
-        }}
-        defaultItem={{ name: "Select Environment" }}
-      />
+      {#if $extrasStore.base == "arch"}
+        <Dropdown
+          icon={environmentIcon}
+          bind:items={environmentList}
+          label="Select Environment"
+          on:select={(event) => {
+            $desktopStore.environment =
+              event.detail.selected.name.toLowerCase();
+          }}
+          defaultItem={{ name: "Select Environment" }}
+        />
+      {:else}
+        <Dropdown
+          icon={environmentIcon}
+          bind:items={environmentListNix}
+          label="Select Environment"
+          on:select={(event) => {
+            $desktopStore.environment =
+              event.detail.selected.name.toLowerCase();
+          }}
+          defaultItem={{ name: "Select Environment" }}
+        />
+      {/if}
       {#if $desktopStore.environment !== "Hyprland" && $desktopStore.environment !== "Bspwm"}
         <Dropdown
           icon={themeIcon}
@@ -172,6 +212,7 @@
           defaultItem={{ name: "Select Theme" }}
         />
       {/if}
+      {#if $extrasStore.base == "arch"}
       <Dropdown
         icon={displayManagerIcon}
         bind:items={displayManagerList}
@@ -180,6 +221,16 @@
           ($desktopStore.displayManager = event.detail.selected.name)}
         defaultItem={{ name: "Select Display Manager" }}
       />
+      {:else}
+      <Dropdown
+      icon={displayManagerIcon}
+      bind:items={displayManagerListNix}
+      label="Select Display Manager"
+      on:select={(event) =>
+        ($desktopStore.displayManager = event.detail.selected.name)}
+      defaultItem={{ name: "Select Display Manager" }}
+    />
+    {/if}
     </div>
   </div>
   <div class="w-full h-1/4 text-xl justify-center items-center flex space-x-4">

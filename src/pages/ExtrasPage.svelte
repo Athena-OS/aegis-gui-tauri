@@ -4,7 +4,7 @@
   import kernelIcon from "../assets/icons/kernel-yellow.svg";
   import terminalIcon from "../assets/icons/terminal-yellow.svg";
   import wrenchIcon from "../assets/icons/wrench-yellow.svg";
-  import globeIcon from "../assets/icons/globe-icon.svg"
+  import globeIcon from "../assets/icons/globe-icon.svg";
 
   import Dialog from "../lib/components/Dialog.svelte";
   import StepWrapper from "../lib/components/StepWrapper.svelte";
@@ -36,11 +36,9 @@
     { name: "Xfce" },
     { name: "Xterm" },
   ];
-  let browserList = [
-    {name:"firefox"}, 
-    {name: "brave"},
-    {name:"chromium"}
-  ];
+  let terminalListNix = [{ name: "Alacritty" }, { name: "Kitty" }];
+  let browserList = [{ name: "firefox" }, { name: "brave" }];
+  let browserListNix = [{ name: "firefox" }];
   let shellsList = [{ name: "Bash" }, { name: "Fish" }, { name: "Zsh" }];
 
   function onChangeFunctionMaxJobs(e: any) {
@@ -111,13 +109,23 @@
             <span class="font-semibold text-xl">& Shell</span>
           </div>
         </div>
-        <Dropdown
-          bind:items={terminalList}
-          label="Available Terminals"
-          on:select={(event) =>
-            ($extrasStore.terminal = event.detail.selected.name)}
-          defaultItem={{ name: "Select Terminal" }}
-        />
+        {#if $extrasStore.base == "arch"}
+          <Dropdown
+            bind:items={terminalList}
+            label="Available Terminals"
+            on:select={(event) =>
+              ($extrasStore.terminal = event.detail.selected.name.toLowerCase())}
+            defaultItem={{ name: "Select Terminal" }}
+          />
+        {:else}
+          <Dropdown
+            bind:items={terminalListNix}
+            label="Available Terminals"
+            on:select={(event) =>
+              ($extrasStore.terminal = event.detail.selected.name.toLowerCase())}
+            defaultItem={{ name: "Select Terminal" }}
+          />
+        {/if}
         <Dropdown
           bind:items={shellsList}
           label="Available Shells"
@@ -168,7 +176,7 @@
               label=""
               placeholderText="Enter your desired hostname"
               inputType={"text"}
-              value="AthenaOS"
+              value="athenaos"
               givenOnChangeValue={onChangeFunctionHostName}
             ></InputBox>
           </div>
@@ -181,13 +189,23 @@
           <img src={globeIcon} alt="browser" />
           <h3 class="font-semibold text-4xl">Browser</h3>
         </div>
-        <Dropdown
-          bind:items={browserList}
-          label="Choose your browser"
-          on:select={(event) =>
-            ($extrasStore.browser = event.detail.selected.name)}
-          defaultItem={{ name: "Select Browser" }}
-        />
+        {#if $extrasStore.base == "arch"}
+          <Dropdown
+            bind:items={browserList}
+            label="Choose your browser"
+            on:select={(event) =>
+              ($extrasStore.browser = event.detail.selected.name.toLowerCase())}
+            defaultItem={{ name: "Select Browser" }}
+          />
+        {:else}
+          <Dropdown
+            bind:items={browserListNix}
+            label="Choose your browser"
+            on:select={(event) =>
+              ($extrasStore.browser = event.detail.selected.name.toLowerCase())}
+            defaultItem={{ name: "Select Browser" }}
+          />
+        {/if}
       </div>
       <div
         class="w-full h-2/6 text-xl flex justify-center items-center bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"

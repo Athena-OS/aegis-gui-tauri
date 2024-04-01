@@ -14,9 +14,16 @@
   let keymapList: any[] = []
   let timezoneList: any[] = []
   let localeList: any[] = []
+  let x11keymaps: any[] = []
   invoke("get_timezones").then((timezones: any) => {
     timezoneList = timezones.split("\n").map((i: string) => {
       return {name: i, selected: $keyboardStore.keymaps === i}
+    })
+  })
+
+  invoke("get_x11_keymaps").then((x11: any) => {
+    x11keymaps = x11.split("\n").map((i: string) => {
+      return {name: i, selected: $keyboardStore.x11keymaps === i}
     })
   })
   invoke("get_keymaps").then((keymaps:any) => {
@@ -80,7 +87,15 @@
       <Dropdown
         icon={langIcon}
         bind:items={keymapList}
-        label="Select Keymap"
+        label="Select Console Keymap"
+        on:select={(event) =>
+          ($keyboardStore.keymaps = event.detail.selected.name)}
+        defaultItem={{ name: "Select Keymap" }}
+      />
+      <Dropdown
+        icon={langIcon}
+        bind:items={x11keymaps}
+        label="Select X11 Keymap"
         on:select={(event) =>
           ($keyboardStore.keymaps = event.detail.selected.name)}
         defaultItem={{ name: "Select Keymap" }}

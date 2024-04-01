@@ -45,12 +45,30 @@ pub fn get_timezones() -> Result<String, tauri::Error> {
     }
 }
 
+// Get a list of x11 keymaps
+#[tauri::command]
+pub fn get_x11_keymaps() -> Result<String, tauri::Error> {
+    let output: Result<std::process::Output, std::io::Error> =
+        Command::new("localectl").arg("list-x11-keymap-layouts").output();
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(_) => todo!(),
+    }
+}
 // check if system is uefi
 #[tauri::command]
 pub fn is_uefi() -> Result<String, tauri::Error> {
     let output: Result<std::process::Output, std::io::Error> = Command::new("sh")
         .arg("-c")
-        .arg("[ -d /sys/firmware/efi ] && echo true || echo false")
+        .arg(r#""[ -d /sys/firmware/efi ] && echo true || echo false""#)
         .output();
     match output {
         Ok(output) => {
