@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 
 const extrasStore = writable({
-    kernel: "default",
+    kernel: "linux-lts",
     terminal: "default",
     shell: "default",
     snapper: false,
@@ -12,7 +12,7 @@ const extrasStore = writable({
     cores: 0,
     ipv6:false,
     browser:"firefox",
-    hostname:"AthenaOS",
+    hostname:"athenaos",
     flatpak:false,
     base:"arch"
 });

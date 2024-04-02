@@ -46,7 +46,7 @@
     devices.map((item: any) => {
       if (item.install_candidate) {
         storageDevicesList.push({
-          display_name: item.id,
+          display_name: item.kname,
           size: item.size,
           percentage_used: item.use_percentage,
           name: item.kname,
@@ -75,7 +75,8 @@
       const result = bValues.join(", ");
       install_along_card.desc += result;
     }
-    invoke("is_uefi").then((p: any) => {
+    invoke("is_uefi").then((p:any) => {
+      console.log(p)
       if (p.trim() === "true") {
         $partitionStore.efi = true;
         $partitionStore.grubLocation = "/boot";
@@ -84,7 +85,7 @@
         $partitionStore.efi = false;
         $partitionStore.grubType = "grub-efi";
       }
-    });
+    }).catch((e)=>console.error(e));
     invoke("get_partitions").then((partitions) => {
       let p = JSON.parse(partitions as string)?.blockdevices;
       for (let i = 0; i < p.length; i++) {

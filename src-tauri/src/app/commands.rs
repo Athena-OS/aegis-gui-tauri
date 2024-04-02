@@ -1,7 +1,7 @@
 use crate::app::{config, global_app, install};
 use crate::partition::*;
-use std::{error::Error, fs::File, io::Write, process::Command};
 use async_std::task;
+use std::{error::Error, fs::File, io::Write, process::Command};
 
 // Get partitions use the lsblk command to get disks and their partitions
 #[tauri::command]
@@ -48,8 +48,9 @@ pub fn get_timezones() -> Result<String, tauri::Error> {
 // Get a list of x11 keymaps
 #[tauri::command]
 pub fn get_x11_keymaps() -> Result<String, tauri::Error> {
-    let output: Result<std::process::Output, std::io::Error> =
-        Command::new("localectl").arg("list-x11-keymap-layouts").output();
+    let output: Result<std::process::Output, std::io::Error> = Command::new("localectl")
+        .arg("list-x11-keymap-layouts")
+        .output();
     match output {
         Ok(output) => {
             if output.status.success() {
@@ -66,9 +67,10 @@ pub fn get_x11_keymaps() -> Result<String, tauri::Error> {
 // check if system is uefi
 #[tauri::command]
 pub fn is_uefi() -> Result<String, tauri::Error> {
+    println!("is uefi run");
     let output: Result<std::process::Output, std::io::Error> = Command::new("sh")
         .arg("-c")
-        .arg(r#""[ -d /sys/firmware/efi ] && echo true || echo false""#)
+        .arg("[ -d /sys/firmware/efi ] && echo true || echo false")
         .output();
     match output {
         Ok(output) => {
@@ -80,7 +82,11 @@ pub fn is_uefi() -> Result<String, tauri::Error> {
                 Err(tauri::Error::InvalidWindowUrl(var_name))
             }
         }
-        Err(_) => todo!(),
+        Err(e) => {
+            println!("failed running is uefi {}", e);
+            let var_name = "Failed running is uefi";
+            Err(tauri::Error::InvalidWindowUrl(var_name))
+        }
     }
 }
 
@@ -135,7 +141,7 @@ pub fn install(data: String) {
     // get config and update global store
     global_app::update_config(config::Config::from_json_string(data));
     // start installation in the background
-    task::spawn(async move {install::install().await});    
+    task::spawn(async move { install::install().await });
 }
 #[allow(dead_code)]
 pub fn save_json(data: &str, filename: &str) -> std::io::Result<()> {

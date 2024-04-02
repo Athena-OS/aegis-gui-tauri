@@ -1,5 +1,5 @@
 use crate::partition::{self};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Serializer};
 use serde_json::{json, Value};
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
@@ -12,30 +12,33 @@ pub struct Partition {
     #[serde(skip_serializing_if = "is_default", default)]
     pub swap_size: String,
     pub partitions: Value,
-    #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
+    #[serde(skip_serializing)]
+    // This if for processing but should not be serialized for config saving
     pub installAlongPartitions: Vec<partition::device::SuggestedPartition>,
-    #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
+    #[serde(skip_serializing)]
+    // This if for processing but should not be serialized for config saving
     pub system_storage_info: Vec<SystemStorageInfo>,
-    #[serde(skip_serializing)] // This if for processing but should not be serialized for config saving
-    pub system_storage_info_current: Vec<SystemStorageInfo>
+    #[serde(skip_serializing)]
+    // This if for processing but should not be serialized for config saving
+    pub system_storage_info_current: Vec<SystemStorageInfo>,
 }
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
-pub struct  SystemStorageInfo{
-    pub partitions: Vec<P>
+pub struct SystemStorageInfo {
+    pub partitions: Vec<P>,
 }
 fn is_default(s: &String) -> bool {
     s.is_empty()
 }
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 #[allow(non_snake_case)]
-pub struct P{
+pub struct P {
     pub name: Option<String>,
     pub partitionName: Option<String>,
     pub start: Option<i128>,
     pub size: Option<i128>,
     pub action: Option<String>,
     pub end: Option<i128>,
-    pub fileSytem: Option<String>
+    pub fileSytem: Option<String>,
 }
 impl Default for Partition {
     fn default() -> Partition {
@@ -47,8 +50,8 @@ impl Default for Partition {
             swap_size: String::new(),
             partitions: json!(null),
             installAlongPartitions: Vec::new(),
-            system_storage_info:Vec::new(),
-            system_storage_info_current:Vec::new()
+            system_storage_info: Vec::new(),
+            system_storage_info_current: Vec::new(),
         }
     }
 }
@@ -73,7 +76,7 @@ pub enum PartitionAction {
     Delete,
     Shrink,
     Create,
-    None
+    None,
 }
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct Locale {
@@ -135,6 +138,7 @@ pub struct Config {
     pub theme: String,
     pub displayManager: String,
     pub browser: String,
+    #[serde(skip_serializing)]
     pub packagesStore: Value,
     pub extra_packages: Vec<String>,
     pub kernel: String,
@@ -142,11 +146,16 @@ pub struct Config {
     pub zramd: bool,
     pub hardened: bool,
     pub flatpak: bool,
+    #[serde(skip_serializing_if = "serialize_params", default)]
     pub params: Params,
     pub terminal: String,
+    #[serde(skip_serializing)]
     pub base: String,
 }
-
+// Serialize params only if not defalut
+fn serialize_params(value: &Params) -> bool {
+    value.cores > 0 || value.keep || value.jobs > 0
+}
 impl Default for Config {
     fn default() -> Config {
         Config {
@@ -169,7 +178,7 @@ impl Default for Config {
             flatpak: false,
             params: Params::default(),
             terminal: String::from("default"),
-            base: String::from("arch")
+            base: String::from("arch"),
         }
     }
 }

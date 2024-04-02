@@ -37,7 +37,7 @@ const globalStore = derived(
         locale:[$keyboardStore.locale],
         timezone:$keyboardStore.timezone,
         virtkeymap: $keyboardStore.keymaps,
-        x11keymap: "",
+        x11keymap: $keyboardStore.x11keymap,
       },
       networking: {
         hostname:$extraStore.hostname,

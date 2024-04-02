@@ -65,7 +65,7 @@
     <Button fullWidth variant="bordered" on:click={shareLogs}
       >Do you want to share the logs ?</Button
     >
-    <Button fullWidth on:click={async () => await appWindow.close()}
+    <Button fullWidth on:click={async () => await appWindow.hide()}
       >Close</Button
     >
   </div>

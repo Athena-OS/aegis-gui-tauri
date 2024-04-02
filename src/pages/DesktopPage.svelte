@@ -87,17 +87,17 @@
       selected: $desktopStore.theme === "cyborg",
     },
     {
-       name: "Hack The Box",
+       name: "HackTheBox",
        img: "",
        selected: $desktopStore.theme === "hackthebox",
      },
     {
-      name: "Samurai Girl",
+      name: "Samurai",
       img: samuraiGirlThemeImage,
       selected: $desktopStore.theme === "samurai",
     },
     {
-      name: "Sweet Dark",
+      name: "Sweet",
       img: SweetDarkThemeImage,
       selected: $desktopStore.theme === "sweet",
     },
@@ -110,12 +110,12 @@
 
   let displayManagerList = [
     {
-      name: "GDM ( GNOME display manager )",
+      name: "GDM",
       selected:
         $desktopStore.displayManager === "gdm",
     },
     {
-      name: "LightDM Neon",
+      name: "LightDM",
       selected: $desktopStore.displayManager === "lightdm",
     },
   
@@ -126,12 +126,12 @@
   ];
   let displayManagerListNix = [
     {
-      name: "GDM ( GNOME display manager )",
+      name: "GDM",
       selected:
         $desktopStore.displayManager === "gdm",
     },
     {
-      name: "LightDM Neon",
+      name: "LightDM",
       selected: $desktopStore.displayManager === "lightdm",
     },
   ];
@@ -160,7 +160,7 @@
       {#if $desktopStore.theme !== "default"}
         <img
           src={themeList[
-            themeList.findIndex((theme) => theme.name === $desktopStore.theme)
+            themeList.findIndex((theme) => theme.name.toLowerCase() === $desktopStore.theme)
           ].img}
           alt="Selected Theme"
           class="w-full h-full object-cover rounded-3xl"
@@ -195,17 +195,17 @@
           defaultItem={{ name: "Select Environment" }}
         />
       {/if}
-      {#if $desktopStore.environment !== "Hyprland" && $desktopStore.environment !== "Bspwm"}
+      {#if $desktopStore.environment !== "hyprland" && $desktopStore.environment !== "bspwm"}
         <Dropdown
           icon={themeIcon}
           bind:items={themeList}
           label="Select Theme"
           on:select={(event) => {
-            $desktopStore.theme = event.detail.selected.name;
+            $desktopStore.theme = event.detail.selected.name.toLowerCase();
             $desktopStore.themeImage =
               themeList[
                 themeList.findIndex(
-                  (theme) => theme.name === event.detail.selected.name,
+                  (theme) => theme.name.toLowerCase() === event.detail.selected.name.toLowerCase(),
                 )
               ].img;
           }}
@@ -218,7 +218,7 @@
         bind:items={displayManagerList}
         label="Select Display Manager"
         on:select={(event) =>
-          ($desktopStore.displayManager = event.detail.selected.name)}
+          ($desktopStore.displayManager = event.detail.selected.name.toLowerCase())}
         defaultItem={{ name: "Select Display Manager" }}
       />
       {:else}
@@ -227,7 +227,7 @@
       bind:items={displayManagerListNix}
       label="Select Display Manager"
       on:select={(event) =>
-        ($desktopStore.displayManager = event.detail.selected.name)}
+        ($desktopStore.displayManager = event.detail.selected.name.toLowerCase())}
       defaultItem={{ name: "Select Display Manager" }}
     />
     {/if}

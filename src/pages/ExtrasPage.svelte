@@ -83,7 +83,7 @@
 >
   <div class="flex w-full h-full space-x-4">
     <div class="w-1/3 h-full space-y-4">
-      <div
+      <!--div
         class="w-full flex flex-col min:h-1/3 bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"
       >
         <div class="flex space-x-3 w-full justify-center items-center">
@@ -97,7 +97,7 @@
             ($extrasStore.kernel = event.detail.selected.name)}
           defaultItem={{ name: "Select Kernel" }}
         />
-      </div>
+      </div-->
 
       <div
         class="w-full flex flex-col min:h-1/3 bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"
@@ -130,7 +130,7 @@
           bind:items={shellsList}
           label="Available Shells"
           on:select={(event) =>
-            ($extrasStore.shell = event.detail.selected.name)}
+            ($extrasStore.shell = event.detail.selected.name.toLowerCase())}
           defaultItem={{ name: "Select Shell" }}
         />
       </div>
@@ -207,12 +207,13 @@
           />
         {/if}
       </div>
-      <div
+      <!--div
         class="w-full h-2/6 text-xl flex justify-center items-center bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"
       >
         For something else in future
-      </div>
+      </div-->
     </div>
+    {#if $extrasStore.base == "nixos"}
     <div class="h-full w-1/3 space-y-4">
       <div
         class="w-full h-fit text-xl flex flex-col justify-center items-center bg-[#1A1A1A] px-8 pt-4 pb-8 space-y-4 rounded-2xl"
@@ -261,6 +262,7 @@
         For something else in future
       </div>
     </div>
+    {/if}
   </div>
 </StepWrapper>
 

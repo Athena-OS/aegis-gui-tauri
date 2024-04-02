@@ -594,6 +594,11 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
         "auto" => {
             info!("saving config. config.");
             config.partition.mode = String::from("Auto");
+            config.partition.device = format!("/dev/{}", config.partition.device);
+            // set params to default if base is nixos to skip serializing
+            if config.base == "arch"{
+                config.params = config::Params::default();
+            }
             // Partitions ingnored since  the device will be formatted anyway.
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
@@ -644,6 +649,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .collect();
 
             config.partition.mode = String::from("Manual");
+            config.partition.device = format!("/dev/{}", config.partition.device);
             config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
             info!("saving config. config");
             let config_str = match utils::marshal_json(&config) {

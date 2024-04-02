@@ -7,7 +7,7 @@ const keyboardStore = writable({
   keymaps: "default",
   timezone: "default",
   locale: "default",
-  x11keymaps:"default"
+  x11keymap:"default"
 });
 
 export default keyboardStore;

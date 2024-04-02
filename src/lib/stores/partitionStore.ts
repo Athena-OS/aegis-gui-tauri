@@ -58,7 +58,7 @@ const partitionStore: Writable<{
     mountPoint: "",
     name: "Athena OS",
     isEncrypted: false,
-    swapPartitionSize: "1 Gib",
+    swapPartitionSize: "1Gib",
     start: 1024,
   },
   replacedPartition: {
@@ -101,7 +101,7 @@ export function resetPartitionStore() {
       mountPoint: "",
       name: "Athena OS",
       isEncrypted: false,
-      swapPartitionSize: "1 Gib",
+      swapPartitionSize: "1Gib",
       start: 1024
     },
     replacedPartition: {

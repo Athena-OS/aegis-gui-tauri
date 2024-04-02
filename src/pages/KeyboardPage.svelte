@@ -10,48 +10,32 @@
   import keyboard from "../assets/keyboard.svg";
   import keyboardIcon from "../assets/icons/keyboard-icon.svg";
   import { invoke } from "@tauri-apps/api";
-  let regionList: any[] = []
-  let keymapList: any[] = []
-  let timezoneList: any[] = []
-  let localeList: any[] = []
-  let x11keymaps: any[] = []
+  import ComboBox from "../lib/components/ComboBox.svelte";
+  let keymapList: any[] = [];
+  let timezoneList: any[] = [];
+  let localeList: any[] = [];
+  let x11keymaps: any[] = [];
   invoke("get_timezones").then((timezones: any) => {
     timezoneList = timezones.split("\n").map((i: string) => {
-      return {name: i, selected: $keyboardStore.keymaps === i}
-    })
-  })
+      return { text: i, value: i };
+    });
+  });
 
   invoke("get_x11_keymaps").then((x11: any) => {
     x11keymaps = x11.split("\n").map((i: string) => {
-      return {name: i, selected: $keyboardStore.x11keymaps === i}
-    })
-  })
-  invoke("get_keymaps").then((keymaps:any) => {
+      return { text: i, value: i};
+    });
+  });
+  invoke("get_keymaps").then((keymaps: any) => {
     keymapList = keymaps.split("\n").map((i: string) => {
-      return {name: i, selected: $keyboardStore.region === i}
-    })
-  })
-  invoke("get_locale").then((keymaps:any) => {
+      return { text: i, value: i };
+    });
+  });
+  invoke("get_locale").then((keymaps: any) => {
     localeList = keymaps.split("\n").map((i: string) => {
-      return {name: i, selected: $keyboardStore.locale === i}
-    })
-  })
-  let regionLis = [
-    { name: "English (US)", selected: $keyboardStore.region === "English (US)" },
-    { name: "German", selected: $keyboardStore.region === "German" },
-    { name: "Spanish", selected: $keyboardStore.region === "Spanish" },
-  ];
-  let languageList = [
-    { name: "English (US)", selected: $keyboardStore.language === "English (US)" },
-    { name: "German", selected: $keyboardStore.language === "German" },
-    { name: "Spanish", selected: $keyboardStore.language === "Spanish" },
-  ];
-  let layoutList = [
-    { name: "AZERTY", selected: $keyboardStore.layout === "AZERTY" },
-    { name: "QWERTY", selected: $keyboardStore.layout === "QWERTY" },
-    { name: "QWERTZ", selected: $keyboardStore.layout === "QWERTZ" },
-    { name: "QZERTY", selected: $keyboardStore.layout === "QZERTY" },
-  ];
+      return { text: i, value:i };
+    });
+  });
 
   let nextPage = "";
   function IsOkayToMoveNextPage() {
@@ -76,37 +60,41 @@
   <div class="flex flex-col items-center space-y-4 w-full">
     <div class="flex flex-col items-center space-y-6 w-full max-w-md">
       <img src={keyboard} class="h-28" alt="" />
-      <Dropdown
+      <ComboBox
         icon={globeIcon}
-        bind:items={timezoneList}
+        bind:options={timezoneList}
         label="Select timezone"
+        name="Timezone"
+        placeholder="Select or search timezone ..."
         on:select={(event) =>
-          ($keyboardStore.timezone = event.detail.selected.name)}
-        defaultItem={{ name: "Select Timezone" }}
+          ($keyboardStore.timezone = event.detail.target.value)}
       />
-      <Dropdown
+      <ComboBox
         icon={langIcon}
-        bind:items={keymapList}
+        bind:options={keymapList}
         label="Select Console Keymap"
+        name="Console Keymap"
+        placeholder="Select or search console keymap ..."
         on:select={(event) =>
-          ($keyboardStore.keymaps = event.detail.selected.name)}
-        defaultItem={{ name: "Select Keymap" }}
+          ($keyboardStore.keymaps = event.detail.target.value)}
       />
-      <Dropdown
+      <ComboBox
+        name="X11"
         icon={langIcon}
-        bind:items={x11keymaps}
+        placeholder="Select or search x11keymap ..."
+        bind:options={x11keymaps}
         label="Select X11 Keymap"
-        on:select={(event) =>
-          ($keyboardStore.keymaps = event.detail.selected.name)}
-        defaultItem={{ name: "Select Keymap" }}
+        on:select={(event) =>{
+          ($keyboardStore.x11keymap = event.detail.target.value)}}
       />
-      <Dropdown
+      <ComboBox
         icon={keyboardIcon}
-        bind:items={localeList}
+        name="Locale"
+        bind:options={localeList}
+        placeholder="Select or search locale ..."
         label="Select Locale"
-        on:select={(event) =>
-          ($keyboardStore.locale = event.detail.selected.name)}
-        defaultItem={{ name: "Select Locale" }}
+        on:select={(event) =>{
+          ($keyboardStore.locale = event.detail.target.value)}}
       />
       <InputBox label="Test Keyboard" placeholderText="Type here.." />
     </div>
