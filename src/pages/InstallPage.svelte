@@ -13,11 +13,12 @@
   import logStore from "../lib/stores/logStore";
   import { invoke } from "@tauri-apps/api";
   import globalStore from "../lib/stores/globalStore";
+  import partitionStore from "../lib/stores/partitionStore";
   import { appWindow } from "@tauri-apps/api/window";
   let consoleOpen = true;
   let shareLog = false;
   let logLink = "";
-  let logs = ""
+  let logs = "";
   let dialog = createDialog({ label: "failed" });
   let dialogCheckLogs = createDialog({ label: "check-logs" });
   // listen to install fail event
@@ -27,6 +28,11 @@
       dialog.open();
       console.log("Dialog should be open now");
     }
+  }
+
+  // save luks password
+  if ($partitionStore.encrypt_check) {
+    invoke("save_luks_passphrase", { d: $partitionStore.luksPassword });
   }
 
   // save config. This triggers the backend install
@@ -57,10 +63,9 @@
     <button
       class="text-xs hover:text-cyan-400"
       on:click={async () => {
-        logs = await invoke("get_all_logs")
-        dialogCheckLogs.open()
-
-        }}>Check logs ?</button
+        logs = await invoke("get_all_logs");
+        dialogCheckLogs.open();
+      }}>Check logs ?</button
     >
     <Button fullWidth variant="bordered" on:click={shareLogs}
       >Do you want to share the logs ?</Button
@@ -72,12 +77,21 @@
 </Dialog>
 
 <Dialog dialog={dialogCheckLogs}>
-  <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2" style="height:400px">
+  <div
+    class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2"
+    style="height:400px"
+  >
     <pre class="w-full whitespace-pre-line">
         {logs}      
     </pre>
   </div>
-  <Button fullWidth on:click={() => {dialogCheckLogs.close(); dialog.open()}}>Close</Button>
+  <Button
+    fullWidth
+    on:click={() => {
+      dialogCheckLogs.close();
+      dialog.open();
+    }}>Close</Button
+  >
 </Dialog>
 
 <main

@@ -15,6 +15,7 @@ const globalStore = derived(
         mode:$partitionStore.mode,
         efi: $partitionStore.efi,
         swap: $partitionStore.swap,
+        encrypt_check: $partitionStore.encrypt_check,
         swap_size:$partitionStore.newPartition.swapPartitionSize,
         partitions:[],
         system_storage_info:$partitionStore.systemStorageInfo.filter((s) => {

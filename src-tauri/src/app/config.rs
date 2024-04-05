@@ -21,6 +21,7 @@ pub struct Partition {
     #[serde(skip_serializing)]
     // This if for processing but should not be serialized for config saving
     pub system_storage_info_current: Vec<SystemStorageInfo>,
+    pub encrypt_check: bool
 }
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct SystemStorageInfo {
@@ -52,6 +53,7 @@ impl Default for Partition {
             installAlongPartitions: Vec::new(),
             system_storage_info: Vec::new(),
             system_storage_info_current: Vec::new(),
+            encrypt_check: false
         }
     }
 }

@@ -19,12 +19,14 @@
     timezoneList = timezones.split("\n").map((i: string) => {
       return { text: i, value: i };
     });
+    timezoneList.splice(timezoneList.length - 1, 1);
   });
 
   invoke("get_x11_keymaps").then((x11: any) => {
     x11keymaps = x11.split("\n").map((i: string) => {
-      return { text: i, value: i};
+      return { text: i, value: i };
     });
+    x11keymaps.splice(x11keymaps.length - 1, 1);
   });
   invoke("get_keymaps").then((keymaps: any) => {
     keymapList = keymaps.split("\n").map((i: string) => {
@@ -33,7 +35,7 @@
   });
   invoke("get_locale").then((keymaps: any) => {
     localeList = keymaps.split("\n").map((i: string) => {
-      return { text: i, value:i };
+      return { text: i, value: i };
     });
   });
 
@@ -66,8 +68,10 @@
         label="Select timezone"
         name="Timezone"
         placeholder="Select or search timezone ..."
-        on:select={(event) =>
-          ($keyboardStore.timezone = event.detail.target.value)}
+        on:select={(event) => {
+          console.log(event)
+          $keyboardStore.timezone = event.detail.target.value;
+        }}
       />
       <ComboBox
         icon={langIcon}
@@ -84,8 +88,9 @@
         placeholder="Select or search x11keymap ..."
         bind:options={x11keymaps}
         label="Select X11 Keymap"
-        on:select={(event) =>{
-          ($keyboardStore.x11keymap = event.detail.target.value)}}
+        on:select={(event) => {
+          $keyboardStore.x11keymap = event.detail.target.value;
+        }}
       />
       <ComboBox
         icon={keyboardIcon}
@@ -93,8 +98,9 @@
         bind:options={localeList}
         placeholder="Select or search locale ..."
         label="Select Locale"
-        on:select={(event) =>{
-          ($keyboardStore.locale = event.detail.target.value)}}
+        on:select={(event) => {
+          $keyboardStore.locale = event.detail.target.value;
+        }}
       />
       <InputBox label="Test Keyboard" placeholderText="Type here.." />
     </div>

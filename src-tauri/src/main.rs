@@ -41,7 +41,8 @@ fn main() {
             human_to_bytes,
             get_x11_keymaps,
             app::logger::share_logs,
-            app::logger::get_all_logs
+            app::logger::get_all_logs,
+            save_luks_passphrase
         ])
         .plugin(tauri_plugin_system_info::init())
         .system_tray(system_tray)

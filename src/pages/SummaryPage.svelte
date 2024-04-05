@@ -21,7 +21,7 @@
 
 <StepWrapper
   title="Summary"
-  dialogTitle="Header Here"
+  dialogTitle="This is the summary of the installation option choices"
   dialogContent="Your text here"
   prev={(() => {
     const pm = $partitionStore.mode;

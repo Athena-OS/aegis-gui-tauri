@@ -12,7 +12,8 @@
   import replacePartitionIcon from "../../assets/icons/replace-yellow.svg";
   import { disks } from "tauri-plugin-system-info-api";
   import { invoke } from "@tauri-apps/api";
-
+  import InputBox from "../../lib/components/InputBox.svelte";
+  import Switch from "../../lib/components/Switch.svelte";
   import {
     type StorageDevice,
     type InstallAlongPartition,
@@ -75,17 +76,19 @@
       const result = bValues.join(", ");
       install_along_card.desc += result;
     }
-    invoke("is_uefi").then((p:any) => {
-      console.log(p)
-      if (p.trim() === "true") {
-        $partitionStore.efi = true;
-        $partitionStore.grubLocation = "/boot";
-        $partitionStore.grubType = "grub-efi";
-      } else {
-        $partitionStore.efi = false;
-        $partitionStore.grubType = "grub-efi";
-      }
-    }).catch((e)=>console.error(e));
+    invoke("is_uefi")
+      .then((p: any) => {
+        console.log(p);
+        if (p.trim() === "true") {
+          $partitionStore.efi = true;
+          $partitionStore.grubLocation = "/boot";
+          $partitionStore.grubType = "grub-efi";
+        } else {
+          $partitionStore.efi = false;
+          $partitionStore.grubType = "grub-efi";
+        }
+      })
+      .catch((e) => console.error(e));
     invoke("get_partitions").then((partitions) => {
       let p = JSON.parse(partitions as string)?.blockdevices;
       for (let i = 0; i < p.length; i++) {
@@ -102,7 +105,7 @@
         };
 
         let children = p[i].children ?? [];
-        children.sort((p1:any,p2:any) => p1.start-p2.start)
+        children.sort((p1: any, p2: any) => p1.start - p2.start);
         // Calculate spaces between partitions and at the end
         let lastEnd = children[0]?.start;
         children.forEach((part: any, index: any) => {
@@ -132,7 +135,7 @@
               size: (start - lastEnd) * 512,
               fileSystem: "",
               mountPoint: "",
-              availableStorage: (start - lastEnd)*512,
+              availableStorage: (start - lastEnd) * 512,
               name: "free",
               start: lastEnd,
               end: start,
@@ -190,22 +193,50 @@
 
   let nextPage = "";
   function IsOkayToMoveNextPage() {
-    if ($partitionStore.selectedDevice !== "default") {
-      if ($partitionStore.mode === "auto") {
-        nextPage = "/summary";
-      } else if ($partitionStore.mode === "replace-partition") {
-        nextPage = "/replace-partition";
-      } else {
-        nextPage = "/configure-partition";
+    if ($partitionStore.encrypt_check && $partitionStore.luksPassword != "") {
+      if ($partitionStore.selectedDevice !== "default") {
+        if ($partitionStore.mode === "auto") {
+          nextPage = "/summary";
+        } else if ($partitionStore.mode === "replace-partition") {
+          nextPage = "/replace-partition";
+        } else {
+          nextPage = "/configure-partition";
+        }
+      } else if ($partitionStore.mode === "install-along") {
+        nextPage = "/configure-install-along";
       }
-    } else if ($partitionStore.mode === "install-along") {
-      nextPage = "/configure-install-along";
+    } else if (
+      $partitionStore.encrypt_check &&
+      $partitionStore.luksPassword == ""
+    ) {
+      nextPage = "";
+    } else {
+      if ($partitionStore.selectedDevice !== "default") {
+        if ($partitionStore.mode === "auto") {
+          nextPage = "/summary";
+        } else if ($partitionStore.mode === "replace-partition") {
+          nextPage = "/replace-partition";
+        } else {
+          nextPage = "/configure-partition";
+        }
+      } else if ($partitionStore.mode === "install-along") {
+        nextPage = "/configure-install-along";
+      }
     }
   }
   function handleChange(event: Event) {
     $partitionStore.mode = "install-along";
     $partitionStore.selectedDeviceForInstallAlong =
       $partitionStore.partitionsWithOS[0].kname;
+  }
+  function onChangeFunctionPassPhrase(e: any) {
+    let value = e.target.value;
+    if (value != "") {
+      e.target.parentElement.classList.remove("border-red-500");
+      $partitionStore.luksPassword = value;
+    } else {
+      e.target.parentElement.classList.add("border-red-500");
+    }
   }
 
   $: $partitionStore, IsOkayToMoveNextPage();
@@ -270,18 +301,39 @@
             value: "replace-partition",
             icon: replacePartitionIcon,
           },
-          ];
-          if (hasOs){
-            c.push({
+        ];
+        if (hasOs) {
+          c.push({
             title: "Install Along",
             desc: install_along_card.desc,
             value: "install-along",
             icon: installAlongIcon,
-          })
-          }
+          });
+        }
         return c;
       })()}
     />
+    <div class="flex w-full">
+      <div class="flex w-[40%] justify-between items-center">
+        <h4 class="text-xl font-medium">Encrypt</h4>
+        <Switch bind:value={$partitionStore.encrypt_check}></Switch>
+      </div>
+      {#if $partitionStore.encrypt_check}
+        <div class="flex-column w-[60%] justify-between items-center ml-10">
+          <h4 class="text-xl font-medium">Pass Phrase</h4>
+          <div class="w-full">
+            <InputBox
+              styleClass="text-base"
+              label=""
+              placeholderText="Enter encryption passphrase"
+              inputType={"text"}
+              givenOnChangeValue={onChangeFunctionPassPhrase}
+            ></InputBox>
+          </div>
+        </div>
+      {/if}
+    </div>
+
     <!--{#if hasOs}
       <div class="relative w-full h-150" style="height:150px">
         <input
@@ -334,7 +386,7 @@
 </StepWrapper>
 
 <style>
- /* .selected {
+  /* .selected {
     border-color: #ffb800;
   }
 

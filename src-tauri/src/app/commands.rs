@@ -175,3 +175,12 @@ pub fn human_to_bytes(d: String) -> Result<String, tauri::Error> {
         Err(_) => todo!(),
     }
 }
+
+#[tauri::command]
+pub fn save_luks_passphrase(d: String) {
+    let mut file = match File::create("/tmp/luks") {
+        Ok(o) => o,
+        Err(_) => return,
+    };
+    file.write_all(d.as_bytes());
+}

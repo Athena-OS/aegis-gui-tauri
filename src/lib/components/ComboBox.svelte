@@ -23,29 +23,14 @@
     export let filter = (text: string) => {
         const sanitized = text.trim().toLowerCase();
 
-        return options.reduce((matches: any[], option: any) => {
-            // Check if the option's text includes the sanitized text
-            if (option.text.toLowerCase().includes(sanitized)) {
-                // If it does, add the option's text to the matches array
-                matches.push(option);
-            }
-
-            // If the option has nested options, check them as well
-            if (option.options) {
-                option.options.forEach((nestedOption: any) => {
-                    if (nestedOption.text.toLowerCase().includes(sanitized)) {
-                        matches.push(nestedOption.text);
-                    }
-                });
-            }
-
-            return matches;
-        }, []);
+        return options.filter((option: any) =>
+            option.text.toLowerCase().includes(sanitized),
+        );
     };
 
     let listElement: any;
     let inputElement: any;
-    let list: [] = [];
+    let list: any[] = [];
     let isListOpen = false;
     let selectedOption: any;
 
@@ -109,7 +94,7 @@
             !event.target.matches(`[role="option"]:not([aria-disabled="true"])`)
         )
             return;
-
+        dispatch("select", event as CustomEvent);
         selectOption(event.target);
         hideList();
     }
@@ -154,6 +139,7 @@
                 break;
 
             case "Enter":
+                dispatch("select", event as CustomEvent);
                 selectOption(event.target);
                 hideList();
                 flag = true;
@@ -179,16 +165,12 @@
     }
 
     async function showList(inputValue: any) {
-        const isExactMatch = options.some((o: any) =>
-            o.options
-                ? o.options.some((o: any) => o.text === inputValue)
-                : o.text === inputValue,
-        );
-
-        list =
-            inputValue === "" || isExactMatch
-                ? options
-                : await filter(inputValue);
+        const isExactMatch = options.some((o: any) => o.text === inputValue);
+        if (isExactMatch) {
+            list = options.filter((o: any) => o.text === inputValue);
+        } else {
+            list = inputValue === "" ? options : await filter(inputValue);
+        }
         isListOpen = true;
     }
 
@@ -197,6 +179,7 @@
 
         if (selectedOption) {
             inputElement.value = selectedOption.text;
+            //onSelect({detail:{taeget:selectOption.text}})
         }
 
         isListOpen = false;
@@ -204,7 +187,6 @@
     }
 
     function selectOption(optionElement: any) {
-        console.log(optionElement.dataset)
         value = optionElement.dataset.value;
 
         selectedOption = {
@@ -213,7 +195,7 @@
         };
     }
     function onSelect(e: Event) {
-        dispatch("select", (e as CustomEvent));
+        dispatch("select", e as CustomEvent);
     }
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
@@ -279,64 +261,28 @@
                     bind:this={listElement}
                 >
                     {#each list as option (option)}
-                        {#if option.options}
-                            <li
-                                class="relative cursor-default select-none py-2 pl-2 rounded-lg {active
-                                    ? 'bg-[#FFB800] text-black'
-                                    : 'text-white'}"
-                            >
-                                <slot name="group" group={option}>
-                                    {option.text}
-                                </slot>
-                            </li>
-                            {#each option.options as option (option)}
-                                <li
-                                    class="list__option"
-                                    class:--disabled={option.disabled}
-                                    role="option"
-                                    tabindex={option.disabled
-                                        ? undefined
-                                        : "-1"}
-                                    data-text={option.text}
-                                    data-value={option.value}
-                                    aria-selected={value === option.value}
-                                    aria-disabled={option.disabled}
-                                >
-                                    <slot name="option" {option}>
-                                        {option.text}
-                                    </slot>
-                                    {#if option.value === value}
-                                        <svg viewBox="0 0 24 24" class="icon">
-                                            <polyline points="20 6 9 17 4 12"
-                                            ></polyline>
-                                        </svg>
-                                    {/if}
-                                </li>
-                            {/each}
-                        {:else}
-                            <li
-                                class="list__option"
-                                class:--disabled={option.disabled}
-                                role="option"
-                                tabindex={option.disabled === true
-                                    ? undefined
-                                    : "-1"}
-                                data-text={option.text}
-                                data-value={option.value}
-                                aria-selected={value === option.value}
-                                aria-disabled={option.disabled}
-                            >
-                                <slot name="option" {option}>
-                                    {option.text}
-                                </slot>
-                                {#if option.value === value}
-                                    <svg viewBox="0 0 24 24" class="icon">
-                                        <polyline points="20 6 9 17 4 12"
-                                        ></polyline>
-                                    </svg>
-                                {/if}
-                            </li>
-                        {/if}
+                        <li
+                            class="list__option"
+                            class:--disabled={option.disabled}
+                            role="option"
+                            tabindex={option.disabled === true
+                                ? undefined
+                                : "-1"}
+                            data-text={option.text}
+                            data-value={option.value}
+                            aria-selected={value === option.value}
+                            aria-disabled={option.disabled}
+                        >
+                            <slot name="option" {option}>
+                                {option.text}
+                            </slot>
+                            {#if option.value === value}
+                                <svg viewBox="0 0 24 24" class="icon">
+                                    <polyline points="20 6 9 17 4 12"
+                                    ></polyline>
+                                </svg>
+                            {/if}
+                        </li>
                     {:else}
                         <li class="list__no-results">No results available</li>
                     {/each}

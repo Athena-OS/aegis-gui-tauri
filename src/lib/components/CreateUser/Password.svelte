@@ -18,7 +18,7 @@
   function onTabsSelected() {
     if ($tabs.selected === "CUSTOM") {
       $accountsStore.createNewUserTemp.passwordSameAsRoot = false;
-    }else{
+    } else {
       $accountsStore.createNewUserTemp.passwordSameAsRoot = true;
     }
   }
@@ -26,41 +26,60 @@
 
 <div class="flex w-full flex-col items-center justify-center">
   <div class="w-full space-y-2">
-    <div class="font-medium text-neutral-400">Password Options</div>
-    <div
-      use:tabs.list
-      class="flex space-x-4 rounded-full p-2 bg-gray-700 h-[50px] text-sm"
-    >
-      {#each keys as value}
-        {@const active = $tabs.active === value}
-        <button
-          class:active
-          class="h-full rounded-full w-full font-medium"
-          use:tabs.tab={{ value }}>{value}</button
-        >
-      {/each}
-    </div>
+    {#if $accountsStore.users.length > 0 || $accountsStore.users.filter((item) => item.hasRoot === true).length > 0}
+      <div class="font-medium text-neutral-400">Password Options</div>
+      <div
+        use:tabs.list
+        class="flex space-x-4 rounded-full p-2 bg-gray-700 h-[50px] text-sm"
+      >
+        {#each keys as value}
+          {@const active = $tabs.active === value}
+          <button
+            class:active
+            class="h-full rounded-full w-full font-medium"
+            use:tabs.tab={{ value }}>{value}</button
+          >
+        {/each}
+      </div>
+    {/if}
     <div>
-      {#each keys as value}
-        <div use:tabs.panel={{}}>
-          {#if $tabs.selected === value && $tabs.selected === "CUSTOM"}
-            <div class="space-y-4">
-              <InputBox
-                bind:value={$accountsStore.createNewUserTemp.password}
-                inputType="password"
-                label="Password"
-                placeholderText="Enter your password"
-              />
-              <InputBox
-                bind:value={$accountsStore.createNewUserTemp.confirmPassword}
-                inputType="password"
-                label="Confirm Password"
-                placeholderText="Confirm your password"
-              />
-            </div>
-          {/if}
+      {#if $accountsStore.users.length > 0 || $accountsStore.users.filter((item) => item.hasRoot === true).length > 0}
+        {#each keys as value}
+          <div use:tabs.panel={{}}>
+            {#if $tabs.selected === value && $tabs.selected === "CUSTOM"}
+              <div class="space-y-4">
+                <InputBox
+                  bind:value={$accountsStore.createNewUserTemp.password}
+                  inputType="password"
+                  label="Password"
+                  placeholderText="Enter your password"
+                />
+                <InputBox
+                  bind:value={$accountsStore.createNewUserTemp.confirmPassword}
+                  inputType="password"
+                  label="Confirm Password"
+                  placeholderText="Confirm your password"
+                />
+              </div>
+            {/if}
+          </div>
+        {/each}
+      {:else}
+        <div class="space-y-4">
+          <InputBox
+            bind:value={$accountsStore.createNewUserTemp.password}
+            inputType="password"
+            label="Password"
+            placeholderText="Enter your password"
+          />
+          <InputBox
+            bind:value={$accountsStore.createNewUserTemp.confirmPassword}
+            inputType="password"
+            label="Confirm Password"
+            placeholderText="Confirm your password"
+          />
         </div>
-      {/each}
+      {/if}
     </div>
   </div>
 </div>
