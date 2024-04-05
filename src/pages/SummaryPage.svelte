@@ -1,5 +1,5 @@
 <script>
-// @ts-nocheck
+  // @ts-nocheck
 
   import StepWrapper from "../lib/components/StepWrapper.svelte";
 
@@ -13,22 +13,59 @@
 
   import packagesSummary from "../assets/packages-summary.svg";
   import packagesStore from "../lib/stores/packagesStore";
+  import partitionStore from "../lib/stores/partitionStore";
+  import globalStore from "../lib/stores/globalStore";
+  import nix from "../assets/nix.svg";
+  import arch from "../assets/arch.svg";
 </script>
 
 <StepWrapper
   title="Summary"
-  dialogTitle="Header Here"
+  dialogTitle="This is the summary of the installation option choices"
   dialogContent="Your text here"
-  prev="/extras"
+  prev={(() => {
+    const pm = $partitionStore.mode;
+    if (pm === "auto") {
+      return "/partition";
+    } else if (pm == "replace-partition") {
+      return "/replace-partition";
+    }else if (pm == "install-along"){
+      return "/configure-install-along"
+    } else {
+      return "/finalize-partition";
+    }
+  })()}
   next="/install"
 >
   <div
     class="w-full h-full overflow-auto border-4 border-primary-400 rounded-xl"
   >
     <div class="w-full bg-transparent h-full py-4 justify-center">
+      <div class="space-y-4 flex w-full h-full items-center">
+        <div class="w-1/2 h-inherit items-center">
+          {#if $globalStore.base == "arch"}
+            <img src={arch} class="h-[50] relative z-50" alt="" />
+          {:else}
+            <img src={nix} class="h-[50px] relative z-50" alt="" />
+          {/if}
+        </div>
+        <div
+          class="grow h-inherit flex flex-col text-5xl space-y-8 pt-8 -ml-16"
+        >
+          <h1 class="text-primary-400 mb-6">Base OS</h1>
+
+          <h4 class="">
+            Base Operating System :- <span class="text-white"
+              >&nbsp;{$globalStore.base}</span
+            >
+          </h4>
+        </div>
+      </div>
+    </div>
+    <div class="w-full bg-transparent h-full py-4 justify-center">
       <div class="space-y-4 flex w-full h-full overflow-hidden items-center">
-        <div class="w-auto h-full flex items-center">
-          <img src={keyboardSummary} class="h-[130%] relative z-50" alt="" />
+        <div class="w-1/2 h-full flex items-center flex items-center p-10">
+          <img src={keyboardSummary} class="" alt="" />
         </div>
         <div class="w-1/2 h-full flex flex-col text-5xl space-y-8 pt-8 -ml-16">
           <h1 class="text-primary-400 mb-6">Keyboard</h1>
@@ -90,7 +127,9 @@
           {#each Object.keys($packagesStore.packages) as packagesCategory}
             <h4 class="text-neutral-400 w-fit flex justify-between">
               {packagesCategory} :-
-              <span class="text-white">&nbsp;{$packagesStore.packages[packagesCategory][0]}</span>
+              <span class="text-white"
+                >&nbsp;{$packagesStore.packages[packagesCategory][0]}</span
+              >
             </h4>
           {/each}
         </div>

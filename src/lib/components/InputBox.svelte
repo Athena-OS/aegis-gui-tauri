@@ -29,7 +29,7 @@
   >
     <input
       id={inputID}
-      class={`${styleClass} w-full h-full placeholder:text-neutral-400 outline-none bg-gray-800 px-4`}
+      class={`${styleClass} w-full h-full placeholder:text-neutral-400 outline-none bg-gray-500 px-4`}
       type={inputType}
       placeholder={placeholderText}
       {value}

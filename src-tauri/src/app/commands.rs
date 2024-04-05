@@ -1,0 +1,186 @@
+use crate::app::{config, global_app, install};
+use crate::partition::*;
+use async_std::task;
+use std::{error::Error, fs::File, io::Write, process::Command};
+
+// Get partitions use the lsblk command to get disks and their partitions
+#[tauri::command]
+pub fn get_partitions() -> Result<String, tauri::Error> {
+    let output: Result<std::process::Output, std::io::Error> = Command::new("lsblk")
+        .arg("-O") // all fields
+        .arg("-J") // json output
+        .arg("--bytes") // bytes format
+        .output();
+
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(_) => todo!(),
+    }
+}
+
+// Get a list of timezones
+#[tauri::command]
+pub fn get_timezones() -> Result<String, tauri::Error> {
+    let output: Result<std::process::Output, std::io::Error> =
+        Command::new("timedatectl").arg("list-timezones").output();
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(_) => todo!(),
+    }
+}
+
+// Get a list of x11 keymaps
+#[tauri::command]
+pub fn get_x11_keymaps() -> Result<String, tauri::Error> {
+    let output: Result<std::process::Output, std::io::Error> = Command::new("localectl")
+        .arg("list-x11-keymap-layouts")
+        .output();
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(_) => todo!(),
+    }
+}
+// check if system is uefi
+#[tauri::command]
+pub fn is_uefi() -> Result<String, tauri::Error> {
+    println!("is uefi run");
+    let output: Result<std::process::Output, std::io::Error> = Command::new("sh")
+        .arg("-c")
+        .arg("[ -d /sys/firmware/efi ] && echo true || echo false")
+        .output();
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(e) => {
+            println!("failed running is uefi {}", e);
+            let var_name = "Failed running is uefi";
+            Err(tauri::Error::InvalidWindowUrl(var_name))
+        }
+    }
+}
+
+// hash password hashes the password
+#[tauri::command]
+pub fn hash_password(password: &str) -> Result<String, tauri::Error> {
+    let output: Result<std::process::Output, std::io::Error> = Command::new("openssl")
+        .arg("passwd")
+        .arg("-6")
+        .arg(password)
+        .output();
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let output_str = String::from_utf8_lossy(&output.stdout);
+                Ok(output_str.into())
+            } else {
+                let var_name = "Command execution failed";
+                Err(tauri::Error::InvalidWindowUrl(var_name))
+            }
+        }
+        Err(_) => todo!(),
+    }
+}
+#[allow(dead_code)]
+pub fn read_file(path: &str) -> Result<String, Box<dyn Error>> {
+    let file_content = std::fs::read_to_string(path)?;
+    Ok(file_content)
+}
+
+// keymaps
+#[tauri::command]
+pub fn get_keymaps() -> Result<String, tauri::Error> {
+    Ok(include_str!("keymaps").to_string())
+}
+
+// locale
+#[tauri::command]
+pub fn get_locale() -> Result<String, tauri::Error> {
+    Ok(include_str!("locale").to_string())
+}
+
+#[allow(dead_code)]
+pub fn read_file1(path: &str) -> Result<String, std::io::Error> {
+    std::fs::read_to_string(path)
+}
+
+// save the config file in /tmp/conf.file
+#[tauri::command]
+#[allow(dead_code)]
+pub fn install(data: String) {
+    // get config and update global store
+    global_app::update_config(config::Config::from_json_string(data));
+    // start installation in the background
+    task::spawn(async move { install::install().await });
+}
+#[allow(dead_code)]
+pub fn save_json(data: &str, filename: &str) -> std::io::Result<()> {
+    // Open the file in write mode, creating it if it doesn't exist
+    let mut file = File::create(filename)?;
+    // Write the data to the file
+    file.write_all(data.as_bytes())?;
+
+    Ok(())
+}
+#[allow(dead_code)]
+pub fn read_json(_filename: &str) {}
+#[allow(dead_code)]
+fn delete_file(filename: &str) -> std::io::Result<()> {
+    std::fs::remove_file(filename)?;
+    Ok(())
+}
+
+#[tauri::command]
+#[allow(dead_code)]
+pub fn get_gs() -> String {
+    global_app::get_global_storage()
+        .unwrap_or_default()
+        .to_json_string()
+}
+
+#[tauri::command]
+pub fn human_to_bytes(d: String) -> Result<String, tauri::Error> {
+    match utils::human2bytes(&d) {
+        Ok(k) => Ok(format!("{:?}", k)),
+        Err(_) => todo!(),
+    }
+}
+
+#[tauri::command]
+pub fn save_luks_passphrase(d: String) {
+    let mut file = match File::create("/tmp/luks") {
+        Ok(o) => o,
+        Err(_) => return,
+    };
+    file.write_all(d.as_bytes());
+}

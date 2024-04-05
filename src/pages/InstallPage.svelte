@@ -2,30 +2,51 @@
   import promotionImage2 from "../assets/promotion/promotion2.jpg";
   import promotionImage3 from "../assets/promotion/promotion3.jpg";
   import promotionVideo from "../assets/promotion/video.mp4";
-
   import arrowDown from "../assets/icons/arrow-down-white.svg";
   import warningIcon from "../assets/icons/warning.svg";
-
   import Button from "../lib/components/Button.svelte";
   import Dialog from "../lib/components/Dialog.svelte";
-
   import { createDialog } from "svelte-headlessui";
   import { Link } from "svelte-routing";
-
   import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import "@splidejs/svelte-splide/css";
-
+  import logStore from "../lib/stores/logStore";
+  import { invoke } from "@tauri-apps/api";
+  import globalStore from "../lib/stores/globalStore";
+  import partitionStore from "../lib/stores/partitionStore";
+  import { appWindow } from "@tauri-apps/api/window";
   let consoleOpen = true;
-
-  let progress = 80; // in percentage
-
+  let shareLog = false;
+  let logLink = "";
+  let logs = "";
   let dialog = createDialog({ label: "failed" });
+  let dialogCheckLogs = createDialog({ label: "check-logs" });
+  // listen to install fail event
+  function installFail() {
+    if ($logStore.installFailed) {
+      console.log("Event fail received");
+      dialog.open();
+      console.log("Dialog should be open now");
+    }
+  }
 
-  // uncomment to display dialog preview
+  // save luks password
+  if ($partitionStore.encrypt_check) {
+    invoke("save_luks_passphrase", { d: $partitionStore.luksPassword });
+  }
 
-  // onMount(() => {
-  //   dialog.open();
-  // });
+  // save config. This triggers the backend install
+  async function saveConf() {
+    await invoke("install", { data: JSON.stringify($globalStore) });
+  }
+
+  async function shareLogs() {
+    shareLog = true;
+    logLink = await invoke("share_logs");
+    console.log(logLink);
+  }
+  saveConf();
+  $: $logStore, installFail();
 </script>
 
 <Dialog {dialog}>
@@ -34,14 +55,44 @@
   >
     <img src={warningIcon} alt="" />
     <div class="text-4xl font-medium">Installation Failed</div>
-    <div class="text-xs hover:text-cyan-400"><a href="">Check logs ?</a></div>
-    <Button fullWidth variant="bordered">Do you want to share the logs ?</Button
+    <!--The link to termbin.com-->
+    {#if shareLog}
+      <div>{logLink}</div>
+    {/if}
+    <!-- svelte-ignore a11y-invalid-attribute -->
+    <button
+      class="text-xs hover:text-cyan-400"
+      on:click={async () => {
+        logs = await invoke("get_all_logs");
+        dialogCheckLogs.open();
+      }}>Check logs ?</button
     >
-    <Link class="w-full" to="/">
-      <Button fullWidth>Close</Button>
-    </Link>
-  </div></Dialog
->
+    <Button fullWidth variant="bordered" on:click={shareLogs}
+      >Do you want to share the logs ?</Button
+    >
+    <Button fullWidth on:click={async () => await appWindow.hide()}
+      >Close</Button
+    >
+  </div>
+</Dialog>
+
+<Dialog dialog={dialogCheckLogs}>
+  <div
+    class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2"
+    style="height:400px"
+  >
+    <pre class="w-full whitespace-pre-line">
+        {logs}      
+    </pre>
+  </div>
+  <Button
+    fullWidth
+    on:click={() => {
+      dialogCheckLogs.close();
+      dialog.open();
+    }}>Close</Button
+  >
+</Dialog>
 
 <main
   class="h-full p-4 space-y-4 absolute top-0 left-0 right-0 overflow-scroll bg-gradient-to-tr from-blue-700 to-indigo-700"
@@ -76,7 +127,7 @@
             <div
               class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4"
             >
-              <Button>Visit Sponser</Button>
+              <Button>Visit Sponsor</Button>
             </div>
           </div>
         </SplideSlide>
@@ -92,7 +143,7 @@
             <div
               class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4"
             >
-              <Button>Visit Sponser</Button>
+              <Button>Visit Sponsor</Button>
             </div>
           </div>
         </SplideSlide>
@@ -108,7 +159,7 @@
             <div
               class="absolute top-0 bottom-0 left-0 right-0 h-full w-full flex p-4"
             >
-              <Button>Visit Sponser</Button>
+              <Button>Visit Sponsor</Button>
             </div>
           </div>
         </SplideSlide>
@@ -128,7 +179,7 @@
             class="absolute top-0 bottom-0 left-0 my-auto w-full bg-gray-700"
           />
           <div
-            style="width: {progress}%;"
+            style="width: {$logStore.progress}%;"
             class="absolute top-0 bottom-0 left-0 my-auto bg-primary-500"
           />
         </div>
@@ -137,12 +188,11 @@
     {#if consoleOpen}
       <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2">
         <pre class="w-full whitespace-pre-line">
-        01/03/22 08:51:01 INFO   :.main: *************** RSVP Agent started ***************
-        02/03/22 08:51:01 INFO   :...locate_configFile: Specified configuration file: /u/user10/rsvpd1.conf
-        03/03/22 08:51:01 INFO   :.main: Using log level 51103/22 08:51:01 INFO   :..settcpimage: Get TCP images rc - EDC8112I Operation not supported on socket.
-        03/03/22 08:51:01 INFO   :..settcpimage: Associate with TCP/IP image name = TCPCS03/22 08:51:02 INFO   :..reg_process: registering process with the system
-        03/03/22 08:51:02 INFO   :..reg_process: attempt OS/390 registration03/22 08:51:02 INFO   :..reg_process: return from registration rc=0
-    </pre>
+        {#each $logStore.logs as log}
+            {log}
+          <br />
+          {/each}
+        </pre>
       </div>
     {/if}
   </div>

@@ -30,7 +30,7 @@
         app_element.style.background = "";
       }
     }}
-    to="/keyboard"
+    to="/base"
     class="w-1/6"
   >
     <Button variant="primary" fullWidth={true}>

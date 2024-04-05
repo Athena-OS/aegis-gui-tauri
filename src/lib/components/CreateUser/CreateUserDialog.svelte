@@ -5,9 +5,9 @@
   import Intro from "./Intro.svelte";
   import Password from "./Password.svelte";
   import Misc from "./Misc.svelte";
-
   import crossIcon from "../../../assets/icons/cross.svg";
   import accountsStore from "../../stores/accountsStore";
+    import { hashPassword } from "../../utils/functions";
 
   export let dialog: any;
 
@@ -32,7 +32,7 @@
     if (currentStep > 0) currentStep--;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < steps.length - 1) {
       if (currentStep === 0) {
         if (
@@ -73,20 +73,21 @@
             ] = {
               name: $accountsStore.createNewUserTemp.name,
               userName: $accountsStore.createNewUserTemp.userName,
-              password: $accountsStore.users.filter(
+              password: await hashPassword($accountsStore.users.filter(
                 (item) => item.hasRoot === true,
-              )[0].password,
+              )[0].password),
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             };
           } else {
             $accountsStore.users.push({
               name: $accountsStore.createNewUserTemp.name,
               userName: $accountsStore.createNewUserTemp.userName,
-              password: $accountsStore.users.filter(
+              password: await hashPassword($accountsStore.users.filter(
                 (item) => item.hasRoot === true,
-              )[0].password,
+              )[0].password),
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             });
+            
           }
         } else {
           if ($accountsStore.createNewUserTemp.isEditing) {
@@ -100,14 +101,15 @@
             ] = {
               name: $accountsStore.createNewUserTemp.name,
               userName: $accountsStore.createNewUserTemp.userName,
-              password: $accountsStore.createNewUserTemp.password,
+              password: await hashPassword($accountsStore.createNewUserTemp.password),
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             };
           } else {
+            let p = await hashPassword($accountsStore.createNewUserTemp.password)
             $accountsStore.users.push({
               name: $accountsStore.createNewUserTemp.name,
               userName: $accountsStore.createNewUserTemp.userName,
-              password: $accountsStore.createNewUserTemp.password,
+              password: p,
               hasRoot: $accountsStore.createNewUserTemp.hasRoot,
             });
           }

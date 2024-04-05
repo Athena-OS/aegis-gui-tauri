@@ -29,10 +29,10 @@
     { name: "/groot/start" },
   ];
   let swapPartitionSize = [
-    { name: "1 Gib" },
-    { name: "2 Gib" },
-    { name: "4 Gib" },
-    { name: "8 Gib" },
+    { name: "1Gib" },
+    { name: "2Gib" },
+    { name: "4Gib" },
+    { name: "8Gib" },
   ];
 
   let newPartitionSize = 1024;
@@ -44,7 +44,7 @@
       bytesToMB(
         $partitionStore.systemStorageInfo.filter(
           (item) => item.displayName === $partitionStore.selectedDevice,
-        )[0].availableStorage,
+        )[0].partitions[$partitionStore.ind].size,
       ),
     )}
     min={1024}

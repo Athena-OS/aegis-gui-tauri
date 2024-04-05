@@ -4,7 +4,7 @@
 
   export let totalValue = 100;
 
-  export let color: string = undefined;
+  export let color: string = "";
 
   export let items: PartitionInfo[];
 

@@ -15,7 +15,8 @@ const accountsStore: Writable<{
         passwordSameAsRoot: boolean;
         hasRoot: boolean;
         isEditing: boolean;
-    }
+    },
+    rootpass: string
 }> = writable({
     users: [],
     createNewUserTemp: {
@@ -26,7 +27,8 @@ const accountsStore: Writable<{
         passwordSameAsRoot:false,
         hasRoot: false,
         isEditing: false
-    }
+    },
+    rootpass: ""
 });
 
 export default accountsStore;

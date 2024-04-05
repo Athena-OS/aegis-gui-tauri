@@ -1,18 +1,18 @@
 {
-  "name": "aegis-gui",
+  "name": "aegis-gui-tauri",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "tauri-dev": "WEBKIT_DISABLE_COMPOSITING_MODE=1 && tauri dev",
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "dev": "yarn vite",
+    "build": "yarn vite build",
+    "preview": "yarn vite preview",
+    "check": "yarn svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
-    "@tauri-apps/cli": "^1.5.5",
+    "@tauri-apps/cli": "^1.5.9",
     "@tsconfig/svelte": "^5.0.0",
     "@types/node": "^20.6.3",
     "@types/svelte-range-slider-pips": "^2.0.3",
@@ -32,9 +32,16 @@
   "dependencies": {
     "@splidejs/svelte-splide": "^0.2.9",
     "@tauri-apps/api": "^1.5.1",
+    "@tauri-apps/plugin-autostart": "^2.0.0-beta.1",
+    "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
     "svelte-headlessui": "^0.0.26",
     "svelte-transition": "^0.0.10",
     "tauri-plugin-system-info-api": "^0.1.1"
-  }
+  },
+  "description": "This is the Graphical User Installer for Athena OS.",
+  "main": "index.html",
+  "repository": "https://github.com/Athena-OS/aegis-gui-tauri",
+  "author": "Athena OS team",
+  "license": "GNU"
 }
