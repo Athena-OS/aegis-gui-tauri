@@ -818,7 +818,7 @@ fn install_arch() -> std::io::Result<()> {
         String::from("config"),
         String::from("/tmp/config.json"),
     ];
-    run_command(args)
+    run_command2(args)
 }
 
 #[allow(dead_code)]
@@ -829,5 +829,30 @@ fn install_nix() -> std::io::Result<()> {
         String::from("config"),
         String::from("/tmp/config.json"),
     ];
-    run_command(args)
+    run_command2(args)
 }
+
+
+use std::thread;
+
+fn run_command2(args: Vec<String>) -> std::io::Result<()> {
+    let child_thread = thread::spawn(move || {
+        let output = Command::new("sudo")
+            .args(args)
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .output()
+            .expect("Failed to execute command");
+
+        if output.status.success() {
+            println!("Command executed successfully");
+        } else {
+            eprintln!("Command failed with exit code: {}", output.status);
+        }
+    });
+
+    child_thread.join().expect("Failed to join child thread");
+    Ok(())
+}
+
+
