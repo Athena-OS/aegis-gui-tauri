@@ -26,7 +26,7 @@
 
 <div class="flex w-full flex-col items-center justify-center">
   <div class="w-full space-y-2">
-    {#if $accountsStore.users.length > 0 || $accountsStore.users.filter((item) => item.hasRoot === true).length > 0}
+    {#if $accountsStore.users.filter((item) => item.hasRoot === true).length > 0}
       <div class="font-medium text-neutral-400">Password Options</div>
       <div
         use:tabs.list
@@ -43,7 +43,7 @@
       </div>
     {/if}
     <div>
-      {#if $accountsStore.users.length > 0 || $accountsStore.users.filter((item) => item.hasRoot === true).length > 0}
+      {#if $accountsStore.users.filter((item) => item.hasRoot === true).length > 0}
         {#each keys as value}
           <div use:tabs.panel={{}}>
             {#if $tabs.selected === value && $tabs.selected === "CUSTOM"}

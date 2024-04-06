@@ -245,7 +245,16 @@
                         aria-required={required ? "true" : undefined}
                     />
                     <img
-                        class="absolute right-3 top-0 bottom-0 my-auto"
+                        class="absolute right-3 top-0 bottom-0 my-auto cursor-pointer"
+                        on:click={(e)=>{
+                            if (expand){
+                                expand = !expand
+                                showList("")
+                            }else{
+                                expand = !expand
+                                hideList()
+                            }
+                        }}
                         src={downArrow}
                         alt=""
                     />

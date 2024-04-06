@@ -176,7 +176,6 @@
               label=""
               placeholderText="Enter your desired hostname"
               inputType={"text"}
-              value="athenaos"
               givenOnChangeValue={onChangeFunctionHostName}
             ></InputBox>
           </div>
