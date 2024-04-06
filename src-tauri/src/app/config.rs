@@ -131,55 +131,55 @@ impl Default for Params {
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct Config {
     pub partition: Partition,
-    pub bootloader: Bootloader,
-    pub locale: Locale,
-    pub networking: Networking,
+    pub bootloader: Value,
+    pub locale: Value,
+    pub networking: Value,
     pub users: Value,
-    pub rootpass: String,
-    pub desktop: String,
-    pub theme: String,
-    pub displayManager: String,
-    pub browser: String,
+    pub rootpass: Value,
+    pub desktop: Value,
+    pub theme: Value,
+    pub displayManager: Value,
+    pub browser: Value,
     #[serde(skip_serializing)]
     pub packagesStore: Value,
-    pub extra_packages: Vec<String>,
-    pub kernel: String,
-    pub snapper: bool,
-    pub zramd: bool,
-    pub hardened: bool,
-    pub flatpak: bool,
-    #[serde(skip_serializing_if = "serialize_params", default)]
-    pub params: Params,
-    pub terminal: String,
+    pub extra_packages: Value,
+    pub kernel: Value,
+    pub snapper: Value,
+    pub zramd: Value,
+    pub hardened: Value,
+    pub flatpak: Value,
+    //#[serde(skip_serializing_if = "serialize_params", default)]
+    pub params: Value,
+    pub terminal: Value,
     #[serde(skip_serializing)]
     pub base: String,
 }
 // Serialize params only if not defalut
-fn serialize_params(value: &Params) -> bool {
+/*fn serialize_params(value: &Params) -> bool {
     value.cores > 0 || value.keep || value.jobs > 0
-}
+}*/
 impl Default for Config {
     fn default() -> Config {
         Config {
             partition: Partition::default(),
-            bootloader: Bootloader::default(),
-            locale: Locale::default(),
-            networking: Networking::default(),
+            bootloader: json!(null),
+            locale:json!(null),
+            networking:json!(null),
             users: json!(null),
-            rootpass: String::new(),
-            desktop: String::new(),
-            theme: String::new(),
-            displayManager: String::new(),
-            browser: String::new(),
+            rootpass: json!(null),
+            desktop: json!(null),
+            theme: json!(null),
+            displayManager: json!(null),
+            browser: json!(null),
             packagesStore: json!(null),
-            extra_packages: vec![],
-            kernel: String::new(),
-            snapper: false,
-            zramd: false,
-            hardened: false,
-            flatpak: false,
-            params: Params::default(),
-            terminal: String::from("default"),
+            extra_packages: json!(null),
+            kernel: json!(null),
+            snapper: json!(null),
+            zramd: json!(null),
+            hardened: json!(null),
+            flatpak: json!(null),
+            params: json!(null),
+            terminal: json!(null),
             base: String::from("arch"),
         }
     }

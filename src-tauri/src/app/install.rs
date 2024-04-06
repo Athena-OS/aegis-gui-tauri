@@ -282,7 +282,7 @@ fn do_install_base() -> std::io::Result<()> {
     run_command(args)
 }
 #[allow(dead_code)]
-fn do_install_packages() -> std::io::Result<()> {
+/*fn do_install_packages() -> std::io::Result<()> {
     info!("[AEGIS TAURI] installing packages.");
     let config = global_app::get_config().unwrap_or_default();
     let args = vec![
@@ -385,7 +385,7 @@ fn do_hardened() -> std::io::Result<()> {
 fn do_users() {
     info!("[AEGIS TAURI] setting up users. Configring users and passowords.");
     global_app::update_progress();
-}
+}*/
 #[allow(dead_code)]
 fn do_nix() -> std::io::Result<()> {
     info!("[AEGIS TAURI] installing nix package manager");
@@ -393,7 +393,7 @@ fn do_nix() -> std::io::Result<()> {
     run_command(args)
 }
 #[allow(dead_code)]
-fn do_flatpak() -> std::io::Result<()> {
+/*fn do_flatpak() -> std::io::Result<()> {
     info!("[AEGIS TAURI] Installing Flatpak and enabling FlatHub.");
     let config = global_app::get_config().unwrap_or_default();
     info!("Installing snapper : {}", config.flatpak);
@@ -404,7 +404,7 @@ fn do_flatpak() -> std::io::Result<()> {
         global_app::update_progress();
         Ok(())
     }
-}
+}*/
 #[allow(dead_code)]
 fn do_cuda() {
     info!("[AEGIS TAURI] installing CUDA.");
@@ -441,7 +441,7 @@ fn do_config() {
     global_app::update_progress();
 }
 #[allow(dead_code)]
-fn do_desktops() -> std::io::Result<()> {
+/*fn do_desktops() -> std::io::Result<()> {
     info!("[AEGIS TAURI] installing desktop.");
     let config = global_app::get_config().unwrap_or_default();
     info!("Installing desktop : {:?}", config.desktop);
@@ -509,7 +509,7 @@ fn do_terminals() -> std::io::Result<()> {
 fn do_enable_services() {
     info!("[AEGIS TAURI] enabling services.");
     global_app::update_progress();
-}
+}*/
 #[allow(dead_code)]
 fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
     let mut config = match global_app::get_config() {
@@ -596,9 +596,9 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
             config.partition.mode = String::from("Auto");
             config.partition.device = format!("/dev/{}", config.partition.device);
             // set params to default if base is nixos to skip serializing
-            if config.base == "arch"{
+           /*if config.base == "arch"{
                 config.params = config::Params::default();
-            }
+            }*/
             // Partitions ingnored since  the device will be formatted anyway.
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
