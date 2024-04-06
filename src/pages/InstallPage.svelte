@@ -14,6 +14,11 @@
   import { invoke } from "@tauri-apps/api";
   import globalStore from "../lib/stores/globalStore";
   import partitionStore from "../lib/stores/partitionStore";
+  import extrasStore from "../lib/stores/extrasStore";
+  import keyboardStore from "../lib/stores/keyboardStore";
+  import desktopStore from "../lib/stores/desktopStore";
+  import packagesStore from "../lib/stores/packagesStore";
+  import accountsStore from "../lib/stores/accountsStore";
   import { appWindow } from "@tauri-apps/api/window";
   let consoleOpen = true;
   let shareLog = false;
@@ -21,6 +26,69 @@
   let logs = "";
   let dialog = createDialog({ label: "failed" });
   let dialogCheckLogs = createDialog({ label: "check-logs" });
+  let config = {
+    base: $extrasStore.base,
+    partition: {
+      device: $partitionStore.selectedDevice,
+      mode: $partitionStore.mode,
+      efi: $partitionStore.efi,
+      swap: $partitionStore.swap,
+      encrypt_check: $partitionStore.encrypt_check,
+      swap_size: $partitionStore.newPartition.swapPartitionSize,
+      partitions: [],
+      system_storage_info: $partitionStore.systemStorageInfo.filter((s) => {
+        let partitionDisNAme = s.partitions.map((p) => p.partitionName);
+        // check if any of the partionNames has the selected device
+        if (partitionDisNAme[0]?.indexOf($partitionStore.selectedDevice) != 1) {
+          return s;
+        }
+      }),
+      system_storage_info_current: $partitionStore.systemStorageInfoCurrent,
+      installAlongPartitions: $partitionStore.installAlongPartitions,
+    },
+    bootloader: {
+      type: $partitionStore.grubType,
+      location: $partitionStore.grubLocation,
+    },
+    locale: {
+      locale: [$keyboardStore.locale],
+      timezone: $keyboardStore.timezone,
+      virtkeymap: $keyboardStore.keymaps,
+      x11keymap: $keyboardStore.x11keymap,
+    },
+    networking: {
+      hostname: $extrasStore.hostname,
+      ipv6: $extrasStore.ipv6,
+    },
+    users: $globalStore.users.map((u) => {
+      return {
+        name: u.username,
+        password: u.password,
+        hasroot: u.hasroot,
+        shell: $extrasStore.shell,
+      };
+    }),
+    rootpass: $globalStore.users.filter((i) => i.hasroot)[0]?.password,
+    desktop: $desktopStore.environment,
+    theme: $desktopStore.theme,
+    displaymanager: $desktopStore.displayManager,
+    browser: $extrasStore.browser,
+
+    packagesStore: $packagesStore,
+    terminal: $extrasStore.terminal,
+    extra_packages: [],
+    kernel: $extrasStore.kernel,
+    snapper: $extrasStore.snapper,
+    zramd: $extrasStore.zram,
+    hardened: $extrasStore.hardening,
+    flatpak: $extrasStore.flatpak,
+    params: {
+      cores: $extrasStore.cores,
+      jobs: $extrasStore.maxjobs,
+      keep: $extrasStore.keepgoing,
+    },
+  };
+  
   // listen to install fail event
   function installFail() {
     if ($logStore.installFailed) {
@@ -37,7 +105,7 @@
 
   // save config. This triggers the backend install
   async function saveConf() {
-    await invoke("install", { data: JSON.stringify($globalStore) });
+    await invoke("install", { data: JSON.stringify(config) });
   }
 
   async function shareLogs() {

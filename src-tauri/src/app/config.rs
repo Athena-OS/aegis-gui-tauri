@@ -138,7 +138,7 @@ pub struct Config {
     pub rootpass: Value,
     pub desktop: Value,
     pub theme: Value,
-    pub displayManager: Value,
+    pub displaymanager: Value,
     pub browser: Value,
     #[serde(skip_serializing)]
     pub packagesStore: Value,
@@ -169,7 +169,7 @@ impl Default for Config {
             rootpass: json!(null),
             desktop: json!(null),
             theme: json!(null),
-            displayManager: json!(null),
+            displaymanager: json!(null),
             browser: json!(null),
             packagesStore: json!(null),
             extra_packages: json!(null),

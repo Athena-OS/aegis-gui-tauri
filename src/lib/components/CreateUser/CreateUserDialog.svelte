@@ -37,10 +37,10 @@
       if (currentStep === 0) {
         if (
           $accountsStore.createNewUserTemp.name !== "" &&
-          $accountsStore.createNewUserTemp.userName !== "" &&
+          $accountsStore.createNewUserTemp.username !== "" &&
           $accountsStore.users.filter(
             (item) =>
-              item.userName === $accountsStore.createNewUserTemp.userName,
+              item.username === $accountsStore.createNewUserTemp.username,
           ).length <= 1
         ) {
           currentStep++;
@@ -67,25 +67,25 @@
               $accountsStore.users.indexOf(
                 $accountsStore.users.filter(
                   (item) =>
-                    item.userName === $accountsStore.createNewUserTemp.userName,
+                    item.username === $accountsStore.createNewUserTemp.username,
                 )[0],
               )
             ] = {
               name: $accountsStore.createNewUserTemp.name,
-              userName: $accountsStore.createNewUserTemp.userName,
+              username: $accountsStore.createNewUserTemp.username,
               password: await hashPassword($accountsStore.users.filter(
-                (item) => item.hasRoot === true,
+                (item) => item.hasroot === true,
               )[0].password),
-              hasRoot: $accountsStore.createNewUserTemp.hasRoot,
+              hasroot: $accountsStore.createNewUserTemp.hasroot,
             };
           } else {
             $accountsStore.users.push({
               name: $accountsStore.createNewUserTemp.name,
-              userName: $accountsStore.createNewUserTemp.userName,
+              username: $accountsStore.createNewUserTemp.username,
               password: await hashPassword($accountsStore.users.filter(
-                (item) => item.hasRoot === true,
+                (item) => item.hasroot === true,
               )[0].password),
-              hasRoot: $accountsStore.createNewUserTemp.hasRoot,
+              hasroot: $accountsStore.createNewUserTemp.hasroot,
             });
             
           }
@@ -95,33 +95,33 @@
               $accountsStore.users.indexOf(
                 $accountsStore.users.filter(
                   (item) =>
-                    item.userName === $accountsStore.createNewUserTemp.userName,
+                    item.username === $accountsStore.createNewUserTemp.username,
                 )[0],
               )
             ] = {
               name: $accountsStore.createNewUserTemp.name,
-              userName: $accountsStore.createNewUserTemp.userName,
+              username: $accountsStore.createNewUserTemp.username,
               password: await hashPassword($accountsStore.createNewUserTemp.password),
-              hasRoot: $accountsStore.createNewUserTemp.hasRoot,
+              hasroot: $accountsStore.createNewUserTemp.hasroot,
             };
           } else {
             let p = await hashPassword($accountsStore.createNewUserTemp.password)
             $accountsStore.users.push({
               name: $accountsStore.createNewUserTemp.name,
-              userName: $accountsStore.createNewUserTemp.userName,
+              username: $accountsStore.createNewUserTemp.username,
               password: p,
-              hasRoot: $accountsStore.createNewUserTemp.hasRoot,
+              hasroot: $accountsStore.createNewUserTemp.hasroot,
             });
           }
         }
         currentStep = 0;
         $accountsStore.createNewUserTemp = {
           name: "",
-          userName: "",
+          username: "",
           password: "",
           confirmPassword: "",
           passwordSameAsRoot: false,
-          hasRoot: false,
+          hasroot: false,
           isEditing: false,
         };
         dialog.close();

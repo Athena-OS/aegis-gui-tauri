@@ -12,13 +12,13 @@
   {#if $accountsStore.createNewUserTemp.isEditing}
     <InputBox
       isDisabled={true}
-      value={$accountsStore.createNewUserTemp.userName}
+      value={$accountsStore.createNewUserTemp.username}
       label="Username"
       placeholderText="Create a Username"
     />
   {:else}
     <InputBox
-      bind:value={$accountsStore.createNewUserTemp.userName}
+      bind:value={$accountsStore.createNewUserTemp.username}
       label="Username"
       styleClass="lowercase"
       placeholderText="Create a Username"

@@ -174,7 +174,7 @@
             <InputBox
               styleClass="text-base"
               label=""
-              placeholderText="Enter your desired hostname"
+              placeholderText="Enter hostname"
               inputType={"text"}
               givenOnChangeValue={onChangeFunctionHostName}
             ></InputBox>

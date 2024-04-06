@@ -25,7 +25,7 @@
   dialogTitle="Accounts page"
   dialogContent="In this page, you create accounts for users. One of the accounts must have root access."
   prev="/packages"
-  next={$accountsStore.users.filter((item) => item.hasRoot === true).length > 0
+  next={$accountsStore.users.filter((item) => item.hasroot === true).length > 0
     ? "/extras"
     : ""}
 >
@@ -41,7 +41,7 @@
           <h3 class="font-semibold text-2xl">Accounts</h3>
         </div>
         <div class="flex justify-center items-center space-x-2">
-          {#if $accountsStore.users.filter((item) => item.hasRoot === true).length <= 0}
+          {#if $accountsStore.users.filter((item) => item.hasroot === true).length <= 0}
             <h4 class="text-lg text-neutral-300 font-bold">
               Create atleast one root user
             </h4>
@@ -63,7 +63,7 @@
             <div class="flex justify-between items-center w-full text-lg">
               <div>
                 <div>
-                  {user.userName} ( {user.name} ) {#if user.hasRoot}<span>
+                  {user.username} ( {user.name} ) {#if user.hasroot}<span>
                       - <span class="text-primary-500 font-bold">ROOT</span
                       ></span
                     >{/if}
@@ -75,11 +75,11 @@
                     
                     $accountsStore.createNewUserTemp = {
                       name: user.name,
-                      userName: user.userName,
+                      username: user.username,
                       password: user.password,
                       confirmPassword: user.password,
                       passwordSameAsRoot: false,
-                      hasRoot: user.hasRoot,
+                      hasroot: user.hasroot,
                       isEditing: true
                     };
                     dialog.open();

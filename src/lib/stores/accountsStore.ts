@@ -3,17 +3,17 @@ import { writable, type Writable } from "svelte/store";
 const accountsStore: Writable<{
     users: {
         name: string;
-        userName: string;
+        username: string;
         password: string;
-        hasRoot: boolean;
+        hasroot: boolean;
     }[],
     createNewUserTemp:{
         name:string;
-        userName: string;
+        username: string;
         password: string;
         confirmPassword: string;
         passwordSameAsRoot: boolean;
-        hasRoot: boolean;
+        hasroot: boolean;
         isEditing: boolean;
     },
     rootpass: string
@@ -21,11 +21,11 @@ const accountsStore: Writable<{
     users: [],
     createNewUserTemp: {
         name:"",
-        userName:"",
+        username:"",
         password:"",
         confirmPassword:"",
         passwordSameAsRoot:false,
-        hasRoot: false,
+        hasroot: false,
         isEditing: false
     },
     rootpass: ""
