@@ -69,8 +69,11 @@
         name="Timezone"
         placeholder="Select or search timezone ..."
         on:select={(event) => {
-          console.log(event)
-          $keyboardStore.timezone = event.detail.target.value;
+          if (event.detail.key === "Enter" || event.detail.type === "click") {
+            $keyboardStore.timezone = event.detail.target.dataset.value;
+          } else {
+            $keyboardStore.timezone = event.detail.target.value;
+          }
         }}
       />
       <ComboBox
@@ -79,8 +82,13 @@
         label="Select Console Keymap"
         name="Console Keymap"
         placeholder="Select or search console keymap ..."
-        on:select={(event) =>
-          ($keyboardStore.keymaps = event.detail.target.value)}
+        on:select={(event) => {
+          if (event.detail.key === "Enter" || event.detail.type === "click") {
+            $keyboardStore.keymaps = event.detail.target.dataset.value;
+          } else {
+            $keyboardStore.keymaps = event.detail.target.value;
+          }
+        }}
       />
       <ComboBox
         name="X11"
@@ -89,7 +97,12 @@
         bind:options={x11keymaps}
         label="Select X11 Keymap"
         on:select={(event) => {
-          $keyboardStore.x11keymap = event.detail.target.value;
+          console.log(event);
+          if (event.detail.key === "Enter" || event.detail.type === "click") {
+            $keyboardStore.x11keymap = event.detail.target.dataset.value;
+          } else {
+            $keyboardStore.x11keymap = event.detail.target.value;
+          }
         }}
       />
       <ComboBox
@@ -99,7 +112,11 @@
         placeholder="Select or search locale ..."
         label="Select Locale"
         on:select={(event) => {
-          $keyboardStore.locale = event.detail.target.value;
+          if (event.detail.key === "Enter" || event.detail.type === "click") {
+            $keyboardStore.locale = event.detail.target.dataset.value;
+          } else {
+            $keyboardStore.locale = event.detail.target.value;
+          }
         }}
       />
       <InputBox label="Test Keyboard" placeholderText="Type here.." />
