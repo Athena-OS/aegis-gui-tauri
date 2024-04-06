@@ -6,6 +6,7 @@
   import installAlongIcon from "../../assets/icons/wrench-yellow.svg";
   import StepWrapper from "../../lib/components/StepWrapper.svelte";
   import Dropdown2 from "../../lib/components/Dropdown2.svelte";
+  import Dropdown from "../../lib/components/Dropdown.svelte";
   import CardGroup from "../../lib/components/CardGroup.svelte";
   import Button from "../../lib/components/Button.svelte";
   import partitionStore from "../../lib/stores/partitionStore";
@@ -27,6 +28,12 @@
     icon?: string;
     checked?: boolean;
   }
+  let swapPartitionSize = [
+    { name: "1GiB" },
+    { name: "2GiB" },
+    { name: "4GiB" },
+    { name: "8GiB" },
+  ];
 
   let install_along_card: Card = {
     title: "install along",
@@ -331,6 +338,22 @@
             ></InputBox>
           </div>
         </div>
+      {/if}
+    </div>
+    <div class="flex w-full">
+      <div class="flex w-[40%] justify-between items-center">
+        <h4 class="text-xl font-medium">Create Swap</h4>
+        <Switch bind:value={$partitionStore.swap}></Switch>
+      </div>
+      {#if $partitionStore.swap}
+      <Dropdown
+      on:select={(e) => {
+        $partitionStore.swap_size = e.detail.selected.name;
+      }}
+      bind:items={swapPartitionSize}
+      label="Swap Partition Size"
+      defaultItem={{ name: "Select Swap Partition Size" }}
+    />
       {/if}
     </div>
 

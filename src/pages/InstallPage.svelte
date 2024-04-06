@@ -34,7 +34,7 @@
       efi: $partitionStore.efi,
       swap: $partitionStore.swap,
       encrypt_check: $partitionStore.encrypt_check,
-      swap_size: $partitionStore.newPartition.swapPartitionSize,
+      swap_size: $partitionStore.swap_size,
       partitions: [],
       system_storage_info: $partitionStore.systemStorageInfo.filter((s) => {
         let partitionDisNAme = s.partitions.map((p) => p.partitionName);
