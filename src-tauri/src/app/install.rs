@@ -648,7 +648,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .cloned()
                 .collect();*/
 
-            config.partition.mode = String::from("Manual");
+            config.partition.mode = String::from("Replace");
             //config.partition.device = format!("/dev/{}", config.partition.device);
             //config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
             info!("saving config. config");
