@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import promotionImage2 from "../assets/promotion/promotion2.jpg";
   import promotionImage3 from "../assets/promotion/promotion3.jpg";
   import promotionVideo from "../assets/promotion/video.mp4";
@@ -26,6 +26,7 @@
   let logs = "";
   let dialog = createDialog({ label: "failed" });
   let dialogCheckLogs = createDialog({ label: "check-logs" });
+  let p: string[] = []
   let config = {
     base: $extrasStore.base,
     partition: {
@@ -35,7 +36,7 @@
       swap: $partitionStore.swap,
       encrypt_check: $partitionStore.encrypt_check,
       swap_size: $partitionStore.swap_size,
-      partitions: [],
+      partitions: p,
       system_storage_info: $partitionStore.systemStorageInfo.filter((s) => {
         let partitionDisNAme = s.partitions.map((p) => p.partitionName);
         // check if any of the partionNames has the selected device
@@ -88,7 +89,19 @@
       keep: $extrasStore.keepgoing,
     },
   };
-  
+  if ($partitionStore.mode == "replace-partition"){
+    let fs:string | undefined = $partitionStore.replacedPartition.fileSystem
+    let pn:string | undefined = $partitionStore.replacedPartition.partitionName
+    if (fs == undefined){
+      fs = "none"
+    }
+    if (pn == undefined){
+      pn = ""
+    }
+    config.partition.partitions.push(`/mnt/${$partitionStore.replacedPartition.mountPoint}:/dev/${$partitionStore.replacedPartition.partitionName}:${$partitionStore.replacedPartition.fileSystem}:${$partitionStore.encrypt_check}`)
+    config.partition.partitions.push(`/mnt/${$partitionStore.bootPartition.mountPoint}:/dev/${$partitionStore.bootPartition.partitionName}:${$partitionStore.bootPartition.fileSystem}:${false}`)
+
+  }
   // listen to install fail event
   function installFail() {
     if ($logStore.installFailed) {

@@ -182,5 +182,5 @@ pub fn save_luks_passphrase(d: String) {
         Ok(o) => o,
         Err(_) => return,
     };
-    file.write_all(d.as_bytes());
+    let _ = file.write_all(d.as_bytes());
 }

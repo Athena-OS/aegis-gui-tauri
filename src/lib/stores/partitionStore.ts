@@ -35,6 +35,13 @@ const partitionStore: Writable<{
     mountPoint: string,
     name: string
   },
+  bootPartition: {
+    partitionName: string,
+    size: number,
+    fileSystem: string,
+    mountPoint: string,
+    name: string
+  },
   installAlongPartition: {
     partitionName:string
     size:number,
@@ -72,6 +79,14 @@ const partitionStore: Writable<{
     size: 1024,
     fileSystem: "",
     mountPoint: "",
+    name: "Athena OS",
+    isEncrypted: false
+  },
+  bootPartition: {
+    partitionName: "",
+    size: 1024,
+    fileSystem: "",
+    mountPoint: "/boot",
     name: "Athena OS",
     isEncrypted: false
   },
@@ -118,6 +133,14 @@ export function resetPartitionStore() {
       size: 1024,
       fileSystem: "",
       mountPoint: "",
+      name: "Athena OS",
+      //isEncrypted: false
+    },
+    bootPartition: {
+      partitionName: "",
+      size: 1024,
+      fileSystem: "don't format",
+      mountPoint: "/boot",
       name: "Athena OS",
       //isEncrypted: false
     },

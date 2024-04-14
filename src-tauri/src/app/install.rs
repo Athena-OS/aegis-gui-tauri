@@ -622,7 +622,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
         }
         // replace partition
         "replace-partition" => {
-            let mut partition: Vec<String> = config
+            /*let mut partition: Vec<String> = config
                 .partition
                 .system_storage_info
                 .iter()
@@ -646,11 +646,11 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .iter()
                 .filter(|item| item.contains(&config.partition.device))
                 .cloned()
-                .collect();
+                .collect();*/
 
             config.partition.mode = String::from("Manual");
-            config.partition.device = format!("/dev/{}", config.partition.device);
-            config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
+            //config.partition.device = format!("/dev/{}", config.partition.device);
+            //config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
             info!("saving config. config");
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,
@@ -833,26 +833,43 @@ fn install_nix() -> std::io::Result<()> {
 }
 
 
-use std::thread;
-
 fn run_command2(args: Vec<String>) -> std::io::Result<()> {
-    let child_thread = thread::spawn(move || {
-        let output = Command::new("sudo")
+    let mut cmd = Command::new("sudo")
             .args(args)
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .output()
-            .expect("Failed to execute command");
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("Failed to spawn child process");
 
-        if output.status.success() {
-            println!("Command executed successfully");
-        } else {
-            eprintln!("Command failed with exit code: {}", output.status);
+        let stdout = cmd.stdout.as_mut().expect("Failed to get stdout");
+        let stderr = cmd.stderr.as_mut().expect("Failed to get stderr");
+
+        let stdout_reader = BufReader::new(stdout);
+        let stderr_reader = BufReader::new(stderr);
+
+        // Read and print stdout
+        for line in stdout_reader.lines() {
+            let line = line.expect("Failed to read line from stdout");
+            info!("{}", line);
         }
-    });
 
-    child_thread.join().expect("Failed to join child thread");
-    Ok(())
+        // Read and print stderr
+        for line in stderr_reader.lines() {
+            let line = line.expect("Failed to read line from stderr");
+            error!("{}", line);
+        }
+
+        let status = cmd.wait().expect("Failed to wait for child process");
+
+        if status.success() {
+            info!("Command executed successfully!");
+            global_app::emit_global_event("install-success", "");
+            Ok(())
+        } else {
+            error!("Command exited with non-zero status code: {}", status);
+            global_app::emit_global_event("install-fail", "");
+            Ok(())
+        }
 }
 
 
