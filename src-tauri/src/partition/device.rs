@@ -1,4 +1,4 @@
-use crate::partition::{actions, probeos, utils};
+use crate::partition::{actions, probeos, utils, mount};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
@@ -9,7 +9,7 @@ use std::{
     str,
 };
 
-use super::utils::{bytes2human, human2bytes};
+use super::{unmount::unmount, utils::{bytes2human, human2bytes}};
 
 #[derive(PartialEq, Deserialize, Serialize, Debug, Clone)]
 pub struct Device {
@@ -324,7 +324,7 @@ impl Partition {
             Some(s) => utils::human2bytes(&s).unwrap_or(0.0),
             None => 0.0,
         };
-        let used_size = match &self.used {
+        let mut used_size = match &self.used {
             Some(s) => utils::human2bytes(&s).unwrap_or(0.0),
             None => 0.0,
         };
@@ -336,9 +336,9 @@ impl Partition {
         // check if disk has an installed os
         if os_data.len() > 0 {
             let binding = String::new();
-            let kname = match &self.kname {
-                Some(kname) => kname,
-                None => &binding,
+            let mut kname = match &self.kname {
+                Some(kname) => kname.to_string(),
+                None => binding,
             };
             let os = os_data.iter().find(|item| {
                 <std::option::Option<std::string::String> as Clone>::clone(&item.subpath)
@@ -352,6 +352,23 @@ impl Partition {
                     if disk_size > min_size {
                         possible_actions.push(actions::Action::InstallAlong);
                         self.can_install_along = Some(true);
+                        // Check if used size is greater than zero. Its likely zero since the partition is not mounted
+                        if used_size == 0.0{
+                            if !kname.starts_with("/dev/"){
+                               kname = format!("/dev/{:#?}",kname.clone());
+                            }
+
+                            // mount the disk
+                           let _ = mount::mount(kname.to_string());
+                           // probe for available space
+                           if let Some(disk_usage) = get_disk_usage(&kname) {
+                            //println!("Available space on {}: {:.2} bytes", partition, disk_usage.available);
+                            used_size = disk_usage.used
+                            }
+                            // unmount
+                            let _ = unmount(kname);
+
+                        }
                         self.calculate_sizes_for_install_along(disk_size, min_size, used_size);
                     }
                 }
@@ -561,10 +578,17 @@ pub fn partition_install_along(
         Ok(s) => s,
         Err(_) => binding.clone(),
     };
+    let base:f64 = 1024.0;
+    let pw = 4.0;
+    let end2 =match bytes2human(start+(2.0*(base.powf(pw)))){
+        Ok(s) => s,
+        Err(_) => binding.clone(),
+    };
     let end_human = match bytes2human(end) {
         Ok(s) => s,
         Err(_) => binding.clone(),
     };
+
     // unmount the partition we want to shrink if its mounted
     // TODO: Unmonut
     // if unmount::unmount(String::from(format!("/dev/{}", pts.kname))) {
@@ -579,7 +603,12 @@ pub fn partition_install_along(
             // shrinking successful
             // make a a part
             println!("successful shrinking partitions");
-            create_partition(&devicename, "ext4", &start_human, &end_human)
+            // Create boot partition
+            match create_partition(&devicename, "ext4", &start_human, &end2){
+                Ok(_) => create_partition(&devicename, "ext4", &end2, &end_human),
+                Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, e))
+            }
+            //
         }
         Ok(false) => {
             println!("unsuccessful shrinking partitions");
@@ -741,4 +770,41 @@ pub fn extract_base_device(path: &str) -> String {
             .map_or(path.to_string(), |m| m.as_str().to_string()),
         None => path.to_string(),
     }
+}
+
+// gets partition's used space
+#[allow(unused)]
+struct DiskUsage {
+    available: f64,
+    used: f64,
+}
+
+fn get_disk_usage(partition: &str) -> Option<DiskUsage> {
+    let output = Command::new("df")
+        .arg(partition)
+        .arg("-k")
+        .output()
+        .expect("Failed to execute df command");
+
+    let output_str = str::from_utf8(&output.stdout).expect("Invalid UTF-8 output");
+
+    // Split the output into lines and extract the second line (the one containing disk usage)
+    if let Some(line) = output_str.lines().nth(1) {
+        // Split the line by whitespace and extract the available and used space (in 1K-blocks)
+        let fields: Vec<&str> = line.split_whitespace().collect();
+        if fields.len() >= 4 {
+            // Parse the available and used space (in 1K-blocks) to f64
+            if let (Ok(available_blocks), Ok(used_blocks)) = (fields[3].parse::<f64>(), fields[2].parse::<f64>()) {
+                // Convert blocks to bytes (1K-blocks * 1024)
+                let available_bytes = available_blocks;
+                let used_bytes = used_blocks;
+                return Some(DiskUsage {
+                    available: available_bytes,
+                    used: used_bytes,
+                });
+            }
+        }
+    }
+
+    None
 }

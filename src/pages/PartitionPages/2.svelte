@@ -397,7 +397,7 @@
   }
   // create new partition
   let dialogNewPartition = createDialog({ label: "create-partition" });
-
+  let dialogBootPartition = createDialog({ label: "boot-partition" });
   let allowCreation = true;
   // replace partition
   let dialogReplacePartition = createDialog({ label: "replace-partition" });
@@ -418,7 +418,7 @@
   let nextPage = "";
   // Athena OS's parition for installation must be selected
   function IsOkayToMoveNextPage() {
-    const selectedDeviceStorageInfo = $partitionStore.systemStorageInfo.find(
+    /*const selectedDeviceStorageInfo = $partitionStore.systemStorageInfo.find(
       (item) => item.displayName === $partitionStore.selectedDevice
     );
     const athenaOSPartitionSource = selectedDeviceStorageInfo?.partitions.find(
@@ -426,6 +426,9 @@
     );
     if (athenaOSPartitionSource) {
       nextPage = "finalize-partition";
+    }*/
+    if ($partitionStore.replacedPartition.partitionName != "" && $partitionStore.bootPartition.partitionName != "") {
+      nextPage = "summary";
     }
   }
 
@@ -434,7 +437,108 @@
 
 <!-- create new partition -->
 <CreatePartitionDialog dialog={dialogNewPartition} />
+<Dialog dialog={dialogBootPartition}>
+  <div class="w-full h-fit my-4 space-y-8 flex flex-col justify-between">
+    <h4 class="text-2xl font-meidum">Replace Partition</h4>
+    <Dropdown
+      items={[
+        ...partitionData
+          .filter((p) => p.size > 5.12e+8) // 
+          .map((partition) => {
+            return { name: partition.partitionName, selected: false };
+          }),
+      ]}
+      icon={diskIcon}
+      label="Select Partition"
+      on:select={(event) => {
+        $partitionStore.bootPartition.partitionName = event.detail.selected.name
+      }}
+      defaultItem={{ name: "Select Partition" }}
+    />
+    <Dropdown
+    items={[
+      {name: "don't format", selected:true},
+      {name:"fat"},
+      {name:"vfat"},
+      
+    ]}
+    icon={diskIcon}
+    label="Select FileSystem"
+    on:select={(event) => {
+      $partitionStore.bootPartition.fileSystem = event.detail.selected.name;
+    }}
+    defaultItem={{ name: "Select FileSystem" }}
+  />
+    <h4 class="text-xl my-4 font-meidum text-red-500">
+      *The following partition will be used as boot Partition
+    </h4>
+  </div>
+  <div class="flex justify-between space-x-2">
+    <Button
+      variant="bordered"
+      on:click={() => {
+        IsOkayToMoveNextPage();
+        dialogBootPartition.close();
+      }}
+      fullWidth>Cancel</Button
+    >
+    <Button
+      on:click={() => {
+        const selectedDeviceStorageInfo =
+          $partitionStore.systemStorageInfo.find(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          );
 
+        const athenaOSPartitionSource =
+          selectedDeviceStorageInfo?.partitions.find(
+            (partition) => partition.name === "boot",
+          );
+
+        const athenaOSPartitionTarget =
+          selectedDeviceStorageInfo?.partitions.find(
+            (partition) => partition.name === "boot",
+          );
+
+        if (athenaOSPartitionTarget && athenaOSPartitionSource) {
+          athenaOSPartitionTarget.name =
+            athenaOSPartitionSource.partitionName ??
+            athenaOSPartitionTarget.name;
+        }
+        $partitionStore.systemStorageInfo
+          .filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0]
+          .partitions.filter(
+            (partition) =>
+              partition.partitionName ===
+                $partitionStore.bootPartition.partitionName
+          )[0].mountPoint =$partitionStore.replacedPartition.mountPoint;
+          $partitionStore.systemStorageInfo
+          .filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0]
+          .partitions.filter(
+            (partition) =>
+              partition.partitionName ===
+                $partitionStore.bootPartition.partitionName
+          )[0].fileSystem =$partitionStore.replacedPartition.fileSystem;
+        $partitionStore.systemStorageInfo
+          .filter(
+            (item) => item.displayName === $partitionStore.selectedDevice,
+          )[0]
+          .partitions.filter(
+            (partition) =>
+              partition.partitionName ===
+                $partitionStore.bootPartition.partitionName
+          )[0].name = "boot";
+
+        IsOkayToMoveNextPage();
+        dialogBootPartition.close();
+      }}
+      fullWidth>Confirm</Button
+    >
+  </div>
+</Dialog>
 <Dialog dialog={dialogReplacePartition}>
   <div class="w-full h-fit my-4 space-y-8 flex flex-col justify-between">
     <h4 class="text-2xl font-meidum">Replace Partition</h4>
@@ -1020,6 +1124,10 @@
           <span>Create Partition</span></Button
         >
       {/if}-->
+      <Button variant="bordered" on:click={dialogBootPartition.open}>
+        <img class="h-6" src={replaceIcon} alt="" />
+        <span>Select boot partition</span></Button
+      >
       <Button variant="bordered" on:click={dialogReplacePartition.open}>
         <img class="h-6" src={replaceIcon} alt="" />
         <span>Replace with Athena OS</span></Button

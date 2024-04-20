@@ -68,6 +68,7 @@
           name: i.kname,
         });*/
         if (i.can_install_along) {
+          console.log("can install along", i)
           $partitionStore.partitionsWithOS.push(i);
         }
       });

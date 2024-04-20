@@ -132,7 +132,7 @@ pub async fn install() {
 fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
     info!("[AEGIS TAURI] partition disks for installation.");
     // The default should never be called.
-    let config = global_app::get_config().unwrap_or_default();
+    let mut config = global_app::get_config().unwrap_or_default();
     info!("Block device to use : {}", config.partition.device);
     info!("Partitioning mode : {:?}", config.partition.mode);
     info!("Partitioning for EFI : {}", config.partition.efi);
@@ -141,19 +141,33 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
         "install-along" => {
             // Get global storage. Should never call default
             let gs = global_app::get_global_storage().unwrap_or_default();
-            let kname = &config.partition.installAlongPartitions[0].kname;
+            let kname = &config.clone().partition.installAlongPartitions[0].kname;
             // device being used for installation
             let device = gs
-                .devices
-                .iter()
-                .find(|&d| d.name == Some(utils::get_disk_id(kname)))
-                .unwrap_or(def_device);
+                            .devices
+                            .iter()
+                            .find(|&d| d.name == Some(utils::get_disk_id(kname)))
+                            .unwrap_or(def_device);
             match partition::device::partition_install_along(
-                config.partition.installAlongPartitions,
+                config.clone().partition.installAlongPartitions,
                 device.clone(),
             ) {
                 Ok(_) => {
                     info!("partitioning successful");
+                    let mut gs = partition::gs::GlobalStorage::new();
+                    gs.probe();
+                    // probe partitions
+                    let device = gs
+                            .devices
+                            .iter()
+                            .find(|&d| d.name == Some(utils::get_disk_id(kname)))
+                            .unwrap_or(def_device);
+                    let partition = device.partitions.clone().unwrap_or(vec![]);
+                    if partition.len() > 1{
+                        // Update the config
+                    config.partition.partitions = serde_json::to_value(vec![format!("/mnt/:/dev/{kname}{}:ext4:{}", partition.len(),config.partition.encrypt_check),format!("/mnt/boot:/dev/{kname}{}:vfat:{}", partition.len()-1,false)]).unwrap_or_default();
+                    global_app::update_config(config.clone())
+                    }
                     global_app::update_progress();
                     // continue installation
                     Ok(true)
@@ -524,12 +538,11 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
             )));
         }
     };
-    let def_device = &partition::device::Device::default();
     match config.partition.mode.as_str() {
         // install along
         "install-along" => {
             // Get global storage
-            let gs = partition::gs::GlobalStorage::new();
+            /*let gs = partition::gs::GlobalStorage::new();
             let kname = &config.partition.installAlongPartitions[0].kname;
             // device being used for installation
             let device = gs
@@ -538,7 +551,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .find(|&d| d.name == Some(utils::get_disk_id(kname)))
                 .unwrap_or(def_device);
             // update config
-            config.partition.mode = String::from("Manual");
+            
             config.partition.device = device
                 .path
                 .as_ref()
@@ -568,7 +581,8 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                     .len()
                     + 1
             ));
-            config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
+            config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();*/
+            config.partition.mode = String::from("Manual");
             info!("saving config. config.");
             let config_str = match utils::marshal_json(&config) {
                 Ok(s) => s,

@@ -9,3 +9,4 @@ pub mod probeos;
 pub mod probezfs;
 pub mod unmount;
 pub mod utils;
+pub mod mount;

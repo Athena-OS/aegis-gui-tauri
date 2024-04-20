@@ -13,3 +13,7 @@ pub enum Action {
 }
 #[allow(dead_code)]
 pub static MINIMUM_SIZE: &str = "20G";
+
+/*impl std::marker::Copy for std::option::Option<Vec<Action>> {
+    
+}*/

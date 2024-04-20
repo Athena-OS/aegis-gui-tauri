@@ -25,7 +25,11 @@
     console.log("Received install failed event:", event.payload);
     $logStore.installFailed = true
   });
-
+  // listeen to install fail event
+  listen("install-success", (event) => {
+    console.log("Received install failed event:", event.payload);
+    $logStore.installSuccess = true
+  });
   export let url = "";
 
   $: console.log($globalStore);
