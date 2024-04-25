@@ -160,12 +160,12 @@ impl log::Log for TauriLogger {
             );
 
             // Write to terminal
-            println!("{}", message);
+            //println!("{}", message);
 
             // Write to file
-            if let Ok(mut file) = self.file.lock() {
+            /*if let Ok(mut file) = self.file.lock() {
                 writeln!(file, "{}", message).expect("Failed to write to log file");
-            }
+            }*/
 
             // Emit to Tauri frontend
             self.app_handle

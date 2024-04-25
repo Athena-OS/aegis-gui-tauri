@@ -920,15 +920,28 @@ fn run_command2(args: Vec<String>) -> std::io::Result<()> {
     let stderr_reader = BufReader::new(stderr);
 
     // Read and print stdout
-    for line in stdout_reader.lines() {
+    /*for line in stdout_reader.lines() {
         let line = line.expect("Failed to read line from stdout");
-        global_app::emit_global_event("logs", &line);
+        //global_app::emit_global_event("logs", &line);
+        info!(line)
     }
 
     // Read and print stderr
     for line in stderr_reader.lines() {
         let line = line.expect("Failed to read line from stderr");
-        global_app::emit_global_event("logs", &line);
+        //global_app::emit_global_event("logs", &line);
+        info!()
+    }*/
+    let stdout = cmd.stdout.take().expect("Failed to capture stdout");
+    let stderr = cmd.stderr.take().expect("Failed to capture stderr");
+
+    let stdout_reader = std::io::BufReader::new(stdout);
+    let stderr_reader = std::io::BufReader::new(stderr);
+
+    for line in stdout_reader.lines().chain(stderr_reader.lines()) {
+        if let Ok(line) = line {
+            info!("{}", line);
+        }
     }
 
     let status = cmd.wait().expect("Failed to wait for child process");
@@ -943,3 +956,23 @@ fn run_command2(args: Vec<String>) -> std::io::Result<()> {
         Ok(())
     }
 }
+
+/*fn run_command2(args: Vec<String>) -> std::io::Result<()> {
+    let child_thread = std::thread::spawn(move || {
+        let output = Command::new("sudo")
+            .args(args)
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .output()
+            .expect("Failed to execute command");
+
+        if output.status.success() {
+            global_app::emit_global_event("install-success", "");
+        } else {
+            global_app::emit_global_event("install-fail", "");
+        }
+    });
+
+    child_thread.join().expect("Failed to join child thread");
+    Ok(())
+}*/
