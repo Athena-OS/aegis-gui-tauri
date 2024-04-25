@@ -26,7 +26,7 @@
   let logs = "";
   let dialog = createDialog({ label: "failed" });
   let dialogCheckLogs = createDialog({ label: "check-logs" });
-  let p: string[] = []
+  let p: string[] = [];
   let config = {
     base: $extrasStore.base,
     partition: {
@@ -36,6 +36,8 @@
       swap: $partitionStore.swap,
       encrypt_check: $partitionStore.encrypt_check,
       swap_size: $partitionStore.swap_size,
+      new_ptable:$partitionStore.new_ptable,
+      new_pt_file_system:$partitionStore.new_pt_file_system,
       partitions: p,
       system_storage_info: $partitionStore.systemStorageInfo.filter((s) => {
         let partitionDisNAme = s.partitions.map((p) => p.partitionName);
@@ -89,18 +91,24 @@
       keep: $extrasStore.keepgoing,
     },
   };
-  if ($partitionStore.mode == "replace-partition"){
-    let fs:string | undefined = $partitionStore.replacedPartition.fileSystem
-    let pn:string | undefined = $partitionStore.replacedPartition.partitionName
-    if (fs == undefined){
-      fs = "none"
+  if ($partitionStore.mode == "replace-partition") {
+    let fs: string | undefined = $partitionStore.replacedPartition.fileSystem;
+    let pn: string | undefined =
+      $partitionStore.replacedPartition.partitionName;
+    if (fs == undefined) {
+      fs = "none";
     }
-    if (pn == undefined){
-      pn = ""
+    if (pn == undefined) {
+      pn = "";
     }
-    config.partition.partitions.push(`/mnt/${$partitionStore.replacedPartition.mountPoint}:/dev/${$partitionStore.replacedPartition.partitionName}:${$partitionStore.replacedPartition.fileSystem}:${$partitionStore.encrypt_check}`)
-    config.partition.partitions.push(`/mnt/${$partitionStore.bootPartition.mountPoint}:/dev/${$partitionStore.bootPartition.partitionName}:${$partitionStore.bootPartition.fileSystem}:${false}`)
-
+    config.partition.partitions.push(
+      `/mnt/${$partitionStore.replacedPartition.mountPoint}:/dev/${$partitionStore.replacedPartition.partitionName}:${$partitionStore.replacedPartition.fileSystem}:${$partitionStore.encrypt_check}`,
+    );
+    config.partition.partitions.push(
+      `/mnt/${$partitionStore.bootPartition.mountPoint}:/dev/${
+        $partitionStore.bootPartition.partitionName
+      }:${$partitionStore.bootPartition.fileSystem}:${false}`,
+    );
   }
   // listen to install fail event
   function installFail() {
@@ -126,8 +134,16 @@
     logLink = await invoke("share_logs");
     console.log(logLink);
   }
+  function scrollToBottom() {
+    var consoleContent = document.getElementById("console");
+    if (consoleContent != null) {
+      consoleContent.scrollTop = consoleContent.scrollHeight;
+    }
+  }
   saveConf();
-  $: $logStore, installFail();
+  $: $logStore, installFail(), scrollToBottom();
+  $:$logStore, scrollToBottom();
+
 </script>
 
 <Dialog {dialog}>
@@ -248,7 +264,7 @@
     </div>
     <div class="flex space-x-4">
       <button
-        on:click={() => (consoleOpen = !consoleOpen)}
+        on:click={() => {consoleOpen = !consoleOpen; scrollToBottom()}}
         class="flex items-center justify-center bg-gray-800 h-10 px-4 rounded-xl"
         ><img src={arrowDown} alt="" /></button
       >
@@ -267,7 +283,10 @@
       </div>
     </div>
     {#if consoleOpen}
-      <div class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2">
+      <div
+        id="console"
+        class="grow overflow-scroll bg-gray-800 rounded-xl w-full px-3 py-2"
+      >
         <pre class="w-full whitespace-pre-line">
         {#each $logStore.logs as log}
             {log}

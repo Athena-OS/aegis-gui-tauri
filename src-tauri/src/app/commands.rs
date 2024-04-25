@@ -163,6 +163,8 @@ fn delete_file(filename: &str) -> std::io::Result<()> {
 #[tauri::command]
 #[allow(dead_code)]
 pub fn get_gs() -> String {
+    let mut gs = gs::GlobalStorage::new();
+    gs.probe();
     global_app::get_global_storage()
         .unwrap_or_default()
         .to_json_string()

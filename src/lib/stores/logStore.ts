@@ -5,7 +5,7 @@ const logStore :Writable<{
     installFailed: boolean,
     installSuccess: boolean
 }> = writable({
-    logs: ["Athena OS GUI Installer."],
+    logs: ["Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer."],
     progress: 0,
     installFailed:false,
     installSuccess:true

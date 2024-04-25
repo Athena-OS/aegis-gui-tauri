@@ -144,10 +144,10 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
             let kname = &config.clone().partition.installAlongPartitions[0].kname;
             // device being used for installation
             let device = gs
-                            .devices
-                            .iter()
-                            .find(|&d| d.name == Some(utils::get_disk_id(kname)))
-                            .unwrap_or(def_device);
+                .devices
+                .iter()
+                .find(|&d| d.name == Some(utils::get_disk_id(kname)))
+                .unwrap_or(def_device);
             match partition::device::partition_install_along(
                 config.clone().partition.installAlongPartitions,
                 device.clone(),
@@ -158,15 +158,27 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                     gs.probe();
                     // probe partitions
                     let device = gs
-                            .devices
-                            .iter()
-                            .find(|&d| d.name == Some(utils::get_disk_id(kname)))
-                            .unwrap_or(def_device);
+                        .devices
+                        .iter()
+                        .find(|&d| d.name == Some(utils::get_disk_id(kname)))
+                        .unwrap_or(def_device);
                     let partition = device.partitions.clone().unwrap_or(vec![]);
-                    if partition.len() > 1{
+                    if partition.len() > 1 {
                         // Update the config
-                    config.partition.partitions = serde_json::to_value(vec![format!("/mnt/:/dev/{kname}{}:ext4:{}", partition.len(),config.partition.encrypt_check),format!("/mnt/boot:/dev/{kname}{}:vfat:{}", partition.len()-1,false)]).unwrap_or_default();
-                    global_app::update_config(config.clone())
+                        config.partition.partitions = serde_json::to_value(vec![
+                            format!(
+                                "/mnt/:/dev/{kname}{}:ext4:{}",
+                                partition.len(),
+                                config.partition.encrypt_check
+                            ),
+                            format!(
+                                "/mnt/boot:/dev/{kname}{}:vfat:{}",
+                                partition.len() - 1,
+                                false
+                            ),
+                        ])
+                        .unwrap_or_default();
+                        global_app::update_config(config.clone())
                     }
                     global_app::update_progress();
                     // continue installation
@@ -185,100 +197,147 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
             }
         }
         "manual" => {
-            // Get the partitions that needs deleting and delete them
-            for storage_info in &config.partition.system_storage_info_current {
-                for partition in &storage_info.partitions {
-                    if partition.action == Some(String::from("delete")) {
-                        let partition_name = partition.partitionName.clone().unwrap_or_default();
-                        let pn = device::get_partition_number(&partition_name) as i32;
-                        let dev = format!("/dev/{}", utils::get_disk_id(&partition_name));
-
-                        match device::delete_partition(&dev, pn) {
-                            Ok(true) => info!("Partition deleted successfully"),
-                            Ok(false) => {
-                                error!("Deleting partition failed.");
-                                global_app::emit_global_event("install-fail", "");
-                                return Err(Box::new(std::io::Error::new(
-                                    std::io::ErrorKind::AddrInUse,
-                                    "",
-                                )));
+            // New partition table
+            if config.partition.new_ptable {
+                // create new partition table
+                let dt = match config.partition.new_pt_file_system.as_str() {
+                    "mdos" => device::DeviceType::MDOS,
+                    "gpt" => device::DeviceType::GPT,
+                    &_ => device::DeviceType::GPT,
+                };
+                match device::clear_partition_device(config.partition.device.clone(), dt) {
+                    Ok(_) => {
+                        // Create partitions now that the partition table was created successfully
+                        for storage_info in &config.partition.system_storage_info {
+                            for item in &storage_info.partitions {
+                                //if item.action == Some(String::from("create")) {
+                                    // Here we create the partition
+                                    println!("{:#?}", item);
+                                    // Get start and end in human readable form.
+                                    let start = utils::bytes2human(
+                                        (item.start.unwrap_or(1024) * 512) as f64,
+                                    )
+                                    .unwrap_or(String::from("1GB"));
+                                    let end =
+                                        utils::bytes2human((item.end.unwrap_or(1024) * 512) as f64)
+                                            .unwrap_or(String::from("1GB"));
+                                    // Get the device
+                                    let dev = format!("/dev/{}", config.partition.device.clone());
+                                    //Get the fstype
+                                    let fstype =
+                                        item.fileSytem.clone().unwrap_or(String::from("ext4"));
+                                    // Create the partition
+                                    match device::create_partition(&dev, &fstype, &start, &end) {
+                                        Ok(_) => info!("partition  successfully"),
+                                        Err(e) => {
+                                            error!(
+                                                "Creating partition failed with error: {:#?}",
+                                                e
+                                            );
+                                            global_app::emit_global_event("install-fail", "");
+                                            return Err(Box::new(e));
+                                        }
+                                    };
+                                //}
                             }
-                            Err(e) => {
-                                error!("Deleting partition failed with error: {:#?}", e);
-                                global_app::emit_global_event("install-fail", "");
-                                return Err(Box::new(e));
+                        }
+                    }
+                    Err(e) => return Err(Box::new(e)),
+                }
+            } else {
+                // Get the partitions that needs deleting and delete them
+                for storage_info in &config.partition.system_storage_info_current {
+                    for partition in &storage_info.partitions {
+                        if partition.action == Some(String::from("delete")) {
+                            let partition_name =
+                                partition.partitionName.clone().unwrap_or_default();
+                            let pn = device::get_partition_number(&partition_name) as i32;
+                            let dev = format!("/dev/{}", utils::get_disk_id(&partition_name));
+
+                            match device::delete_partition(&dev, pn) {
+                                Ok(true) => info!("Partition deleted successfully"),
+                                Ok(false) => {
+                                    error!("Deleting partition failed.");
+                                    global_app::emit_global_event("install-fail", "");
+                                    return Err(Box::new(std::io::Error::new(
+                                        std::io::ErrorKind::AddrInUse,
+                                        "",
+                                    )));
+                                }
+                                Err(e) => {
+                                    error!("Deleting partition failed with error: {:#?}", e);
+                                    global_app::emit_global_event("install-fail", "");
+                                    return Err(Box::new(e));
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            // Get the partitions that needs shrinking/expanding and perform the shrinking expanding action
-            for storage_info in &config.partition.system_storage_info {
-                for item in &storage_info.partitions {
-                    if item.action == Some(String::from("shrink")) {
-                        // Here we shrink the partition
-                        // Get partition number
-                        let pn = device::get_partition_number(
-                            &item.partitionName.clone().unwrap_or(String::new()),
-                        );
-                        // Get the device
-                        let dev = format!(
-                            "/dev/{}{}",
-                            config.partition.device,
-                            utils::get_disk_id(
-                                &item.partitionName.clone().unwrap_or(String::new())
-                            )
-                        );
-                        // Convert size to Human readerble form. Should never unwrap
-                        //let s =  item.size
-                        let size = utils::bytes2human(item.size.unwrap_or(0) as f64)
-                            .unwrap_or(String::from("1GB"));
-                        // Delete the partition
-                        match device::resize_partition(&dev, pn, &size) {
-                            Ok(_) => info!("partition resized successfully"),
-                            Err(e) => {
-                                error!("Resizing partition failed with error: {:#?}", e);
-                                global_app::emit_global_event("install-fail", "");
-                                return Err(Box::new(e));
-                            }
-                        };
+                // Get the partitions that needs shrinking/expanding and perform the shrinking expanding action
+                for storage_info in &config.partition.system_storage_info {
+                    for item in &storage_info.partitions {
+                        if item.action == Some(String::from("shrink")) {
+                            // Here we shrink the partition
+                            // Get partition number
+                            let pn = device::get_partition_number(
+                                &item.partitionName.clone().unwrap_or(String::new()),
+                            );
+                            // Get the device
+                            let dev = format!(
+                                "/dev/{}{}",
+                                config.partition.device,
+                                utils::get_disk_id(
+                                    &item.partitionName.clone().unwrap_or(String::new())
+                                )
+                            );
+                            // Convert size to Human readerble form. Should never unwrap
+                            //let s =  item.size
+                            let size = utils::bytes2human(item.size.unwrap_or(0) as f64)
+                                .unwrap_or(String::from("1GB"));
+                            // Delete the partition
+                            match device::resize_partition(&dev, pn, &size) {
+                                Ok(_) => info!("partition resized successfully"),
+                                Err(e) => {
+                                    error!("Resizing partition failed with error: {:#?}", e);
+                                    global_app::emit_global_event("install-fail", "");
+                                    return Err(Box::new(e));
+                                }
+                            };
+                        }
+                    }
+                }
+
+                // With shrinked partitions, we can create new partitions now (Free spaces created out of deletion are ignored)
+                // Get the partitions that needs shrinking/expanding and perform the shrinking expanding action
+                for storage_info in &config.partition.system_storage_info {
+                    for item in &storage_info.partitions {
+                        if item.action == Some(String::from("create")) {
+                            // Here we create the partition
+                            println!("{:#?}", item);
+                            // Get start and end in human readable form.
+                            let start =
+                                utils::bytes2human((item.start.unwrap_or(1024) * 512) as f64)
+                                    .unwrap_or(String::from("1GB"));
+                            let end = utils::bytes2human((item.end.unwrap_or(1024) * 512) as f64)
+                                .unwrap_or(String::from("1GB"));
+                            // Get the device
+                            let dev = format!("/dev/{}", config.partition.device);
+                            //Get the fstype
+                            let fstype = item.fileSytem.clone().unwrap_or(String::from("ext4"));
+                            // Create the partition
+                            match device::create_partition(&dev, &fstype, &start, &end) {
+                                Ok(_) => info!("partition  successfully"),
+                                Err(e) => {
+                                    error!("Creating partition failed with error: {:#?}", e);
+                                    global_app::emit_global_event("install-fail", "");
+                                    return Err(Box::new(e));
+                                }
+                            };
+                        }
                     }
                 }
             }
-
-            // With shrinked partitions, we can create new partitions now (Free spaces created out of deletion are ignored)
-            // Get the partitions that needs shrinking/expanding and perform the shrinking expanding action
-            for storage_info in &config.partition.system_storage_info {
-                for item in &storage_info.partitions {
-                    if item.action == Some(String::from("create")) {
-                        // Here we create the partition
-                        println!("{:#?}", item);
-                        // Get start and end in human readable form.
-                        let start = utils::bytes2human((item.start.unwrap_or(1024) * 512) as f64)
-                            .unwrap_or(String::from("1GB"));
-                        let end = utils::bytes2human((item.end.unwrap_or(1024) * 512) as f64)
-                            .unwrap_or(String::from("1GB"));
-                        // Get the device
-                        let dev = format!(
-                            "/dev/{}",
-                            config.partition.device
-                        );
-                        //Get the fstype
-                        let fstype = item.fileSytem.clone().unwrap_or(String::from("ext4"));
-                        // Create the partition
-                        match device::create_partition(&dev, &fstype, &start, &end) {
-                            Ok(_) => info!("partition  successfully"),
-                            Err(e) => {
-                                error!("Creating partition failed with error: {:#?}", e);
-                                global_app::emit_global_event("install-fail", "");
-                                return Err(Box::new(e));
-                            }
-                        };
-                    }
-                }
-            }
-
             // Here, Manual partitioning is done
             Ok(true)
         }
@@ -551,7 +610,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .find(|&d| d.name == Some(utils::get_disk_id(kname)))
                 .unwrap_or(def_device);
             // update config
-            
+
             config.partition.device = device
                 .path
                 .as_ref()
@@ -610,7 +669,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
             config.partition.mode = String::from("Auto");
             config.partition.device = format!("/dev/{}", config.partition.device);
             // set params to default if base is nixos to skip serializing
-           /*if config.base == "arch"{
+            /*if config.base == "arch"{
                 config.params = config::Params::default();
             }*/
             // Partitions ingnored since  the device will be formatted anyway.
@@ -846,44 +905,41 @@ fn install_nix() -> std::io::Result<()> {
     run_command2(args)
 }
 
-
 fn run_command2(args: Vec<String>) -> std::io::Result<()> {
     let mut cmd = Command::new("sudo")
-            .args(args)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .expect("Failed to spawn child process");
+        .args(args)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn child process");
 
-        let stdout = cmd.stdout.as_mut().expect("Failed to get stdout");
-        let stderr = cmd.stderr.as_mut().expect("Failed to get stderr");
+    let stdout = cmd.stdout.as_mut().expect("Failed to get stdout");
+    let stderr = cmd.stderr.as_mut().expect("Failed to get stderr");
 
-        let stdout_reader = BufReader::new(stdout);
-        let stderr_reader = BufReader::new(stderr);
+    let stdout_reader = BufReader::new(stdout);
+    let stderr_reader = BufReader::new(stderr);
 
-        // Read and print stdout
-        for line in stdout_reader.lines() {
-            let line = line.expect("Failed to read line from stdout");
-            info!("{}", line);
-        }
+    // Read and print stdout
+    for line in stdout_reader.lines() {
+        let line = line.expect("Failed to read line from stdout");
+        global_app::emit_global_event("logs", &line);
+    }
 
-        // Read and print stderr
-        for line in stderr_reader.lines() {
-            let line = line.expect("Failed to read line from stderr");
-            error!("{}", line);
-        }
+    // Read and print stderr
+    for line in stderr_reader.lines() {
+        let line = line.expect("Failed to read line from stderr");
+        global_app::emit_global_event("logs", &line);
+    }
 
-        let status = cmd.wait().expect("Failed to wait for child process");
+    let status = cmd.wait().expect("Failed to wait for child process");
 
-        if status.success() {
-            info!("Command executed successfully!");
-            global_app::emit_global_event("install-success", "");
-            Ok(())
-        } else {
-            error!("Command exited with non-zero status code: {}", status);
-            global_app::emit_global_event("install-fail", "");
-            Ok(())
-        }
+    if status.success() {
+        info!("Command executed successfully!");
+        global_app::emit_global_event("install-success", "");
+        Ok(())
+    } else {
+        error!("Command exited with non-zero status code: {}", status);
+        global_app::emit_global_event("install-fail", "");
+        Ok(())
+    }
 }
-
-

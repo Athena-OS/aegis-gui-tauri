@@ -2,6 +2,8 @@ import { writable, type Writable } from "svelte/store";
 import { type StorageDevice, type InstallAlongPartition } from "../utils/types"
 
 const partitionStore: Writable<{
+  new_pt_file_system: string,
+  new_ptable: boolean
   selectedDevice: string,
   selectedDeviceForInstallAlong: string,
   mode: string,
@@ -48,6 +50,8 @@ const partitionStore: Writable<{
     filesystem:string,
   }
 }> = writable({
+  new_ptable:false,
+  new_pt_file_system:"mdos",
   selectedDevice: "default",
   selectedDeviceForInstallAlong: "default",
   installAlongPartitions:[],
@@ -102,6 +106,8 @@ export default partitionStore;
 
 export function resetPartitionStore() {
   partitionStore.set({
+    new_pt_file_system:"mdos",
+    new_ptable:false,
     selectedDevice: "default",
     selectedDeviceForInstallAlong: "default",
     installAlongPartitions:[],

@@ -1,5 +1,5 @@
 use crate::partition::{self};
-use serde::{Deserialize, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
@@ -21,8 +21,14 @@ pub struct Partition {
     #[serde(skip_serializing)]
     // This if for processing but should not be serialized for config saving
     pub system_storage_info_current: Vec<SystemStorageInfo>,
-    pub encrypt_check: bool
+    pub encrypt_check: bool,
+    #[serde(skip_serializing)]
+    pub new_ptable: bool,
+    #[serde(skip_serializing)]
+    pub new_pt_file_system: String,
+
 }
+
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct SystemStorageInfo {
     pub partitions: Vec<P>,
@@ -53,7 +59,9 @@ impl Default for Partition {
             installAlongPartitions: Vec::new(),
             system_storage_info: Vec::new(),
             system_storage_info_current: Vec::new(),
-            encrypt_check: false
+            encrypt_check: false,
+            new_ptable: false,
+            new_pt_file_system: String::new(),
         }
     }
 }
