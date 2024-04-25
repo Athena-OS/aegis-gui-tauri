@@ -902,7 +902,7 @@ fn install_nix() -> std::io::Result<()> {
         String::from("config"),
         String::from("/tmp/config.json"),
     ];
-    run_command2(args)
+    run_command3(args)
 }
 
 fn run_command2(args: Vec<String>) -> std::io::Result<()> {
@@ -916,8 +916,8 @@ fn run_command2(args: Vec<String>) -> std::io::Result<()> {
     let stdout = cmd.stdout.as_mut().expect("Failed to get stdout");
     let stderr = cmd.stderr.as_mut().expect("Failed to get stderr");
 
-    let stdout_reader = BufReader::new(stdout);
-    let stderr_reader = BufReader::new(stderr);
+    //let stdout_reader = BufReader::new(stdout);
+    //let stderr_reader = BufReader::new(stderr);
 
     // Read and print stdout
     /*for line in stdout_reader.lines() {
@@ -957,7 +957,7 @@ fn run_command2(args: Vec<String>) -> std::io::Result<()> {
     }
 }
 
-/*fn run_command2(args: Vec<String>) -> std::io::Result<()> {
+fn run_command3(args: Vec<String>) -> std::io::Result<()> {
     let child_thread = std::thread::spawn(move || {
         let output = Command::new("sudo")
             .args(args)
@@ -975,4 +975,4 @@ fn run_command2(args: Vec<String>) -> std::io::Result<()> {
 
     child_thread.join().expect("Failed to join child thread");
     Ok(())
-}*/
+}
