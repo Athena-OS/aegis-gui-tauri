@@ -102,10 +102,10 @@
       pn = "";
     }
     config.partition.partitions.push(
-      `/mnt/${$partitionStore.replacedPartition.mountPoint}:/dev/${$partitionStore.replacedPartition.partitionName}:${$partitionStore.replacedPartition.fileSystem}:${$partitionStore.encrypt_check}`,
+      `/mnt${$partitionStore.replacedPartition.mountPoint}:/dev/${$partitionStore.replacedPartition.partitionName}:${$partitionStore.replacedPartition.fileSystem}:${$partitionStore.encrypt_check}`,
     );
     config.partition.partitions.push(
-      `/mnt/${$partitionStore.bootPartition.mountPoint}:/dev/${
+      `/mnt${$partitionStore.bootPartition.mountPoint}:/dev/${
         $partitionStore.bootPartition.partitionName
       }:${$partitionStore.bootPartition.fileSystem}:${false}`,
     );
