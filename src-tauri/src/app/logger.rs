@@ -163,9 +163,9 @@ impl log::Log for TauriLogger {
             //println!("{}", message);
 
             // Write to file
-            /*if let Ok(mut file) = self.file.lock() {
+            if let Ok(mut file) = self.file.lock() {
                 writeln!(file, "{}", message).expect("Failed to write to log file");
-            }*/
+            }
 
             // Emit to Tauri frontend
             self.app_handle
@@ -178,9 +178,9 @@ impl log::Log for TauriLogger {
 }
 
 pub fn setup_logging(app_handle: AppHandle) {
-    let logger = TauriLogger::new(app_handle, "prefix.log");
+    let logger = TauriLogger::new(app_handle, "/tmp/aegis.log");
     log::set_boxed_logger(Box::new(logger)).expect("Failed to set logger");
-    log::set_max_level(LevelFilter::Info);
+    log::set_max_level(LevelFilter::Trace);
 }
 
 // Read athena logs

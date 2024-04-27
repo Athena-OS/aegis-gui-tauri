@@ -2,8 +2,9 @@ use crate::app::*;
 use crate::partition;
 use crate::partition::*;
 use log::*;
+use std::path::PathBuf;
 use std::{io::*, process::*};
-
+//use athena_aegis;
 pub async fn install() {
     // We first partition the disks.
     match do_partitions() {
@@ -879,19 +880,40 @@ fn run_command(args: Vec<String>) -> std::io::Result<()> {
 
 #[allow(dead_code)]
 fn install_extra_packages() -> std::io::Result<()> {
-    athena_aegis::install::install(athena_aegis::PackageManager::Pacman, vec![]);
+    //athena_aegis::install::install(athena_aegis::PackageManager::Pacman, vec![]);
     Ok(())
 }
 
 #[allow(dead_code)]
-fn install_arch() -> std::io::Result<()> {
+fn install_arch() ->std::io::Result<()> {
     info!("[AEGIS TAURI] Athena OS with Arch Linux base.");
     let args = vec![
         String::from("aegis-arch"),
         String::from("config"),
         String::from("/tmp/config.json"),
-    ];
-    run_command2(args)
+    ];  
+    
+    let _ = std::thread::spawn(|| {
+        // Attempt to execute the code inside the closure
+        let result = std::panic::catch_unwind(|| {
+            // Code that may panic
+            aegis_arch::config::read_config(PathBuf::from("/tmp/config.json"));
+        });
+    
+        // Check if a panic occurred
+        if let Err(err) = result {
+            // Handle the panic
+            println!("Panic occurred: {:?}", err);
+            global_app::emit_global_event("install-fail", "");
+            // Perform cleanup or recovery actions if needed
+        } else {
+            // No panic occurred, continue normal execution
+            println!("No panic occurred");
+            global_app::emit_global_event("install-success", "");
+        }
+    }).join();
+
+    Ok(())
 }
 
 #[allow(dead_code)]
@@ -902,7 +924,26 @@ fn install_nix() -> std::io::Result<()> {
         String::from("config"),
         String::from("/tmp/config.json"),
     ];
-    run_command3(args)
+    let _ = std::thread::spawn(|| {
+        // Attempt to execute the code inside the closure
+        let result = std::panic::catch_unwind(|| {
+            // Code that may panic
+            aegis_nix::config::read_config(PathBuf::from("/tmp/config.json"));
+        });
+    
+        // Check if a panic occurred
+        if let Err(err) = result {
+            // Handle the panic
+            println!("Panic occurred: {:?}", err);
+            global_app::emit_global_event("install-fail", "");
+            // Perform cleanup or recovery actions if needed
+        } else {
+            // No panic occurred, continue normal execution
+            println!("No panic occurred");
+            global_app::emit_global_event("install-success", "");
+        }
+    }).join();
+    Ok(())
 }
 
 fn run_command2(args: Vec<String>) -> std::io::Result<()> {
