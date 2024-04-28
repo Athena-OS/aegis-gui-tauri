@@ -20,7 +20,7 @@ checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 [[package]]
 name = "aegis-arch"
 version = "0.1.0"
-source = "git+https://github.com/mwaurawakati/aegis.git?branch=main#53a78401e82e2f4fb04a6dbae49ba21b1e4b7d87"
+source = "git+https://github.com/mwaurawakati/aegis.git?branch=main#dcb65f3f1e06d631d6d660661270654c24b33918"
 dependencies = [
  "shared",
 ]
@@ -54,7 +54,7 @@ dependencies = [
 [[package]]
 name = "aegis-nix"
 version = "0.1.0"
-source = "git+https://github.com/mwaurawakati/aegis.git?branch=main#53a78401e82e2f4fb04a6dbae49ba21b1e4b7d87"
+source = "git+https://github.com/mwaurawakati/aegis.git?branch=main#dcb65f3f1e06d631d6d660661270654c24b33918"
 dependencies = [
  "shared",
 ]
@@ -2001,7 +2001,7 @@ dependencies = [
  "iana-time-zone-haiku",
  "js-sys",
  "wasm-bindgen",
- "windows-core 0.51.1",
+ "windows-core 0.52.0",
 ]
 
 [[package]]
@@ -3762,7 +3762,7 @@ dependencies = [
 [[package]]
 name = "shared"
 version = "0.1.0"
-source = "git+https://github.com/mwaurawakati/aegis.git?branch=main#53a78401e82e2f4fb04a6dbae49ba21b1e4b7d87"
+source = "git+https://github.com/mwaurawakati/aegis.git?branch=main#dcb65f3f1e06d631d6d660661270654c24b33918"
 dependencies = [
  "clap",
  "flexi_logger 0.27.4",
