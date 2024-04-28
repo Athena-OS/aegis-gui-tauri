@@ -54,7 +54,7 @@
       },
       "resources": [],
       "shortDescription": "",
-      "targets": "all",
+      "targets": ["app", "deb", "dmg"],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -72,7 +72,7 @@
         "fullscreen": false,
         "height": 800,
         "resizable": true,
-        "title": "AthenaOS Installer",
+        "title": "Athena OS Installer",
         "width": 1400,
         "center": true,
         "maximizable": true
