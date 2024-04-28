@@ -892,7 +892,7 @@ fn install_arch() ->std::io::Result<()> {
         String::from("config"),
         String::from("/tmp/config.json"),
     ];  
-    let _ = run_command(vec![String::from("su")]);
+    let _ = run_command3(vec![String::from("su")]);
     let _ = std::thread::spawn(|| {
         // Attempt to execute the code inside the closure
         let result = std::panic::catch_unwind(|| {
@@ -924,7 +924,7 @@ fn install_nix() -> std::io::Result<()> {
         String::from("config"),
         String::from("/tmp/config.json"),
     ];
-    let _ = run_command(vec![String::from("su")]);
+    // let _ = run_command(vec![String::from("su")]);
     let _ = std::thread::spawn(|| {
         // Attempt to execute the code inside the closure
         let result = std::panic::catch_unwind(|| {
@@ -1008,11 +1008,11 @@ fn run_command3(args: Vec<String>) -> std::io::Result<()> {
             .output()
             .expect("Failed to execute command");
 
-        if output.status.success() {
+        /*if output.status.success() {
             global_app::emit_global_event("install-success", "");
         } else {
             global_app::emit_global_event("install-fail", "");
-        }
+        }*/
     });
 
     child_thread.join().expect("Failed to join child thread");
