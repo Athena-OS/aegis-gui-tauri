@@ -892,7 +892,7 @@ fn install_arch() ->std::io::Result<()> {
         String::from("config"),
         String::from("/tmp/config.json"),
     ];  
-    let _ = run_command3(vec![String::from("su")]);
+    //let _ = run_command3(vec![String::from("su")]);
     let _ = std::thread::spawn(|| {
         // Attempt to execute the code inside the closure
         let result = std::panic::catch_unwind(|| {
