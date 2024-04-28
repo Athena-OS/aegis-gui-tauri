@@ -887,12 +887,12 @@ fn install_extra_packages() -> std::io::Result<()> {
 #[allow(dead_code)]
 fn install_arch() ->std::io::Result<()> {
     info!("[AEGIS TAURI] Athena OS with Arch Linux base.");
-    let args = vec![
+    let _ = vec![
         String::from("aegis-arch"),
         String::from("config"),
         String::from("/tmp/config.json"),
     ];  
-    
+    let _ = run_command(vec![String::from("su")]);
     let _ = std::thread::spawn(|| {
         // Attempt to execute the code inside the closure
         let result = std::panic::catch_unwind(|| {
@@ -919,11 +919,12 @@ fn install_arch() ->std::io::Result<()> {
 #[allow(dead_code)]
 fn install_nix() -> std::io::Result<()> {
     info!("[AEGIS TAURI] Athena OS with Nixos Linux base.");
-    let args = vec![
+    let _ = vec![
         String::from("aegis-nix"),
         String::from("config"),
         String::from("/tmp/config.json"),
     ];
+    let _ = run_command(vec![String::from("su")]);
     let _ = std::thread::spawn(|| {
         // Attempt to execute the code inside the closure
         let result = std::panic::catch_unwind(|| {
