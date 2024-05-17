@@ -26,7 +26,6 @@ pub struct Partition {
     pub new_ptable: bool,
     #[serde(skip_serializing)]
     pub new_pt_file_system: String,
-
 }
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
@@ -171,8 +170,8 @@ impl Default for Config {
         Config {
             partition: Partition::default(),
             bootloader: json!(null),
-            locale:json!(null),
-            networking:json!(null),
+            locale: json!(null),
+            networking: json!(null),
             users: json!(null),
             rootpass: json!(null),
             desktop: json!(null),

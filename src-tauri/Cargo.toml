@@ -20,9 +20,9 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.6.1", features = [ "system-tray", "api-all", "icon-ico", "icon-png"] }
 regex = "1.10.3"
 tauri-plugin-system-info = "0.2.0"
-aegis_arch = { git = "https://github.com/mwaurawakati/aegis.git", branch = "main", package = "aegis-arch" }
-aegis_nix = { git = "https://github.com/mwaurawakati/aegis.git", branch = "main", package = "aegis-nix" }
-shared= { git = "https://github.com/mwaurawakati/aegis.git", branch = "main", package = "shared" }
+#aegis_arch = { git = "https://github.com/mwaurawakati/aegis.git", branch = "main", package = "aegis-arch" }
+#aegis_nix = { git = "https://github.com/mwaurawakati/aegis.git", branch = "main", package = "aegis-nix" }
+#shared= { git = "https://github.com/mwaurawakati/aegis.git", branch = "main", package = "shared" }
 # udev = "0.8.0"
 lazy_static = "1.4.0"
 tracing = "0.1.40"
@@ -35,7 +35,7 @@ log = "0.4.21"
 athena-aegis = "0.1.2"
 async-std = "1.12.0"
 flexi_logger = "0.28.0"
-
+tokio = { version = "1.29.1", features = ["full"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

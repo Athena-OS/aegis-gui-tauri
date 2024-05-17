@@ -2,7 +2,6 @@ use crate::app::*;
 use crate::partition;
 use crate::partition::*;
 use log::*;
-use std::path::PathBuf;
 use std::{io::*, process::*};
 //use athena_aegis;
 pub async fn install() {
@@ -944,57 +943,7 @@ fn install_nix() -> std::io::Result<()> {
     //Ok(())
 }
 
-fn run_command2(args: Vec<String>) -> std::io::Result<()> {
-    let mut cmd = Command::new("sudo")
-        .args(args)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect("Failed to spawn child process");
 
-    let stdout = cmd.stdout.as_mut().expect("Failed to get stdout");
-    let stderr = cmd.stderr.as_mut().expect("Failed to get stderr");
-
-    //let stdout_reader = BufReader::new(stdout);
-    //let stderr_reader = BufReader::new(stderr);
-
-    // Read and print stdout
-    /*for line in stdout_reader.lines() {
-        let line = line.expect("Failed to read line from stdout");
-        //global_app::emit_global_event("logs", &line);
-        info!(line)
-    }
-
-    // Read and print stderr
-    for line in stderr_reader.lines() {
-        let line = line.expect("Failed to read line from stderr");
-        //global_app::emit_global_event("logs", &line);
-        info!()
-    }*/
-    let stdout = cmd.stdout.take().expect("Failed to capture stdout");
-    let stderr = cmd.stderr.take().expect("Failed to capture stderr");
-
-    let stdout_reader = std::io::BufReader::new(stdout);
-    let stderr_reader = std::io::BufReader::new(stderr);
-
-    for line in stdout_reader.lines().chain(stderr_reader.lines()) {
-        if let Ok(line) = line {
-            info!("{}", line);
-        }
-    }
-
-    let status = cmd.wait().expect("Failed to wait for child process");
-
-    if status.success() {
-        info!("Command executed successfully!");
-        global_app::emit_global_event("install-success", "");
-        Ok(())
-    } else {
-        error!("Command exited with non-zero status code: {}", status);
-        global_app::emit_global_event("install-fail", "");
-        Ok(())
-    }
-}
 
 fn run_command3(args: Vec<String>) -> std::io::Result<()> {
     let child_thread = std::thread::spawn(move || {
@@ -1006,7 +955,7 @@ fn run_command3(args: Vec<String>) -> std::io::Result<()> {
         {
             Ok(o) => o,
             Err(_) => {
-                global_app::emit_global_event("install-success", "");
+                global_app::emit_global_event("install-fail", "");
                 return;
             }
         };
@@ -1015,7 +964,7 @@ fn run_command3(args: Vec<String>) -> std::io::Result<()> {
             println!("fail");
             global_app::emit_global_event("install-success", "");
         } else {
-            global_app::emit_global_event("install-success", "");
+            global_app::emit_global_event("install-fail", "");
         }
     });
 

@@ -1,4 +1,4 @@
-use crate::partition::{actions, probeos, utils, mount};
+use crate::partition::{actions, mount, probeos, utils};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
@@ -9,7 +9,10 @@ use std::{
     str,
 };
 
-use super::{unmount::unmount, utils::{bytes2human, human2bytes}};
+use super::{
+    unmount::unmount,
+    utils::{bytes2human, human2bytes},
+};
 
 #[derive(PartialEq, Deserialize, Serialize, Debug, Clone)]
 pub struct Device {
@@ -353,21 +356,20 @@ impl Partition {
                         possible_actions.push(actions::Action::InstallAlong);
                         self.can_install_along = Some(true);
                         // Check if used size is greater than zero. Its likely zero since the partition is not mounted
-                        if used_size == 0.0{
-                            if !kname.starts_with("/dev/"){
-                               kname = format!("/dev/{:#?}",kname.clone());
+                        if used_size == 0.0 {
+                            if !kname.starts_with("/dev/") {
+                                kname = format!("/dev/{:#?}", kname.clone());
                             }
 
                             // mount the disk
-                           let _ = mount::mount(kname.to_string());
-                           // probe for available space
-                           if let Some(disk_usage) = get_disk_usage(&kname) {
-                            //println!("Available space on {}: {:.2} bytes", partition, disk_usage.available);
-                            used_size = disk_usage.used
+                            let _ = mount::mount(kname.to_string());
+                            // probe for available space
+                            if let Some(disk_usage) = get_disk_usage(&kname) {
+                                //println!("Available space on {}: {:.2} bytes", partition, disk_usage.available);
+                                used_size = disk_usage.used
                             }
                             // unmount
                             let _ = unmount(kname);
-
                         }
                         self.calculate_sizes_for_install_along(disk_size, min_size, used_size);
                     }
@@ -578,9 +580,9 @@ pub fn partition_install_along(
         Ok(s) => s,
         Err(_) => binding.clone(),
     };
-    let base:f64 = 1024.0;
+    let base: f64 = 1024.0;
     let pw = 4.0;
-    let end2 =match bytes2human(start+(2.0*(base.powf(pw)))){
+    let end2 = match bytes2human(start + (2.0 * (base.powf(pw)))) {
         Ok(s) => s,
         Err(_) => binding.clone(),
     };
@@ -604,9 +606,9 @@ pub fn partition_install_along(
             // make a a part
             println!("successful shrinking partitions");
             // Create boot partition
-            match create_partition(&devicename, "ext4", &start_human, &end2){
+            match create_partition(&devicename, "ext4", &start_human, &end2) {
                 Ok(_) => create_partition(&devicename, "ext4", &end2, &end_human),
-                Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, e))
+                Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, e)),
             }
             //
         }
@@ -671,7 +673,10 @@ pub fn create_partition(
     let base_device = extract_base_device(device);
     log::info!(
         "creating partition for device: {} fs_type: {} start: {} end: {}",
-        base_device, fs_type, start, end
+        base_device,
+        fs_type,
+        start,
+        end
     );
     let status = Command::new("sudo")
         .arg("parted")
@@ -690,7 +695,11 @@ pub fn create_partition(
 }
 
 pub fn delete_partition(device: &str, number: i32) -> Result<bool, std::io::Error> {
-    log::info!("Deleting partition number: {} from device: {}", number, device);
+    log::info!(
+        "Deleting partition number: {} from device: {}",
+        number,
+        device
+    );
     let output: Result<std::process::Output, std::io::Error> = Command::new("sudo")
         .arg("parted")
         .arg(&device)
@@ -700,20 +709,20 @@ pub fn delete_partition(device: &str, number: i32) -> Result<bool, std::io::Erro
         //.stderr(Stdio::piped())
         .output();
 
-        match output {
-            Ok(output) => {
-                if output.status.success() {
-                    Ok(true)
-                } else {
-                    let s = String::from_utf8_lossy(&output.stdout);
-                    Err(std::io::Error::new(std::io::ErrorKind::AddrInUse, s))
-                }
-            }
-            Err(e) => {
-                let s = format!("{:#?}", e);
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                Ok(true)
+            } else {
+                let s = String::from_utf8_lossy(&output.stdout);
                 Err(std::io::Error::new(std::io::ErrorKind::AddrInUse, s))
-            },
+            }
         }
+        Err(e) => {
+            let s = format!("{:#?}", e);
+            Err(std::io::Error::new(std::io::ErrorKind::AddrInUse, s))
+        }
+    }
 }
 #[allow(dead_code)]
 fn run_partprobe(device: &str) {
@@ -794,7 +803,9 @@ fn get_disk_usage(partition: &str) -> Option<DiskUsage> {
         let fields: Vec<&str> = line.split_whitespace().collect();
         if fields.len() >= 4 {
             // Parse the available and used space (in 1K-blocks) to f64
-            if let (Ok(available_blocks), Ok(used_blocks)) = (fields[3].parse::<f64>(), fields[2].parse::<f64>()) {
+            if let (Ok(available_blocks), Ok(used_blocks)) =
+                (fields[3].parse::<f64>(), fields[2].parse::<f64>())
+            {
                 // Convert blocks to bytes (1K-blocks * 1024)
                 let available_bytes = available_blocks;
                 let used_bytes = used_blocks;

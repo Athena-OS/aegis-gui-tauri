@@ -14,8 +14,8 @@ async fn p() {
     app::global_app::update_global_storage(gs);
 }
 fn main() {
-    let log_file_path = "/tmp/aegis";
-    app::logging::init(0, log_file_path);
+    //let log_file_path = "/tmp/aegis";
+    //app::logging::init(0, log_file_path);
     // probe global storage in the background
     task::spawn(async move { p().await });
 

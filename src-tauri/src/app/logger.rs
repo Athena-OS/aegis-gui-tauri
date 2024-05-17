@@ -135,6 +135,7 @@ pub struct TauriLogger {
 }
 
 impl TauriLogger {
+    #[allow(dead_code)]
     pub fn new(app_handle: AppHandle, log_file_path: &str) -> Self {
         let file = File::create(log_file_path).expect("Failed to create log file");
         TauriLogger {
@@ -176,7 +177,7 @@ impl log::Log for TauriLogger {
 
     fn flush(&self) {}
 }
-
+#[allow(dead_code)]
 pub fn setup_logging(app_handle: AppHandle) {
     let logger = TauriLogger::new(app_handle, "/tmp/aegis.log");
     log::set_boxed_logger(Box::new(logger)).expect("Failed to set logger");
