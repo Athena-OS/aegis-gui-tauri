@@ -22,7 +22,7 @@ build() {
     yarn install
     NO_STRIP=true 
     unset SOURCE_DATE_EPOCH
-    cargo tauri build
+    cargo tauri build -- --debug
 }
 
 package() {

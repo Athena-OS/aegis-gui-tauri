@@ -25,7 +25,8 @@
         "startDragging": true
       },
       "fs":{
-        "all":true
+        "all":true,
+        "scope":["/tmp/aegis.log"]
       }
     },
     "bundle": {

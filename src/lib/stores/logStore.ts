@@ -8,7 +8,7 @@ const logStore :Writable<{
     logs: ["Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer.","Athena OS GUI Installer."],
     progress: 0,
     installFailed:false,
-    installSuccess:true
+    installSuccess:false
   });
   
   export default logStore;

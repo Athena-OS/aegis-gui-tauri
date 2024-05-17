@@ -4,6 +4,7 @@
   import promotionVideo from "../assets/promotion/video.mp4";
   import arrowDown from "../assets/icons/arrow-down-white.svg";
   import warningIcon from "../assets/icons/warning.svg";
+  import checkIcon from "../assets/icons/check-bg-yellow.svg";
   import Button from "../lib/components/Button.svelte";
   import Dialog from "../lib/components/Dialog.svelte";
   import { createDialog } from "svelte-headlessui";
@@ -19,12 +20,14 @@
   import desktopStore from "../lib/stores/desktopStore";
   import packagesStore from "../lib/stores/packagesStore";
   import accountsStore from "../lib/stores/accountsStore";
+  import { readTextFile } from "@tauri-apps/api/fs";
   import { appWindow } from "@tauri-apps/api/window";
   let consoleOpen = true;
   let shareLog = false;
   let logLink = "";
   let logs = "";
   let dialog = createDialog({ label: "failed" });
+  let ds = createDialog({ label: "success" });
   let dialogCheckLogs = createDialog({ label: "check-logs" });
   let p: string[] = [];
   let config = {
@@ -36,8 +39,8 @@
       swap: $partitionStore.swap,
       encrypt_check: $partitionStore.encrypt_check,
       swap_size: $partitionStore.swap_size,
-      new_ptable:$partitionStore.new_ptable,
-      new_pt_file_system:$partitionStore.new_pt_file_system,
+      new_ptable: $partitionStore.new_ptable,
+      new_pt_file_system: $partitionStore.new_pt_file_system,
       partitions: p,
       system_storage_info: $partitionStore.systemStorageInfo.filter((s) => {
         let partitionDisNAme = s.partitions.map((p) => p.partitionName);
@@ -116,6 +119,18 @@
       console.log("Event fail received");
       dialog.open();
       console.log("Dialog should be open now");
+    } else if ($logStore.installSuccess) {
+      console.log("Event success received");
+      ds.open();
+      console.log("Dialog should be open now");
+    }
+  }
+
+  function installSuccess() {
+    if ($logStore.installSuccess) {
+      console.log("Event success received");
+      //ds.open();
+      console.log("Dialog should be open now");
     }
   }
 
@@ -141,9 +156,20 @@
     }
   }
   saveConf();
+  async function fetchLogs() {
+    try {
+      const contents = await readTextFile("/tmp/aegis.log");
+      $logStore.logs=contents.split("\n");
+      console.log($logStore.logs)
+    } catch (error) {
+      console.error("Failed to read log file:", error);
+    }
+  }
+  //dialog.open();
+  const interval = setInterval(fetchLogs, 5000);
   $: $logStore, installFail(), scrollToBottom();
-  $:$logStore, scrollToBottom();
-
+  $: $logStore, scrollToBottom();
+  // $: $logStore, installSuccess();
 </script>
 
 <Dialog {dialog}>
@@ -157,6 +183,33 @@
       <div>{logLink}</div>
     {/if}
     <!-- svelte-ignore a11y-invalid-attribute -->
+    <button
+      class="text-xs hover:text-cyan-400"
+      on:click={async () => {
+        logs = await invoke("get_all_logs");
+        dialogCheckLogs.open();
+      }}>Check logs ?</button
+    >
+    <Button fullWidth variant="bordered" on:click={shareLogs}
+      >Do you want to share the logs ?</Button
+    >
+    <Button fullWidth on:click={async () => await appWindow.hide()}
+      >Close</Button
+    >
+  </div>
+</Dialog>
+
+<Dialog dialog={ds}>
+  <div
+    class="flex flex-col justify-center items-center text-center p-6 space-y-4"
+  >
+    <img src={checkIcon} alt="" />
+    <div class="text-4xl font-medium">Installation Success</div>
+
+    {#if shareLog}
+      <div>{logLink}</div>
+    {/if}
+
     <button
       class="text-xs hover:text-cyan-400"
       on:click={async () => {
@@ -264,7 +317,10 @@
     </div>
     <div class="flex space-x-4">
       <button
-        on:click={() => {consoleOpen = !consoleOpen; scrollToBottom()}}
+        on:click={() => {
+          consoleOpen = !consoleOpen;
+          scrollToBottom();
+        }}
         class="flex items-center justify-center bg-gray-800 h-10 px-4 rounded-xl"
         ><img src={arrowDown} alt="" /></button
       >

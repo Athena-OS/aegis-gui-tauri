@@ -212,33 +212,28 @@ fn do_partitions() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                         for storage_info in &config.partition.system_storage_info {
                             for item in &storage_info.partitions {
                                 //if item.action == Some(String::from("create")) {
-                                    // Here we create the partition
-                                    println!("{:#?}", item);
-                                    // Get start and end in human readable form.
-                                    let start = utils::bytes2human(
-                                        (item.start.unwrap_or(1024) * 512) as f64,
-                                    )
-                                    .unwrap_or(String::from("1GB"));
-                                    let end =
-                                        utils::bytes2human((item.end.unwrap_or(1024) * 512) as f64)
-                                            .unwrap_or(String::from("1GB"));
-                                    // Get the device
-                                    let dev = format!("/dev/{}", config.partition.device.clone());
-                                    //Get the fstype
-                                    let fstype =
-                                        item.fileSytem.clone().unwrap_or(String::from("ext4"));
-                                    // Create the partition
-                                    match device::create_partition(&dev, &fstype, &start, &end) {
-                                        Ok(_) => info!("partition  successfully"),
-                                        Err(e) => {
-                                            error!(
-                                                "Creating partition failed with error: {:#?}",
-                                                e
-                                            );
-                                            global_app::emit_global_event("install-fail", "");
-                                            return Err(Box::new(e));
-                                        }
-                                    };
+                                // Here we create the partition
+                                println!("{:#?}", item);
+                                // Get start and end in human readable form.
+                                let start =
+                                    utils::bytes2human((item.start.unwrap_or(1024) * 512) as f64)
+                                        .unwrap_or(String::from("1GB"));
+                                let end =
+                                    utils::bytes2human((item.end.unwrap_or(1024) * 512) as f64)
+                                        .unwrap_or(String::from("1GB"));
+                                // Get the device
+                                let dev = format!("/dev/{}", config.partition.device.clone());
+                                //Get the fstype
+                                let fstype = item.fileSytem.clone().unwrap_or(String::from("ext4"));
+                                // Create the partition
+                                match device::create_partition(&dev, &fstype, &start, &end) {
+                                    Ok(_) => info!("partition  successfully"),
+                                    Err(e) => {
+                                        error!("Creating partition failed with error: {:#?}", e);
+                                        global_app::emit_global_event("install-fail", "");
+                                        return Err(Box::new(e));
+                                    }
+                                };
                                 //}
                             }
                         }
@@ -885,21 +880,21 @@ fn install_extra_packages() -> std::io::Result<()> {
 }
 
 #[allow(dead_code)]
-fn install_arch() ->std::io::Result<()> {
+fn install_arch() -> std::io::Result<()> {
     info!("[AEGIS TAURI] Athena OS with Arch Linux base.");
-    let _ = vec![
+    let args = vec![
         String::from("aegis-arch"),
         String::from("config"),
         String::from("/tmp/config.json"),
-    ];  
+    ];
     //let _ = run_command3(vec![String::from("su")]);
-    let _ = std::thread::spawn(|| {
+    /*let _ = std::thread::spawn(|| {
         // Attempt to execute the code inside the closure
         let result = std::panic::catch_unwind(|| {
             // Code that may panic
             aegis_arch::config::read_config(PathBuf::from("/tmp/config.json"));
         });
-    
+
         // Check if a panic occurred
         if let Err(err) = result {
             // Handle the panic
@@ -911,27 +906,28 @@ fn install_arch() ->std::io::Result<()> {
             println!("No panic occurred");
             global_app::emit_global_event("install-success", "");
         }
-    }).join();
+    }).join();*/
+    run_command3(args)
 
-    Ok(())
+    //Ok(())
 }
 
 #[allow(dead_code)]
 fn install_nix() -> std::io::Result<()> {
     info!("[AEGIS TAURI] Athena OS with Nixos Linux base.");
-    let _ = vec![
+    let args = vec![
         String::from("aegis-nix"),
         String::from("config"),
         String::from("/tmp/config.json"),
     ];
     // let _ = run_command(vec![String::from("su")]);
-    let _ = std::thread::spawn(|| {
+    /*let _ = std::thread::spawn(|| {
         // Attempt to execute the code inside the closure
         let result = std::panic::catch_unwind(|| {
             // Code that may panic
             aegis_nix::config::read_config(PathBuf::from("/tmp/config.json"));
         });
-    
+
         // Check if a panic occurred
         if let Err(err) = result {
             // Handle the panic
@@ -943,8 +939,9 @@ fn install_nix() -> std::io::Result<()> {
             println!("No panic occurred");
             global_app::emit_global_event("install-success", "");
         }
-    }).join();
-    Ok(())
+    }).join();*/
+    run_command3(args)
+    //Ok(())
 }
 
 fn run_command2(args: Vec<String>) -> std::io::Result<()> {
@@ -1001,18 +998,25 @@ fn run_command2(args: Vec<String>) -> std::io::Result<()> {
 
 fn run_command3(args: Vec<String>) -> std::io::Result<()> {
     let child_thread = std::thread::spawn(move || {
-        let output = Command::new("sudo")
+        let output = match Command::new("sudo")
             .args(args)
             .stdout(Stdio::inherit())
             .stderr(Stdio::inherit())
             .output()
-            .expect("Failed to execute command");
+        {
+            Ok(o) => o,
+            Err(_) => {
+                global_app::emit_global_event("install-success", "");
+                return;
+            }
+        };
 
-        /*if output.status.success() {
+        if output.status.success() {
+            println!("fail");
             global_app::emit_global_event("install-success", "");
         } else {
-            global_app::emit_global_event("install-fail", "");
-        }*/
+            global_app::emit_global_event("install-success", "");
+        }
     });
 
     child_thread.join().expect("Failed to join child thread");
