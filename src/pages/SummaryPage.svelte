@@ -2,15 +2,12 @@
   // @ts-nocheck
 
   import StepWrapper from "../lib/components/StepWrapper.svelte";
-
   import keyboardSummary from "../assets/keyboard-summary.svg";
   import keyboardStore from "../lib/stores/keyboardStore";
-
   import environmentIcon from "../assets/icons/environment.svg";
   import themeIcon from "../assets/icons/theme.svg";
   import displayManagerIcon from "../assets/icons/desktop-manager.svg";
   import desktopStore from "../lib/stores/desktopStore";
-
   import packagesSummary from "../assets/packages-summary.svg";
   import packagesStore from "../lib/stores/packagesStore";
   import partitionStore from "../lib/stores/partitionStore";

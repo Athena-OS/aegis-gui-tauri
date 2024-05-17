@@ -1,7 +1,6 @@
 <script lang="ts">
   import athenaLogo from "../assets/athena-logo.svg";
   import doneIcon from "../assets/icons/done.svg";
-
   import Button from "../lib/components/Button.svelte";
 
   let app_element = document.getElementById("app");

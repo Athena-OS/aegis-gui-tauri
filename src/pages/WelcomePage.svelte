@@ -1,8 +1,6 @@
 <script lang="ts">
   import { Link } from "svelte-routing";
-  
   import athenaLogo from "../assets/athena-logo.svg";
-
   import Button from "../lib/components/Button.svelte";
 
   let app_element = document.getElementById("app");

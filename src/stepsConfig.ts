@@ -1,3 +1,4 @@
+// @ts-nocheck
 import WelcomePage from "./pages/WelcomePage.svelte";
 import KeyboardPage from "./pages/KeyboardPage.svelte";
 import DesktopPage from "./pages/DesktopPage.svelte";

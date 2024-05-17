@@ -1,19 +1,11 @@
 <script lang="ts">
   import userIcon from "../assets/icons/user-yellow.svg";
-  import plusIcon from "../assets/icons/plus-yellow-icon.svg";
   import editGrayIcon from "../assets/icons/edit-gray.svg";
   import binGrayIcon from "../assets/icons/bin-gray.svg";
-
   import { createDialog } from "svelte-headlessui";
-  import { event } from "@tauri-apps/api";
-
   import accountsStore from "../lib/stores/accountsStore";
-  import partitionStore from "../lib/stores/partitionStore";
   import StepWrapper from "../lib/components/StepWrapper.svelte";
   import CreateUserDialog from "../lib/components/CreateUser/CreateUserDialog.svelte";
-  import InputBox from "../lib/components/InputBox.svelte";
-  import Button from "../lib/components/Button.svelte";
-
 
   let dialog = createDialog({ label: "dialogTitle" });
 </script>
@@ -72,7 +64,6 @@
               <div class="flex items-center">
                 <button
                   on:click={async () => {
-                    
                     $accountsStore.createNewUserTemp = {
                       name: user.name,
                       username: user.username,
@@ -80,7 +71,7 @@
                       confirmPassword: user.password,
                       passwordSameAsRoot: false,
                       hasroot: user.hasroot,
-                      isEditing: true
+                      isEditing: true,
                     };
                     dialog.open();
                   }}
