@@ -717,6 +717,7 @@ fn save_config() -> std::result::Result<bool, Box<dyn std::error::Error>> {
                 .collect();*/
 
             config.partition.mode = String::from("Replace");
+            //config.bootloader.
             //config.partition.device = format!("/dev/{}", config.partition.device);
             //config.partition.partitions = serde_json::to_value(partition).unwrap_or_default();
             info!("saving config. config");

@@ -534,6 +534,7 @@
         { name: "don't format", selected: true },
         { name: "fat" },
         { name: "vfat" },
+        { name: "ext4" },
       ]}
       icon={diskIcon}
       label="Select FileSystem"

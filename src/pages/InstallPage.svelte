@@ -94,6 +94,9 @@
       keep: $extrasStore.keepgoing,
     },
   };
+  if (!$partitionStore.efi){
+    config.bootloader.location = `{/dev/${config.partition.device}`
+  }
   if ($partitionStore.mode == "replace-partition") {
     let fs: string | undefined = $partitionStore.replacedPartition.fileSystem;
     let pn: string | undefined =
