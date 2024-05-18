@@ -50,7 +50,7 @@ fn main() {
         .system_tray(system_tray)
         .on_window_event(|event| match event.event() {
             tauri::WindowEvent::CloseRequested { api, .. } => {
-                event.window().hide().unwrap();
+                event.window().close().unwrap();
                 api.prevent_close();
             }
             _ => {}

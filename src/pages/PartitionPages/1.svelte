@@ -93,7 +93,7 @@
           $partitionStore.grubType = "grub-efi";
         } else {
           $partitionStore.efi = false;
-          $partitionStore.grubType = "grub-efi";
+          $partitionStore.grubType = "grub-legacy";
         }
       })
       .catch((e) => console.error(e));

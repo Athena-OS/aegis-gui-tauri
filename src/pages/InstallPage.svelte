@@ -193,7 +193,7 @@
     <Button fullWidth variant="bordered" on:click={shareLogs}
       >Do you want to share the logs ?</Button
     >
-    <Button fullWidth on:click={async () => await appWindow.hide()}
+    <Button fullWidth on:click={async () => await appWindow.close()}
       >Close</Button
     >
   </div>
@@ -220,7 +220,7 @@
     <Button fullWidth variant="bordered" on:click={shareLogs}
       >Do you want to share the logs ?</Button
     >
-    <Button fullWidth on:click={async () => await appWindow.hide()}
+    <Button fullWidth on:click={async () => await appWindow.close()}
       >Close</Button
     >
   </div>
