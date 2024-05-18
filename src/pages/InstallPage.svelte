@@ -166,7 +166,7 @@
     }
   }
   //dialog.open();
-  const interval = setInterval(fetchLogs, 5000);
+  const interval = setInterval(fetchLogs, 500);
   $: $logStore, installFail(), scrollToBottom();
   $: $logStore, scrollToBottom();
   // $: $logStore, installSuccess();
