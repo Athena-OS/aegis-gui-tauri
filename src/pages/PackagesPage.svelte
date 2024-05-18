@@ -1,9 +1,7 @@
 <script lang="ts">
   import packagesIcon from "../assets/icons/packages-icon.svg";
-
   import CheckButton from "../lib/components/CheckButton.svelte";
   import StepWrapper from "../lib/components/StepWrapper.svelte";
-
   import packagesStore from "../lib/stores/packagesStore";
 
   let gpuOptions = [
@@ -74,9 +72,7 @@
   let technicalSupportOptionsExpanded = false;
   let browsersOptionsExpanded = false;
 
-  export let switchView: (viewName: string) => void;
-
-  function saveGPUOptions() {
+   function saveGPUOptions() {
     let temp: string[] = [];
     gpuOptions.forEach((element) => {
       if (element.selected) temp.push(element.label);

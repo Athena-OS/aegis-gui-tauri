@@ -22,16 +22,11 @@ pub fn emit_global_event(event: &str, payload: &str) {
         Ok(handle_lock) => {
             if let Some(app_handle) = handle_lock.as_ref() {
                 // Attempt to emit the event, handling any potential error
-                match app_handle.emit_all(event, payload) {
-                    Ok(_) => info!("Event emitted successfully."),
-                    Err(e) => error!("Failed to emit event: {}", e),
-                }
-            } else {
-                error!("Global AppHandle has not been initialized.");
+                let _ = app_handle.emit_all(event, payload);
             }
         }
         Err(e) => {
-            error!("Failed to acquire lock on GLOBAL_APP_HANDLE: {}", e);
+            println!("Failed to acquire lock on GLOBAL_APP_HANDLE: {}", e);
         }
     }
 }

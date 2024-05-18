@@ -14,6 +14,8 @@ async fn p() {
     app::global_app::update_global_storage(gs);
 }
 fn main() {
+    //let log_file_path = "/tmp/aegis";
+    //app::logging::init(0, log_file_path);
     // probe global storage in the background
     task::spawn(async move { p().await });
 
@@ -48,7 +50,7 @@ fn main() {
         .system_tray(system_tray)
         .on_window_event(|event| match event.event() {
             tauri::WindowEvent::CloseRequested { api, .. } => {
-                event.window().hide().unwrap();
+                event.window().close().unwrap();
                 api.prevent_close();
             }
             _ => {}
@@ -99,7 +101,7 @@ fn main() {
     app::global_app::set_global_app_handle(app_handle.clone());
     // start global log collector
     //app::logger::Logger::start(app_handle.clone());
-    app::logger::setup_logging(app_handle.clone());
+    //app::logger::setup_logging(app_handle.clone());
     // run the app
 
     appp.run(|_app_handle, _event| {});

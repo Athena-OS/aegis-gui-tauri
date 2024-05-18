@@ -1,7 +1,7 @@
 {
   "build": {
-    "beforeBuildCommand": "yarn run build",
-    "beforeDevCommand": "yarn run dev",
+    "beforeBuildCommand": "yarn install && yarn run build",
+    "beforeDevCommand": "yarn install && yarn run dev",
     "devPath": "http://localhost:5173",
     "distDir": "../dist",
     "withGlobalTauri": false
@@ -25,7 +25,8 @@
         "startDragging": true
       },
       "fs":{
-        "all":true
+        "all":true,
+        "scope":["/tmp/aegis.log"]
       }
     },
     "bundle": {
@@ -54,7 +55,7 @@
       },
       "resources": [],
       "shortDescription": "",
-      "targets": "all",
+      "targets": ["app", "deb", "dmg"],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",

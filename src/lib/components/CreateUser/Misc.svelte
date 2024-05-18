@@ -8,7 +8,7 @@
   <ul class=" divide-y divide-neutral-700">
     <li>
       <span>Allow ROOT Access</span>
-      <Switch bind:value={$accountsStore.createNewUserTemp.hasRoot} />
+      <Switch bind:value={$accountsStore.createNewUserTemp.hasroot} />
     </li>
     <!--li>
       <span>Permission 2</span>

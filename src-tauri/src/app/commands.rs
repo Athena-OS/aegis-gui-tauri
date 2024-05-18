@@ -163,6 +163,8 @@ fn delete_file(filename: &str) -> std::io::Result<()> {
 #[tauri::command]
 #[allow(dead_code)]
 pub fn get_gs() -> String {
+    let mut gs = gs::GlobalStorage::new();
+    gs.probe();
     global_app::get_global_storage()
         .unwrap_or_default()
         .to_json_string()
@@ -182,5 +184,5 @@ pub fn save_luks_passphrase(d: String) {
         Ok(o) => o,
         Err(_) => return,
     };
-    file.write_all(d.as_bytes());
+    let _ = file.write_all(d.as_bytes());
 }

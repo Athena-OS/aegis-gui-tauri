@@ -2,6 +2,8 @@ import { writable, type Writable } from "svelte/store";
 import { type StorageDevice, type InstallAlongPartition } from "../utils/types"
 
 const partitionStore: Writable<{
+  new_pt_file_system: string,
+  new_ptable: boolean
   selectedDevice: string,
   selectedDeviceForInstallAlong: string,
   mode: string,
@@ -11,6 +13,7 @@ const partitionStore: Writable<{
   grubType:string,
   r:boolean,
   ind: number,
+  swap_size:string,
   encrypt_check:boolean,
   luksPassword:string,
   systemStorageInfo: StorageDevice[],
@@ -34,12 +37,21 @@ const partitionStore: Writable<{
     mountPoint: string,
     name: string
   },
+  bootPartition: {
+    partitionName: string,
+    size: number,
+    fileSystem: string,
+    mountPoint: string,
+    name: string
+  },
   installAlongPartition: {
     partitionName:string
     size:number,
     filesystem:string,
   }
 }> = writable({
+  new_ptable:false,
+  new_pt_file_system:"mdos",
   selectedDevice: "default",
   selectedDeviceForInstallAlong: "default",
   installAlongPartitions:[],
@@ -47,11 +59,12 @@ const partitionStore: Writable<{
   r:false,
   ind:0,
   efi:true,
-  swap: true,
+  swap: false,
   grubType:"",
   encrypt_check:false,
   luksPassword:"",
   grubLocation:"",
+  swap_size:"1GiB",
   systemStorageInfo: [],
   systemStorageInfoCurrent: [],
   partitionsWithOS: [],
@@ -73,6 +86,14 @@ const partitionStore: Writable<{
     name: "Athena OS",
     isEncrypted: false
   },
+  bootPartition: {
+    partitionName: "",
+    size: 1024,
+    fileSystem: "",
+    mountPoint: "/boot",
+    name: "Athena OS",
+    isEncrypted: false
+  },
   installAlongPartition:{
     partitionName:"",
     size:1024,
@@ -85,6 +106,8 @@ export default partitionStore;
 
 export function resetPartitionStore() {
   partitionStore.set({
+    new_pt_file_system:"mdos",
+    new_ptable:false,
     selectedDevice: "default",
     selectedDeviceForInstallAlong: "default",
     installAlongPartitions:[],
@@ -92,7 +115,8 @@ export function resetPartitionStore() {
     ind: 0,
     mode: "auto",
     efi:true,
-    swap: true,
+    swap: false,
+    swap_size:"1GiB",
     grubType:"",
     grubLocation:"",
     encrypt_check:false,
@@ -107,7 +131,7 @@ export function resetPartitionStore() {
       mountPoint: "",
       name: "Athena OS",
       isEncrypted: false,
-      swapPartitionSize: "1Gib",
+      swapPartitionSize: "1GiB",
       start: 1024
     },
     replacedPartition: {
@@ -115,6 +139,14 @@ export function resetPartitionStore() {
       size: 1024,
       fileSystem: "",
       mountPoint: "",
+      name: "Athena OS",
+      //isEncrypted: false
+    },
+    bootPartition: {
+      partitionName: "",
+      size: 1024,
+      fileSystem: "don't format",
+      mountPoint: "/boot",
       name: "Athena OS",
       //isEncrypted: false
     },

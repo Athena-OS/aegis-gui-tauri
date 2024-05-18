@@ -1,6 +1,6 @@
 use crate::partition::{
     device::{probe_devices, Device, Partition},
-    probeos::{probe_os, OsProber},
+    probeos::{run_probe_os_with_timeout, OsProber},
     utils,
 };
 use serde::{Deserialize, Serialize};
@@ -34,7 +34,9 @@ impl GlobalStorage {
     }
     #[allow(dead_code)]
     pub fn probe_os(&mut self) {
-        self.operating_systems = probe_os();
+        let runtime = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
+        let result = runtime.block_on(run_probe_os_with_timeout());
+        self.operating_systems = result;
     }
     #[allow(dead_code)]
     pub fn probe_devices(&mut self) {

@@ -1,28 +1,14 @@
 <script lang="ts">
-  import { createDialog } from "svelte-headlessui";
-
-  import kernelIcon from "../assets/icons/kernel-yellow.svg";
+  // @ts-nocheck
   import terminalIcon from "../assets/icons/terminal-yellow.svg";
   import wrenchIcon from "../assets/icons/wrench-yellow.svg";
   import globeIcon from "../assets/icons/globe-icon.svg";
-
-  import Dialog from "../lib/components/Dialog.svelte";
   import StepWrapper from "../lib/components/StepWrapper.svelte";
   import Switch from "../lib/components/Switch.svelte";
   import Dropdown from "../lib/components/Dropdown.svelte";
   import extrasStore from "../lib/stores/extrasStore";
   import InputBox from "../lib/components/InputBox.svelte";
 
-  let kernelList = [
-    { name: "Linux" },
-    { name: "Linux LTS" },
-    { name: "Linux Zen" },
-    { name: "Linux Hardened" },
-    { name: "Linux Real-Time" },
-    { name: "Linux Real-Time LTS" },
-    { name: "Linux Liquorix" },
-    { name: "Linux Xanmod" },
-  ];
   let terminalList = [
     { name: "Alacritty" },
     { name: "Cool Retro Term" },
@@ -174,9 +160,8 @@
             <InputBox
               styleClass="text-base"
               label=""
-              placeholderText="Enter your desired hostname"
+              placeholderText="Enter hostname"
               inputType={"text"}
-              value="athenaos"
               givenOnChangeValue={onChangeFunctionHostName}
             ></InputBox>
           </div>

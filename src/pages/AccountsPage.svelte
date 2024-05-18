@@ -1,19 +1,11 @@
 <script lang="ts">
   import userIcon from "../assets/icons/user-yellow.svg";
-  import plusIcon from "../assets/icons/plus-yellow-icon.svg";
   import editGrayIcon from "../assets/icons/edit-gray.svg";
   import binGrayIcon from "../assets/icons/bin-gray.svg";
-
   import { createDialog } from "svelte-headlessui";
-  import { event } from "@tauri-apps/api";
-
   import accountsStore from "../lib/stores/accountsStore";
-  import partitionStore from "../lib/stores/partitionStore";
   import StepWrapper from "../lib/components/StepWrapper.svelte";
   import CreateUserDialog from "../lib/components/CreateUser/CreateUserDialog.svelte";
-  import InputBox from "../lib/components/InputBox.svelte";
-  import Button from "../lib/components/Button.svelte";
-
 
   let dialog = createDialog({ label: "dialogTitle" });
 </script>
@@ -25,7 +17,7 @@
   dialogTitle="Accounts page"
   dialogContent="In this page, you create accounts for users. One of the accounts must have root access."
   prev="/packages"
-  next={$accountsStore.users.filter((item) => item.hasRoot === true).length > 0
+  next={$accountsStore.users.filter((item) => item.hasroot === true).length > 0
     ? "/extras"
     : ""}
 >
@@ -41,7 +33,7 @@
           <h3 class="font-semibold text-2xl">Accounts</h3>
         </div>
         <div class="flex justify-center items-center space-x-2">
-          {#if $accountsStore.users.filter((item) => item.hasRoot === true).length <= 0}
+          {#if $accountsStore.users.filter((item) => item.hasroot === true).length <= 0}
             <h4 class="text-lg text-neutral-300 font-bold">
               Create atleast one root user
             </h4>
@@ -63,7 +55,7 @@
             <div class="flex justify-between items-center w-full text-lg">
               <div>
                 <div>
-                  {user.userName} ( {user.name} ) {#if user.hasRoot}<span>
+                  {user.username} ( {user.name} ) {#if user.hasroot}<span>
                       - <span class="text-primary-500 font-bold">ROOT</span
                       ></span
                     >{/if}
@@ -72,15 +64,14 @@
               <div class="flex items-center">
                 <button
                   on:click={async () => {
-                    
                     $accountsStore.createNewUserTemp = {
                       name: user.name,
-                      userName: user.userName,
+                      username: user.username,
                       password: user.password,
                       confirmPassword: user.password,
                       passwordSameAsRoot: false,
-                      hasRoot: user.hasRoot,
-                      isEditing: true
+                      hasroot: user.hasroot,
+                      isEditing: true,
                     };
                     dialog.open();
                   }}

@@ -19,9 +19,9 @@
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 </script>
-
+<legend class="py-4 w-full font-medium text-neutral-300 text-center">{title}</legend>
 <fieldset class="grid grid-cols-2 gap-8 w-full">
-  <legend class="py-4 font-medium text-neutral-300 text-center">{title}</legend>
+  
   {#each cards as card}
     <div class="relative">
       <input

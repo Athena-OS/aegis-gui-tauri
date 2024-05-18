@@ -3,6 +3,7 @@ pub mod automount;
 pub mod device;
 pub mod fileinfo;
 pub mod gs;
+pub mod mount;
 pub mod probebcache;
 pub mod probedasd;
 pub mod probeos;

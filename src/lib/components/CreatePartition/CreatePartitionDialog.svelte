@@ -11,10 +11,6 @@
 
   let steps = [
     {
-      label: "Method of Partition",
-      component: Method,
-    },
-    {
       label: "Size of Partition",
       component: Size,
     },
@@ -23,13 +19,10 @@
   let currentStep = 0;
 
   const handlePrevious = () => {
-    if (currentStep > 0) currentStep--;
+    dialog.close()
   };
 
   const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      currentStep++;
-    } else {
       if (
         $partitionStore.newPartition.name !== "" &&
         $partitionStore.newPartition.fileSystem !== "" &&
@@ -121,7 +114,6 @@
 
         dialog.close();
       }
-    }
   };
 </script>
 
@@ -164,12 +156,11 @@
               {/each}
               <div class="flex justify-between items-center pt-8 space-x-4">
                 <Button
-                  disabled={currentStep === 0}
                   variant="bordered"
                   fullWidth
-                  on:click={handlePrevious}>Previous</Button
+                  on:click={handlePrevious}>Cancel</Button
                 ><Button fullWidth on:click={handleNext}
-                  >{currentStep < steps.length - 1 ? "Next" : "Done"}</Button
+                  >Create</Button
                 >
               </div>
             </div>

@@ -2,11 +2,13 @@ import { writable, type Writable } from "svelte/store";
 const logStore :Writable<{
     logs:string[],
     progress: number,
-    installFailed: boolean
+    installFailed: boolean,
+    installSuccess: boolean
 }> = writable({
-    logs: ["Athena OS GUI Installer."],
+    logs: [],
     progress: 0,
-    installFailed:false
+    installFailed:false,
+    installSuccess:false
   });
   
   export default logStore;

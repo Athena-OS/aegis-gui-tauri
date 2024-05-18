@@ -45,10 +45,10 @@ const globalStore = derived(
         ipv6:$extraStore.ipv6,
       },
       users:$accountStore.users,
-      rootpass:$accountStore.users.filter(i => i.hasRoot)[0]?.password,
+      rootpass:$accountStore.users.filter(i => i.hasroot)[0]?.password,
       desktop:$desktopStore.environment,
       theme: $desktopStore.theme,
-      displayManager: $desktopStore.displayManager,
+      displaymanager: $desktopStore.displayManager,
       browser:$extraStore.browser,
       
       packagesStore: $packagesStore,
