@@ -12,7 +12,7 @@
   import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import "@splidejs/svelte-splide/css";
   import logStore from "../lib/stores/logStore";
-  import { invoke } from "@tauri-apps/api";
+  import { invoke } from "@tauri-apps/api/core";
   import globalStore from "../lib/stores/globalStore";
   import partitionStore from "../lib/stores/partitionStore";
   import extrasStore from "../lib/stores/extrasStore";
@@ -20,8 +20,9 @@
   import desktopStore from "../lib/stores/desktopStore";
   import packagesStore from "../lib/stores/packagesStore";
   import accountsStore from "../lib/stores/accountsStore";
-  import { readTextFile } from "@tauri-apps/api/fs";
-  import { appWindow } from "@tauri-apps/api/window";
+  import { readTextFile } from "@tauri-apps/plugin-fs"
+  import { getCurrent } from "@tauri-apps/api/window";
+  import { Window } from "@tauri-apps/api/window";
   let consoleOpen = true;
   let shareLog = false;
   let logLink = "";
@@ -196,7 +197,7 @@
     <Button fullWidth variant="bordered" on:click={shareLogs}
       >Do you want to share the logs ?</Button
     >
-    <Button fullWidth on:click={async () => await appWindow.close()}
+    <Button fullWidth on:click={async () => await getCurrent().close()}
       >Close</Button
     >
   </div>
@@ -223,7 +224,7 @@
     <Button fullWidth variant="bordered" on:click={shareLogs}
       >Do you want to share the logs ?</Button
     >
-    <Button fullWidth on:click={async () => await appWindow.close()}
+    <Button fullWidth on:click={async () => await getCurrent().close()}
       >Close</Button
     >
   </div>

@@ -79,14 +79,7 @@ impl Default for Bootloader {
         }
     }
 }
-#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
-#[allow(unused)]
-pub enum PartitionAction {
-    Delete,
-    Shrink,
-    Create,
-    None,
-}
+
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct Locale {
     pub locale: Vec<String>,
@@ -161,10 +154,7 @@ pub struct Config {
     #[serde(skip_serializing)]
     pub base: String,
 }
-// Serialize params only if not defalut
-/*fn serialize_params(value: &Params) -> bool {
-    value.cores > 0 || value.keep || value.jobs > 0
-}*/
+
 impl Default for Config {
     fn default() -> Config {
         Config {
@@ -193,14 +183,9 @@ impl Default for Config {
 }
 
 impl Config {
-    #[allow(dead_code)]
     pub fn from_json_string(v: String) -> Config {
         let mut conf = Config::default();
-        let r = partition::utils::unmarshal_json(v.as_str(), &mut conf);
-        match r {
-            Ok(_) => log::info!("Deserialized config from the frontend"),
-            Err(e) => log::error!("error deserializing config from the frontend {:#?}", e),
-        };
+        let _ = partition::utils::unmarshal_json(v.as_str(), &mut conf);
         conf
     }
 }

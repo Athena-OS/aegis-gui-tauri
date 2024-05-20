@@ -28,34 +28,28 @@ impl Default for GlobalStorage {
 }
 
 impl GlobalStorage {
-    #[allow(dead_code)]
     pub fn new() -> GlobalStorage {
         GlobalStorage::default()
     }
-    #[allow(dead_code)]
+    
+
     pub fn probe_os(&mut self) {
         let runtime = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
         let result = runtime.block_on(run_probe_os_with_timeout());
         self.operating_systems = result;
     }
-    #[allow(dead_code)]
+    
+    
     pub fn probe_devices(&mut self) {
         self.devices = probe_devices(&self.operating_systems);
     }
-    #[allow(dead_code)]
+    
+    
     pub fn to_json_string(&self) -> String {
         utils::marshal_json(&self).unwrap_or(String::new())
     }
-    #[allow(dead_code)]
-    pub fn from_json_string(data: String) -> Result<GlobalStorage, serde_json::Error> {
-        let mut gl = GlobalStorage::default();
-        let v = utils::unmarshal_json(data.as_str(), &mut gl);
-        match v {
-            Ok(_) => Ok(gl),
-            Err(e) => Err(e),
-        }
-    }
-    #[allow(dead_code)]
+    
+    
     pub fn probe(&mut self) {
         self.probe_os();
         self.probe_devices();

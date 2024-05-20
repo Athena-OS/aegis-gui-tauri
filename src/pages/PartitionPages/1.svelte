@@ -11,8 +11,8 @@
   import Button from "../../lib/components/Button.svelte";
   import partitionStore from "../../lib/stores/partitionStore";
   import replacePartitionIcon from "../../assets/icons/replace-yellow.svg";
-  import { disks } from "tauri-plugin-system-info-api";
-  import { invoke } from "@tauri-apps/api";
+  //import { disks } from "tauri-plugin-system-info-api";
+  import { invoke } from "@tauri-apps/api/core";
   import InputBox from "../../lib/components/InputBox.svelte";
   import Switch from "../../lib/components/Switch.svelte";
   import {
@@ -47,7 +47,7 @@
   let hasOs = false;
   async function fetchAndParseStorageInfo() {
     resetPartitionStore();
-    let sysInfo_Disks = await disks();
+    //let sysInfo_Disks = await disks();
     let gs: string = await invoke("get_gs");
     let devices = JSON.parse(gs).devices;
     console.log(devices);
