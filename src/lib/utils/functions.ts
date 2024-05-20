@@ -1,5 +1,5 @@
 
-import {invoke} from "@tauri-apps/api"
+import { invoke } from "@tauri-apps/api/core";
 export function bytesToGB(bytes: number) {
     if (isNaN(bytes) || bytes < 0) {
         throw new Error(

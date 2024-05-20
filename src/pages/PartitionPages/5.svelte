@@ -4,7 +4,7 @@
   import { createDialog } from "svelte-headlessui";
   import { bytesToGB, bytesToMB } from "../../lib/utils/functions";
   import partitionStore from "../../lib/stores/partitionStore";
-  import { invoke } from "@tauri-apps/api";
+  import { invoke } from "@tauri-apps/api/core";
   import SegementedBar from "../../lib/components/SegementedBar.svelte";
   import StepWrapper from "../../lib/components/StepWrapper.svelte";
   import Dropdown from "../../lib/components/Dropdown.svelte";

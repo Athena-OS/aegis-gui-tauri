@@ -1,7 +1,7 @@
 use crate::app::{config, global_app, install};
 use crate::partition::*;
 use async_std::task;
-use std::{error::Error, fs::File, io::Write, process::Command};
+use std::{fs::File, io::Write, process::Command};
 
 // Get partitions use the lsblk command to get disks and their partitions
 #[tauri::command]
@@ -19,7 +19,9 @@ pub fn get_partitions() -> Result<String, tauri::Error> {
                 Ok(output_str.into())
             } else {
                 let var_name = "Command execution failed";
-                Err(tauri::Error::InvalidWindowUrl(var_name))
+                Err(tauri::Error::WebviewLabelAlreadyExists(
+                    var_name.to_string(),
+                ))
             }
         }
         Err(_) => todo!(),
@@ -38,7 +40,9 @@ pub fn get_timezones() -> Result<String, tauri::Error> {
                 Ok(output_str.into())
             } else {
                 let var_name = "Command execution failed";
-                Err(tauri::Error::InvalidWindowUrl(var_name))
+                Err(tauri::Error::WebviewLabelAlreadyExists(
+                    var_name.to_string(),
+                ))
             }
         }
         Err(_) => todo!(),
@@ -58,7 +62,9 @@ pub fn get_x11_keymaps() -> Result<String, tauri::Error> {
                 Ok(output_str.into())
             } else {
                 let var_name = "Command execution failed";
-                Err(tauri::Error::InvalidWindowUrl(var_name))
+                Err(tauri::Error::WebviewLabelAlreadyExists(
+                    var_name.to_string(),
+                ))
             }
         }
         Err(_) => todo!(),
@@ -79,13 +85,17 @@ pub fn is_uefi() -> Result<String, tauri::Error> {
                 Ok(output_str.into())
             } else {
                 let var_name = "Command execution failed";
-                Err(tauri::Error::InvalidWindowUrl(var_name))
+                Err(tauri::Error::WebviewLabelAlreadyExists(
+                    var_name.to_string(),
+                ))
             }
         }
         Err(e) => {
             println!("failed running is uefi {}", e);
             let var_name = "Failed running is uefi";
-            Err(tauri::Error::InvalidWindowUrl(var_name))
+            Err(tauri::Error::WebviewLabelAlreadyExists(
+                var_name.to_string(),
+            ))
         }
     }
 }
@@ -105,16 +115,13 @@ pub fn hash_password(password: &str) -> Result<String, tauri::Error> {
                 Ok(output_str.into())
             } else {
                 let var_name = "Command execution failed";
-                Err(tauri::Error::InvalidWindowUrl(var_name))
+                Err(tauri::Error::WebviewLabelAlreadyExists(
+                    var_name.to_string(),
+                ))
             }
         }
         Err(_) => todo!(),
     }
-}
-#[allow(dead_code)]
-pub fn read_file(path: &str) -> Result<String, Box<dyn Error>> {
-    let file_content = std::fs::read_to_string(path)?;
-    Ok(file_content)
 }
 
 // keymaps
@@ -129,21 +136,15 @@ pub fn get_locale() -> Result<String, tauri::Error> {
     Ok(include_str!("locale").to_string())
 }
 
-#[allow(dead_code)]
-pub fn read_file1(path: &str) -> Result<String, std::io::Error> {
-    std::fs::read_to_string(path)
-}
-
 // save the config file in /tmp/conf.file
 #[tauri::command]
-#[allow(dead_code)]
 pub fn install(data: String) {
     // get config and update global store
     global_app::update_config(config::Config::from_json_string(data));
     // start installation in the background
     task::spawn(async move { install::install().await });
 }
-#[allow(dead_code)]
+
 pub fn save_json(data: &str, filename: &str) -> std::io::Result<()> {
     // Open the file in write mode, creating it if it doesn't exist
     let mut file = File::create(filename)?;
@@ -152,16 +153,8 @@ pub fn save_json(data: &str, filename: &str) -> std::io::Result<()> {
 
     Ok(())
 }
-#[allow(dead_code)]
-pub fn read_json(_filename: &str) {}
-#[allow(dead_code)]
-fn delete_file(filename: &str) -> std::io::Result<()> {
-    std::fs::remove_file(filename)?;
-    Ok(())
-}
 
 #[tauri::command]
-#[allow(dead_code)]
 pub fn get_gs() -> String {
     let mut gs = gs::GlobalStorage::new();
     gs.probe();
@@ -185,4 +178,49 @@ pub fn save_luks_passphrase(d: String) {
         Err(_) => return,
     };
     let _ = file.write_all(d.as_bytes());
+}
+
+// Read athena logs
+pub fn read_athena_logs() -> String {
+    match std::fs::read_to_string("/tmp/aegis.log") {
+        Ok(o) => o,
+        Err(_) => String::new(),
+    }
+}
+
+#[tauri::command]
+pub fn share_logs() -> Result<String, tauri::Error> {
+    // These are any logs before that backend is reached. Simply the GUI logs.
+    let mut al = match std::fs::read_to_string("prefix.log") {
+        Ok(o) => o,
+        Err(_) => String::new(),
+    };
+    // The backend logs
+    al = format!("{al} \n {}", read_athena_logs());
+
+    let output: Result<std::process::Output, std::io::Error> = std::process::Command::new("sh")
+        .arg("-c")
+        .arg(format!(r#"echo "{}" | nc termbin.com 9999"#, al))
+        .output();
+    match output {
+        Ok(o) => {
+            let s = String::from_utf8_lossy(&o.stdout);
+            Ok(s.into())
+        }
+        Err(e) => {
+            Err(tauri::Error::Anyhow(e.into()))
+        }
+    }
+}
+
+#[tauri::command]
+pub fn get_all_logs() -> Result<String, tauri::Error> {
+    // These are any logs before that backend is reached. Simply the GUI logs.
+    let mut al = match std::fs::read_to_string("prefix.log") {
+        Ok(o) => o,
+        Err(_) => String::new(),
+    };
+    // The backend logs
+    al = format!("{al} \n {}", read_athena_logs());
+    Ok(al)
 }
