@@ -7,7 +7,7 @@ use async_std::task;
 use tauri::Manager;
 use tauri::{
     menu::{MenuBuilder, MenuItemBuilder},
-    tray::{ClickType, TrayIconBuilder},
+    tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
 };
 async fn p() {
     let mut gs = partition::gs::GlobalStorage::new();
@@ -33,11 +33,13 @@ pub fn run() {
                     _ => (),
                 })
                 .on_tray_icon_event(|tray, event| {
-                    if event.click_type == ClickType::Left {
-                        let app = tray.app_handle();
-                        if let Some(webview_window) = app.get_webview_window("main") {
-                            let _ = webview_window.show();
-                            let _ = webview_window.set_focus();
+                    if let TrayIconEvent::Click { button, ..} = event {
+                        if button == MouseButton::Left {
+                            let app = tray.app_handle();
+                            if let Some(webview_window) = app.get_webview_window("main") {
+                                let _ = webview_window.show();
+                                let _ = webview_window.set_focus();
+                            }
                         }
                     }
                 })

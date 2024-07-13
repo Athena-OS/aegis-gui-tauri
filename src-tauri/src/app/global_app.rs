@@ -2,7 +2,7 @@
 use crate::{app, partition};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter};
 pub static GLOBAL_APP_HANDLE: Lazy<Mutex<Option<AppHandle>>> = Lazy::new(|| Mutex::new(None));
 
 pub fn set_global_app_handle(app_handle: AppHandle) {
