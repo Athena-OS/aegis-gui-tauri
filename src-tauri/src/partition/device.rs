@@ -69,23 +69,6 @@ impl Default for Device {
 }
 
 impl Device {
-    #[allow(dead_code)]
-    pub fn candidate_for_install_along(&mut self) -> bool {
-        let cfia = match &self.possible_actions {
-            Some(action_list) => {
-                if action_list.contains(&actions::Action::InstallAlong) {
-                    true
-                } else {
-                    false
-                }
-            }
-            None => false,
-        };
-        self.can_install_along = Some(cfia);
-        cfia
-    }
-
-    #[allow(dead_code)]
     pub fn populate_partitions(&mut self) {
         let binding = String::new();
         let kname = match &self.kname {
@@ -96,7 +79,6 @@ impl Device {
         self.partitions = Some(get_partitions(&kname).unwrap_or(vec![]));
     }
 
-    #[allow(dead_code)]
     pub fn populate_possible_actions(&mut self, os_data: &Vec<probeos::OsProber>) {
         let mut possible_actions: Vec<actions::Action> = vec![];
         // Any device can be formatted or partitioned
@@ -139,7 +121,8 @@ impl Device {
         self.possible_actions = Some(possible_actions);
     }
 }
-#[allow(dead_code)]
+
+
 pub fn get_device_list(os: &Vec<probeos::OsProber>) -> Vec<Device> {
     let dl = get_disk_info().expect("unable to get device info");
     let mut devices: Vec<Device> = vec![];
@@ -165,17 +148,20 @@ pub fn get_device_list(os: &Vec<probeos::OsProber>) -> Vec<Device> {
 
     devices
 }
-#[allow(dead_code)]
+
+
 pub fn probe_devices(os: &Vec<probeos::OsProber>) -> Vec<Device> {
     get_device_list(os)
 }
 
-#[allow(dead_code)]
+
+
 pub enum DeviceType {
     GPT,
     MDOS,
 }
-#[allow(dead_code)]
+
+
 pub fn clear_partition_device(
     device: String,
     device_type: DeviceType,
@@ -206,7 +192,8 @@ pub fn clear_partition_device(
         Err(e) => Err(e),
     }
 }
-#[allow(dead_code)]
+
+
 pub fn get_disk_info() -> Result<String, std::io::Error> {
     let output = Command::new("sh")
         .arg("-c")
@@ -301,7 +288,6 @@ impl Default for Partition {
     }
 }
 impl Partition {
-    #[allow(dead_code)]
     pub fn candidate_for_install_along(&mut self) -> bool {
         let cfia = match &self.possible_actions {
             Some(action_list) => {
@@ -316,7 +302,8 @@ impl Partition {
         self.can_install_along = Some(cfia);
         cfia
     }
-    #[allow(dead_code)]
+    
+
     pub fn populate_possible_actions(&mut self, os_data: &Vec<probeos::OsProber>) {
         let mut possible_actions: Vec<actions::Action> = vec![];
         // Any partition can be formatted or partitioned
@@ -381,7 +368,6 @@ impl Partition {
     }
 
     // Auto suggest partition sizes for install along
-    #[allow(dead_code)]
     pub fn calculate_sizes_for_install_along(
         &mut self,
         disk_size: f64,
@@ -410,6 +396,7 @@ impl Partition {
         self.suggested_partitions = Some(vec![athena, other_os]);
     }
 }
+
 fn disk_percentage_usage(kname: String) -> String {
     let cmd = format!("df | grep '{}' | awk '{{print $5}}'", kname);
     let out = std::process::Command::new("sh")
@@ -435,36 +422,6 @@ fn sum_percentages(input: &str) -> String {
     }
 }
 
-#[allow(dead_code)]
-fn remove_partition(partition: &str) -> Result<(), String> {
-    // Ensure the partition string is in the correct format
-    let partition = if partition.starts_with("/dev/") {
-        partition.to_string()
-    } else {
-        format!("/dev/{}", partition)
-    };
-
-    // Execute the `parted` command to remove the partition
-    // Note: This assumes the partition is always on /dev/sda and might need adjustment for other disks
-    let output = Command::new("sudo")
-        .arg("parted")
-        .arg("--script") // Avoids interactive prompts
-        .arg(partition.rsplitn(2, '/').last().unwrap_or("")) // Gets the disk device, like `sda` from `/dev/sda1`
-        .arg("rm")
-        .arg(partition.rsplitn(2, '/').next().unwrap_or("")) // Gets the partition number, like `1` from `sda1`
-        .output();
-
-    match output {
-        Ok(output) => {
-            if !output.status.success() {
-                Err(String::from_utf8_lossy(&output.stderr).to_string())
-            } else {
-                Ok(())
-            }
-        }
-        Err(e) => Err(e.to_string()),
-    }
-}
 
 pub fn get_partitions(disk_name: &str) -> Result<Vec<Partition>, Box<dyn std::error::Error>> {
     let output = Command::new("lsblk").arg("-J").arg("-O").output()?;
@@ -519,7 +476,8 @@ impl Default for SuggestedPartition {
         }
     }
 }
-#[allow(dead_code)]
+
+
 pub fn partition_install_along(
     parts: Vec<SuggestedPartition>,
     device: Device,
@@ -671,13 +629,6 @@ pub fn create_partition(
     end: &str,
 ) -> Result<bool, std::io::Error> {
     let base_device = extract_base_device(device);
-    log::info!(
-        "creating partition for device: {} fs_type: {} start: {} end: {}",
-        base_device,
-        fs_type,
-        start,
-        end
-    );
     let status = Command::new("sudo")
         .arg("parted")
         .arg(&base_device)
@@ -695,11 +646,6 @@ pub fn create_partition(
 }
 
 pub fn delete_partition(device: &str, number: i32) -> Result<bool, std::io::Error> {
-    log::info!(
-        "Deleting partition number: {} from device: {}",
-        number,
-        device
-    );
     let output: Result<std::process::Output, std::io::Error> = Command::new("sudo")
         .arg("parted")
         .arg(&device)
@@ -724,17 +670,7 @@ pub fn delete_partition(device: &str, number: i32) -> Result<bool, std::io::Erro
         }
     }
 }
-#[allow(dead_code)]
-fn run_partprobe(device: &str) {
-    // Attempt to run the partprobe command with sudo
-    let _ = Command::new("sudo")
-        .arg("partprobe")
-        .arg(device)
-        .status()
-        // Ignore the result, whether it's an error or Ok
-        .map_err(|e| eprintln!("Failed to execute partprobe: {}", e))
-        .ok();
-}
+
 
 struct PartProbeGuard<'a> {
     device: &'a str,
@@ -782,9 +718,7 @@ pub fn extract_base_device(path: &str) -> String {
 }
 
 // gets partition's used space
-#[allow(unused)]
 struct DiskUsage {
-    available: f64,
     used: f64,
 }
 
@@ -803,14 +737,14 @@ fn get_disk_usage(partition: &str) -> Option<DiskUsage> {
         let fields: Vec<&str> = line.split_whitespace().collect();
         if fields.len() >= 4 {
             // Parse the available and used space (in 1K-blocks) to f64
-            if let (Ok(available_blocks), Ok(used_blocks)) =
+            if let (Ok(_), Ok(used_blocks)) =
                 (fields[3].parse::<f64>(), fields[2].parse::<f64>())
             {
                 // Convert blocks to bytes (1K-blocks * 1024)
-                let available_bytes = available_blocks;
+                
                 let used_bytes = used_blocks;
                 return Some(DiskUsage {
-                    available: available_bytes,
+                   
                     used: used_bytes,
                 });
             }

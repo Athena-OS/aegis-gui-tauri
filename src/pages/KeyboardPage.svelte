@@ -7,7 +7,7 @@
   import langIcon from "../assets/icons/lang-icon.svg";
   import keyboard from "../assets/keyboard.svg";
   import keyboardIcon from "../assets/icons/keyboard-icon.svg";
-  import { invoke } from "@tauri-apps/api";
+  import { invoke } from "@tauri-apps/api/core";
   import ComboBox from "../lib/components/ComboBox.svelte";
   let keymapList: any[] = [];
   let timezoneList: any[] = [];
