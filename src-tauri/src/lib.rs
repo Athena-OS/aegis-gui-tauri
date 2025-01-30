@@ -6,9 +6,10 @@ use app::commands::*;
 use async_std::task;
 use tauri::Manager;
 use tauri::{
-    menu::{MenuBuilder, MenuItemBuilder},
-    tray::{ClickType, TrayIconBuilder},
+    menu::{Menu, MenuItem},
+    tray::{TrayIconEvent, TrayIconBuilder, MouseButton, MouseButtonState},
 };
+use tauri_plugin_fs::FsExt;
 async fn p() {
     let mut gs = partition::gs::GlobalStorage::new();
     gs.probe();
@@ -22,8 +23,10 @@ pub fn run() {
     let appp = tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
-            let toggle = MenuItemBuilder::with_id("toggle", "Toggle").build(app)?;
-            let menu = MenuBuilder::new(app).items(&[&toggle]).build()?;
+            let scope = app.fs_scope();
+            let _ = scope.allow_file("/tmp/aegis.log");
+            let toggle = MenuItem::with_id(app, "toggle", "Toggle", true, None::<&str>)?;
+            let menu = Menu::with_items(app, &[&toggle])?;
             let _ = TrayIconBuilder::new()
                 .menu(&menu)
                 .on_menu_event(move |_app, event| match event.id().as_ref() {
@@ -32,15 +35,24 @@ pub fn run() {
                     }
                     _ => (),
                 })
-                .on_tray_icon_event(|tray, event| {
-                    if event.click_type == ClickType::Left {
-                        let app = tray.app_handle();
-                        if let Some(webview_window) = app.get_webview_window("main") {
-                            let _ = webview_window.show();
-                            let _ = webview_window.set_focus();
-                        }
+                .on_tray_icon_event(|tray, event| match event {
+                    TrayIconEvent::Click {
+                      button: MouseButton::Left,
+                      button_state: MouseButtonState::Up,
+                      ..
+                    } => {
+                      
+                      // in this example, let's show and focus the main window when the tray is clicked
+                      let app = tray.app_handle();
+                      if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                      }
                     }
-                })
+                    _ => {
+                      println!("unhandled event {event:?}");
+                    }
+                  })
                 .build(app)?;
 
             Ok(())

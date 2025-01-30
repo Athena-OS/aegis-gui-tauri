@@ -6,7 +6,7 @@
     "main"
   ],
   "permissions": [
-    "event:allow-listen",
+    "core:event:allow-listen",
     "fs:allow-app-read", 
     "fs:allow-app-read-recursive", 
     "fs:allow-appcache-read", 
@@ -61,6 +61,6 @@
     "fs:default", 
     "fs:read-all", 
     "fs:read-files",
-    "window:allow-close"
+    "core:window:allow-close"
   ]
 }
