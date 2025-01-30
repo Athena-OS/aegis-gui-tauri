@@ -1,9 +1,8 @@
 // global App is a global variable that stores the app for sending events
 use crate::{app, partition};
-use log::*;
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter};
 pub static GLOBAL_APP_HANDLE: Lazy<Mutex<Option<AppHandle>>> = Lazy::new(|| Mutex::new(None));
 
 pub fn set_global_app_handle(app_handle: AppHandle) {
@@ -11,7 +10,7 @@ pub fn set_global_app_handle(app_handle: AppHandle) {
         Ok(mut handle_lock) => {
             *handle_lock = Some(app_handle);
         }
-        Err(e) => error!("Unable to acquire lock with error:{}", e),
+        Err(_) => {},
     }
 }
 
@@ -22,7 +21,7 @@ pub fn emit_global_event(event: &str, payload: &str) {
         Ok(handle_lock) => {
             if let Some(app_handle) = handle_lock.as_ref() {
                 // Attempt to emit the event, handling any potential error
-                let _ = app_handle.emit_all(event, payload);
+                let _ = app_handle.emit(event, payload);
             }
         }
         Err(e) => {
@@ -65,7 +64,7 @@ pub fn update_progress() {
             let progress = ((global_store.progress + 1) as f64 / TOTAL_ITEMS as f64) * 100.0;
             emit_global_event("percentage", &progress.to_string())
         }
-        Err(e) => error!("Failed to acquire lock of global store. error:{}", e),
+        Err(_) => {},
     }
 }
 
@@ -75,7 +74,7 @@ pub fn update_config(config: app::config::Config) {
         Ok(mut global_store) => {
             global_store.config = config;
         }
-        Err(e) => error!("Failed to acquire lock of global store. error:{}", e),
+        Err(_e) => {}
     }
 }
 
@@ -85,7 +84,7 @@ pub fn update_global_storage(gs: partition::gs::GlobalStorage) {
         Ok(mut global_store) => {
             global_store.gs = gs;
         }
-        Err(e) => error!("Failed to acquire lock of global store. error:{}", e),
+        Err(_) => {},
     }
 }
 
@@ -93,7 +92,6 @@ pub fn get_global_storage() -> Result<partition::gs::GlobalStorage, Box<dyn std:
     match GLOBAL_STORE.lock() {
         Ok(global_store) => Ok(global_store.gs.clone()),
         Err(e) => {
-            error!("Failed to acquire lock of global store. error:{}", e);
             Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!("Failed to acquire lock of global store. error:{}", e),
@@ -106,7 +104,6 @@ pub fn get_config() -> Result<app::config::Config, Box<dyn std::error::Error>> {
     match GLOBAL_STORE.lock() {
         Ok(global_store) => Ok(global_store.config.clone()),
         Err(e) => {
-            error!("Failed to acquire lock of global store. error:{}", e);
             Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!("Failed to acquire lock of global store. error:{}", e),

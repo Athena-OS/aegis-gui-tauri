@@ -31,8 +31,10 @@
   },
   "dependencies": {
     "@splidejs/svelte-splide": "^0.2.9",
-    "@tauri-apps/api": "^1.5.1",
+    "@tauri-apps/api": ">=2.0.0-beta.0",
     "@tauri-apps/plugin-autostart": "^2.0.0-beta.1",
+    "@tauri-apps/plugin-fs": "^2.0.0-beta.3",
+    "@tauri-apps/plugin-shell": "^2.0.0-beta.4",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
     "svelte-headlessui": "^0.0.26",
@@ -43,5 +45,6 @@
   "main": "index.html",
   "repository": "https://github.com/Athena-OS/aegis-gui-tauri",
   "author": "Athena OS team",
-  "license": "GNU"
+  "license": "GNU",
+  "packageManager": "yarn@4.3.1+sha512.af78262d7d125afbfeed740602ace8c5e4405cd7f4735c08feb327286b2fdb2390fbca01589bfd1f50b1240548b74806767f5a063c94b67e431aabd0d86f7774"
 }

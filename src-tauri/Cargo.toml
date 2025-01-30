@@ -7,38 +7,31 @@ license = ""
 repository = ""
 default-run = "aegis-gui-tauri"
 edition = "2021"
-rust-version = "1.60"
+rust-version = "1.84"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "aegis_gui_tauri_lib"
+crate-type = ["staticlib", "cdylib", "lib"]
 
 [build-dependencies]
-tauri-build = { version = "1.4.1", features = [] }
-#tauri-build = "=2.0.0-beta.6"
+tauri-build = { version = "2.0.5", features = [] }
+
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.6.1", features = [ "system-tray", "api-all", "icon-ico", "icon-png"] }
+tauri = { version = "2.2.5", features = ["tray-icon", "image-ico", "image-png", "compression"] }
+tauri-plugin-shell = "2.2.0"
 regex = "1.10.3"
-tauri-plugin-system-info = "0.2.0"
-#aegis_arch = { git = "https://github.com/mwaurawakati/aegis.git", branch = "main", package = "aegis-arch" }
-#aegis_nix = { git = "https://github.com/mwaurawakati/aegis.git", branch = "main", package = "aegis-nix" }
-#shared= { git = "https://github.com/mwaurawakati/aegis.git", branch = "main", package = "shared" }
-# udev = "0.8.0"
 lazy_static = "1.4.0"
-tracing = "0.1.40"
-tracing-core = "0.1.32"
-tracing-subscriber = "0.3.18"
-tracing-appender = "0.2.3"
-chrono = "0.4.34"
 once_cell = "1.19.0"
-log = "0.4.21"
-athena-aegis = "0.1.2"
 async-std = "1.12.0"
-flexi_logger = "0.28.0"
 tokio = { version = "1.29.1", features = ["full"] }
+tauri-plugin-dialog = "2.0.3"
+tauri-plugin-fs = "2.0.3"
 
-[features]
-# this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
-# If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.
-# DO NOT REMOVE!!
-custom-protocol = [ "tauri/custom-protocol" ]
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 'z'
+strip=true
+incremental=true

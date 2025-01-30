@@ -11,9 +11,7 @@ pub enum Action {
     InstallAlong,
     Install,
 }
-#[allow(dead_code)]
-pub static MINIMUM_SIZE: &str = "20G";
 
-/*impl std::marker::Copy for std::option::Option<Vec<Action>> {
+pub static MINIMUM_SIZE: &str = "50G";
 
-}*/
+
